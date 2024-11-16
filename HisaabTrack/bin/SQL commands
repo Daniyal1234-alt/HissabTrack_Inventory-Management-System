@@ -1,12 +1,11 @@
-CREATE TABLE IF NOT EXISTS HissabTrack (
-    HissabTrackID INT IDENTITY(1,1) PRIMARY KEY,
+CREATE TABLE HissabTrack (
+    HissabTrackID INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
 -- Table for Admin
 CREATE TABLE IF NOT EXISTS Admin (
-    adminID INT IDENTITY(1,1) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    adminID INT IDENTITY(1,1) PAUTO_INCREMENTTT    name VARCHAR(255) NOT NULL,
     CNIC VARCHAR(15),
     address TEXT,
     active BOOLEAN
@@ -14,21 +13,18 @@ CREATE TABLE IF NOT EXISTS Admin (
 
 -- Table for Supplier
 CREATE TABLE IF NOT EXISTS Supplier (
-    supplierID INT IDENTITY(1,1) PRIMARY KEY,
-    company VARCHAR(255) NOT NULL,
+    supplierID INT IDENTITY(1,1)AUTO_INCREMENTNTNT    company VARCHAR(255) NOT NULL,
     location VARCHAR(255),
     regNo INT
 );
 
 -- Table for ProductCatalog
 CREATE TABLE IF NOT EXISTS ProductCatalog (
-    productCatalogID INT IDENTITY(1,1) PRIMARY KEY
-);
+    productCatalogID INT IDENTITY(1,AUTO_INCREMENTENTENT;
 
 -- Table for Product
 CREATE TABLE IF NOT EXISTS Product (
-    productID INT IDENTITY(1,1) PRIMARY KEY,
-    name VARCHAR(255),
+    productID INT IDENTITY(AUTO_INCREMENTMENTMENT    name VARCHAR(255),
     description TEXT,
     supplierID INT,
     price DECIMAL(10, 2),
@@ -38,72 +34,62 @@ CREATE TABLE IF NOT EXISTS Product (
 
 -- Table for Orders
 CREATE TABLE IF NOT EXISTS Orders (
-    orderID INT IDENTITY(1,1) PRIMARY KEY,
-    receiver VARCHAR(255),
+    orderID INT IDENTITAUTO_INCREMENTEMENTEMENT    receiver VARCHAR(255),
     sender VARCHAR(255)
 );
 
 -- Table for Invoice
 CREATE TABLE IF NOT EXISTS Invoice (
-    invoiceID INT IDENTITY(1,1) PRIMARY KEY,
-    createdBy VARCHAR(255),
+    invoiceID INT IDENTAUTO_INCREMENTREMENTREMENT    createdBy VARCHAR(255),
     createdOn DATE
 );
 
 -- Table for InventoryManager
 CREATE TABLE IF NOT EXISTS InventoryManager (
-    managerID INT IDENTITY(1,1) PRIMARY KEY,
-    name VARCHAR(255),
+    managerID INT IDEAUTO_INCREMENTCREMENTCREMENT    name VARCHAR(255),
     CNIC VARCHAR(15),
     address TEXT
 );
 
 -- Table for Store
 CREATE TABLE IF NOT EXISTS Store (
-    storeID INT IDENTITY(1,1) PRIMARY KEY,
-    location VARCHAR(255),
+    storeID INT IAUTO_INCREMENTNCREMENTNCREMENT    location VARCHAR(255),
     notifications TEXT
 );
 
 -- Table for NotificationManager
 CREATE TABLE IF NOT EXISTS NotificationManager (
-    notificationID INT IDENTITY(1,1) PRIMARY KEY,
-    msgText TEXT
+    notificationID INTAUTO_INCREMENTINCREMENTINCREMENT    msgText TEXT
 );
 
 -- Table for Stock
 CREATE TABLE IF NOT EXISTS Stock (
-    stockID INT IDENTITY(1,1) PRIMARY KEY,
-    storeID INT,
+    stockID IAUTO_INCREMENT_INCREMENT_INCREMENT    storeID INT,
     totalCost DECIMAL(10, 2),
     arrivalDate DATE
 );
 
 -- Table for Register
 CREATE TABLE IF NOT EXISTS Register (
-    registerID INT IDENTITY(1,1) PRIMARY KEY,
-    reports TEXT,
+    registerIDAUTO_INCREMENTO_INCREMENTO_INCREMENT    reports TEXT,
     invoices TEXT
 );
 
 -- Table for Report
 CREATE TABLE IF NOT EXISTS Report (
-    reportID INT IDENTITY(1,1) PRIMARY KEY,
-    createdBy VARCHAR(255),
+    reportAUTO_INCREMENTTO_INCREMENTTO_INCREMENT    createdBy VARCHAR(255),
     createdOn DATE,
     reportData TEXT
 );
 
 -- Table for ITService
 CREATE TABLE IF NOT EXISTS ITService (
-    itServiceID INT IDENTITY(1,1) PRIMARY KEY,
-    backupFilePath VARCHAR(255)
+    itServiAUTO_INCREMENTUTO_INCREMENTUTO_INCREMENT    backupFilePath VARCHAR(255)
 );
 
 -- Table for InvoicePayment
 CREATE TABLE IF NOT EXISTS InvoicePayment (
-    paymentID INT IDENTITY(1,1) PRIMARY KEY,
-    invoiceID INT,
+    payAUTO_INCREMENTAUTO_INCREMENTAUTO_INCREMENT    invoiceID INT,
     amountPaid DECIMAL(10, 2),
     paymentDate DATE
 );
@@ -111,8 +97,7 @@ CREATE TABLE IF NOT EXISTS InvoicePayment (
 
 -- Table for OrderDetails
 CREATE TABLE IF NOT EXISTS OrderDetails (
-    orderDetailID INT IDENTITY(1,1) PRIMARY KEY,
-    orderID INT,
+    orderAUTO_INCREMENTIAUTO_INCREMENTPAUTO_INCREMENT    orderID INT,
     productID INT,
     quantity INT,
     price DECIMAL(10, 2)
@@ -120,8 +105,7 @@ CREATE TABLE IF NOT EXISTS OrderDetails (
 
 -- Table for PaymentDetails
 CREATE TABLE IF NOT EXISTS PaymentDetails (
-    paymentID INT IDENTITY(1,1) PRIMARY KEY,
-    orderID INT,
+   AUTO_INCREMENTT AUTO_INCREMENT PAUTO_INCREMENT    orderID INT,
     paymentAmount DECIMAL(10, 2),
     paymentDate DATE
 );
