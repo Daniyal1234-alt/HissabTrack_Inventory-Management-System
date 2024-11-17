@@ -8,8 +8,12 @@ public class InventoryManager {
     private Register register;
 
     // Constructor
-    public InventoryManager() {}
-
+    public InventoryManager(int managerID, String name, String CNIC, String address) {
+        this.managerID = managerID;
+        this.name = name;
+        this.CNIC = CNIC;
+        this.address = address;
+    }
     // Method Signatures
     public boolean addStock(Store s) {
         return false; // Placeholder for implementation

@@ -9,9 +9,6 @@ public class ProductCatalog {
     public ProductCatalog() {}
 
     // Method Signatures
-    public List<Product> getProducts() {
-        return product;
-    }
 
     public void addProduct(Product p) {
         // Placeholder for implementation

@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Invoice {
@@ -7,15 +8,28 @@ public class Invoice {
     private String createdBy;
     private Date createdOn;
     private List<Product> products;
+    private List<Integer> amount;
+    private boolean deliveryStatus;
+    private boolean paymentStatus;
 
     // Constructor
-    public Invoice() {}
+    public Invoice() {
+        products = new ArrayList<>();
+        amount = new ArrayList<>();
+        deliveryStatus = false;
+        paymentStatus = false;
+        createdOn = new Date();
+    }
 
     // Method Signatures
     public Invoice generateInvoice(List<Product> P) {
         return null; // Placeholder for implementation
     }
 
+    public List<Integer> getAmount() {
+        return amount;
+    }
+    
     public int getInvoiceID() {
         return invoiceID;
     }
@@ -46,5 +60,21 @@ public class Invoice {
 
     public void setProducts(List<Product> products) {
         this.products = products;
+    }
+
+    public boolean isDelivered() {
+        return deliveryStatus;
+    }
+
+    public void setDeliveryStatus(boolean deliveryStatus) {
+        this.deliveryStatus = deliveryStatus;
+    }
+
+    public boolean isPaidFor() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(boolean paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }
