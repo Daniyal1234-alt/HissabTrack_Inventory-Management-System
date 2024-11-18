@@ -11,14 +11,23 @@ public class Invoice {
     private List<Integer> amount;
     private boolean deliveryStatus;
     private boolean paymentStatus;
+    private String creatorType;
+    public String getCreatorType() {
+		return creatorType;
+	}
 
-    // Constructor
+	public void setCreatorType(String creatorType) {
+		this.creatorType = creatorType;
+	}
+
+	// Constructor
     public Invoice() {
         products = new ArrayList<>();
         amount = new ArrayList<>();
         deliveryStatus = false;
         paymentStatus = false;
         createdOn = new Date();
+        creatorType = "\0";
     }
 
     // Method Signatures

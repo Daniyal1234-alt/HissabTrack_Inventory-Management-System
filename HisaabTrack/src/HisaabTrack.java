@@ -1,6 +1,9 @@
+import java.nio.channels.IllegalBlockingModeException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import com.mysql.cj.QueryReturnType;
 
 public class HisaabTrack {
     // Attributes
@@ -9,6 +12,7 @@ public class HisaabTrack {
     private List<InventoryManager> managers;
     private List<Store> stores;
     private ITService IT;
+    private SQLDBHandler DB;
 
     // Constructor
     public HisaabTrack() {
@@ -17,6 +21,7 @@ public class HisaabTrack {
         managers = new ArrayList<>();
         stores = new ArrayList<>();
         IT = new ITService();
+        DB = new SQLDBHandler();
     }
 
     public boolean login(Scanner inputScanner) {
@@ -38,6 +43,7 @@ public class HisaabTrack {
         }
         suppliers.add(e);
         //add new supplier to db
+        DB.addSupplier(e);
     }
     public void removeSupplier(int adminID, int supplierID) {
         boolean flag = false;
@@ -47,6 +53,7 @@ public class HisaabTrack {
                 if (flag) {
                     //UI displays successful removal
                     //update DB
+                	DB.removeSupplier(supplierID);
                 } else {
                     //not removed
                 }
@@ -62,6 +69,7 @@ public class HisaabTrack {
                 if (flag) {
                     //UI displays successful update
                     //Update DB
+                	DB.updateSupplier();
                 } else {
                     //not removed
                 }
@@ -76,6 +84,7 @@ public class HisaabTrack {
         Admin newAdmin = new Admin(adminID, Name, cnic, Address);
         // Add the new admin to the list
         admins.add(newAdmin);
+        DB.addAdmin(newAdmin);
         return newAdmin;
     }
     
@@ -91,7 +100,21 @@ public class HisaabTrack {
         }
         managers.add(e);
         //add new manager to db
+        DB.addInventoryManager(e);
     }
+    public String findManagerByID(int ID) {
+        // Loop through the list of managers
+        for (InventoryManager manager : managers) {
+            // Check if the manager's ID matches the provided ID
+            if (manager.getManagerID() == ID) {
+                // Return the manager object if a match is found
+                return manager.getCNIC();
+            }
+        }
+        // Return null if no manager with the given ID is found
+        return null;
+    }
+
     public void removeManager(int adminID, int managerID) {
         boolean flag = false;
         for(int i = 0; i < admins.size(); ++i) {
@@ -100,6 +123,8 @@ public class HisaabTrack {
                 if (flag) {
                     //UI displays successful removal
                     //update DB
+                	DB.removeInventoryManager(findManagerByID(managerID));
+                	
                 } else {
                     //not removed
                 }
@@ -115,6 +140,8 @@ public class HisaabTrack {
                 if (flag) {
                     //UI displays successful update
                     //Update DB
+                	DB.updateInventoryManager();
+                	
                 } else {
                     //not removed
                 }

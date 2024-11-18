@@ -1,0 +1,151 @@
+CREATE DATABASE IF NOT EXISTS HissabTrack;
+
+-- ADMIN TABLE
+CREATE TABLE IF NOT EXISTS Admin (
+    adminID INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    CNIC VARCHAR(255) UNIQUE,
+    address VARCHAR(255),
+    active BOOLEAN
+);
+
+-- INVENTORY MANAGER TABLE
+CREATE TABLE IF NOT EXISTS InventoryManager (
+    managerID INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    CNIC VARCHAR(255) UNIQUE,
+    address VARCHAR(255),
+    storeID INT UNIQUE
+);
+
+-- STORE TABLE
+CREATE TABLE IF NOT EXISTS Store (
+    storeID INT AUTO_INCREMENT PRIMARY KEY,
+    location VARCHAR(255)
+);
+
+-- SUPPLIER TABLE
+CREATE TABLE IF NOT EXISTS Supplier (
+    supplierID INT AUTO_INCREMENT PRIMARY KEY,
+    companyName VARCHAR(255),
+    location VARCHAR(255),
+    registrationNum INT UNIQUE
+);
+
+-- INVOICE TABLE
+CREATE TABLE IF NOT EXISTS Invoice (
+    invoiceID INT AUTO_INCREMENT PRIMARY KEY,
+    createdByID INT,
+    createdOn DATE,
+    userType VARCHAR(255),
+    paid BOOLEAN, 
+    deliverd BOOLEAN
+);
+
+-- REPORT TABLE
+CREATE TABLE IF NOT EXISTS Report (
+    reportID INT AUTO_INCREMENT PRIMARY KEY,
+    createdByID INT,
+    createdOn DATE,
+    userType VARCHAR(255)
+);
+
+-- PRODUCT TABLE 
+CREATE TABLE IF NOT EXISTS Product (
+    productID INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    description VARCHAR(255),
+    supplierID INT,
+    price DOUBLE,
+    MFG DATE,
+    EXP DATE
+);
+
+-- STOCK TABLE
+CREATE TABLE IF NOT EXISTS Stock (
+    stockID INT AUTO_INCREMENT PRIMARY KEY,
+    productID INT,
+    storeID INT, 
+    quantity INT,
+    totalCost DOUBLE,
+    arrivalDate DATE
+);
+
+-- PRODUCT CATALOG TABLE
+CREATE TABLE IF NOT EXISTS ProductCatalog (
+    productCatalogID INT AUTO_INCREMENT PRIMARY KEY,
+    supplierID INT
+);
+
+-- ADMIN-INVENTORY MANAGER RELATION TABLE
+CREATE TABLE IF NOT EXISTS AdminInventoryManager (
+    adminID INT,
+    inventoryManagerID INT
+);
+
+-- ADMIN-UNPAID INVOICES TABLE
+CREATE TABLE IF NOT EXISTS AdminUnpaidInvoices (
+    adminID INT,
+    invoiceID INT
+);
+
+-- STORE-STOCK RELATION TABLE
+CREATE TABLE IF NOT EXISTS StoreStock (
+    storeID INT,
+    stockID INT
+);
+
+-- PRODUCT CATALOG-PRODUCTS TABLE
+CREATE TABLE IF NOT EXISTS ProductCatalogProducts (
+    catalogID INT,
+    productID INT
+);
+
+-- SUPPLIER-CATALOG RELATION TABLE
+CREATE TABLE IF NOT EXISTS SupplierCatalog (
+    supplierID INT,
+    catalogID INT
+);
+
+-- SUPPLIER-PENDING ORDERS TABLE
+CREATE TABLE IF NOT EXISTS SupplierPendingOrders (
+    supplierID INT,
+    invoiceID INT
+);
+-- ALTER TABLE TO ADD FOREIGN KEYS
+ALTER TABLE InventoryManager
+ADD FOREIGN KEY (storeID) REFERENCES Store(storeID) ON DELETE SET NULL;
+
+ALTER TABLE Product
+ADD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID) ON DELETE CASCADE;
+
+ALTER TABLE Stock
+ADD FOREIGN KEY (productID) REFERENCES Product(productID) ON DELETE CASCADE,
+ADD FOREIGN KEY (storeID) REFERENCES Store(storeID) ON DELETE CASCADE;
+
+ALTER TABLE ProductCatalog
+ADD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID) ON DELETE CASCADE;
+
+ALTER TABLE AdminInventoryManager
+ADD FOREIGN KEY (adminID) REFERENCES Admin(adminID) ON DELETE CASCADE,
+ADD FOREIGN KEY (inventoryManagerID) REFERENCES InventoryManager(managerID) ON DELETE CASCADE;
+
+ALTER TABLE AdminUnpaidInvoices
+ADD FOREIGN KEY (adminID) REFERENCES Admin(adminID) ON DELETE CASCADE,
+ADD FOREIGN KEY (invoiceID) REFERENCES Invoice(invoiceID) ON DELETE CASCADE;
+
+ALTER TABLE StoreStock
+ADD FOREIGN KEY (storeID) REFERENCES Store(storeID) ON DELETE CASCADE,
+ADD FOREIGN KEY (stockID) REFERENCES Stock(stockID) ON DELETE CASCADE;
+
+ALTER TABLE ProductCatalogProducts
+ADD FOREIGN KEY (catalogID) REFERENCES ProductCatalog(productCatalogID) ON DELETE CASCADE,
+ADD FOREIGN KEY (productID) REFERENCES Product(productID) ON DELETE CASCADE;
+
+ALTER TABLE SupplierCatalog
+ADD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID) ON DELETE CASCADE,
+ADD FOREIGN KEY (catalogID) REFERENCES ProductCatalog(productCatalogID) ON DELETE CASCADE;
+
+ALTER TABLE SupplierPendingOrders
+ADD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID) ON DELETE CASCADE,
+ADD FOREIGN KEY (invoiceID) REFERENCES Invoice(invoiceID) ON DELETE CASCADE;
