@@ -5,7 +5,7 @@ import java.util.Date;
 public class Invoice {
     // Attributes
     private int invoiceID;
-    private String createdBy;
+    private int createdBy; //inventory manager ID
     private Date createdOn;
     private List<Product> products;
     private List<Integer> amount;
@@ -38,11 +38,11 @@ public class Invoice {
         this.invoiceID = invoiceID;
     }
 
-    public String getCreatedBy() {
+    public int getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
+    public void setCreatedBy(int createdBy) {
         this.createdBy = createdBy;
     }
 

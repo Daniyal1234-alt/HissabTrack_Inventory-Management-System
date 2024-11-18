@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.List;
 
 public class Factory {
     //system
@@ -26,7 +27,9 @@ public class Factory {
             inputScanner.nextLine();
 
             if(choice1==2) {
-                admin = system.addAdmin(inputScanner);
+                String Name = "", cnic = "", Address = "";
+                //Gte details for UI form
+                admin = system.addAdmin(Name, cnic, Address);
             }
         }
 
@@ -58,21 +61,38 @@ public class Factory {
                     inputScanner.nextLine(); 
                     
                     if (choice1 == 1) {
-                        system.addManager(adminID, inputScanner); 
+                        String Name = "", cnic = "", Address = "";
+                        //Use UI to get info
+                        List<Store> storeList = system.getStores();
+                        Store s = null;
+                        //Display and select store for manager
+                        system.addManager(adminID, Name, cnic, Address, s); 
                     } else if (choice1 == 2) {
-                        system.removeManager(adminID, inputScanner);
+                        List<InventoryManager> managerList = admin.getMyManagers();
+                        int managerID = 0;
+                        //Display and select manager to remove
+                        system.removeManager(adminID, managerID);
                     } else if (choice1 == 3) {
-                        system.updateManager(adminID, inputScanner); 
+                        List<InventoryManager> managerList = admin.getMyManagers();
+                        int managerID=0; String Name = "", cnic = "", Address = "";
+                        system.updateManager(adminID, managerID, Name, cnic, Address); 
                     } else if (choice1 == 4) {
-                        system.addSupplier(adminID, inputScanner);
+                        String company = "", location = ""; int regNo = 0;
+                        //use UI to get info
+                        system.addSupplier(adminID, company, location, regNo);
                     } else if (choice1 == 5) {
-                        system.removeSupplier(adminID, inputScanner);
+                        List<Supplier> supplierList = system.getSuppliers();
+                        int supplierID = 0;
+                        system.removeSupplier(adminID, supplierID);
                     } else if (choice1 == 6) {
-                        system.updateSupplier(adminID, inputScanner);
+                        List<Supplier> supplierList = system.getSuppliers();
+                        int supplierID = 0;
+                        String company = "", location = ""; int regNo = -1;
+                        system.updateSupplier(adminID, supplierID, company, location, regNo);
                     } else if (choice1 == 7) {
-                        system.generateReport(); //requires implementation
+                        // system.generateReport(); //requires implementation
                     } else if (choice1 == 8) {
-                        admin.updateProfile(); //requires implementation
+                        // admin.updateProfile(); //requires implementation
                     } else {
                         System.out.println("Invalid option. Please select a valid option (1-9).");
                     }
@@ -83,10 +103,19 @@ public class Factory {
                     //load admin details from DB
 
                     System.out.println("HisaabTrack Supplier");
-                    System.out.println("\t1- View Pending Orders\n\t2- Send Order\n\t3- Request Payment");
+                    System.out.println("\t1- Send Order\n\t2- Request Payment");
                     System.err.println("Select an option: ");
                     choice1 = inputScanner.nextInt();
                     inputScanner.nextLine(); 
+
+                    if(choice1==1) {
+                        
+                    } else if (choice1 == 2) {
+
+                    } else {
+                        //invalid choice
+                    }
+
                     break;
                 case 3:
                     break;

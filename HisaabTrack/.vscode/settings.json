@@ -1,7 +1,16 @@
 {
-    "java.project.sourcePaths": ["src"],
+    "java.project.sourcePaths": [
+        "src"
+    ],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
-        "lib/**/*.jar"
+        "d:\\Sem 5 (FALL 24)\\SDA\\SDA-Final-Project\\HisaabTrack\\lib\\javafx.base.jar",
+        "d:\\Sem 5 (FALL 24)\\SDA\\SDA-Final-Project\\HisaabTrack\\lib\\javafx.controls.jar",
+        "d:\\Sem 5 (FALL 24)\\SDA\\SDA-Final-Project\\HisaabTrack\\lib\\javafx.graphics.jar",
+        "d:\\Sem 5 (FALL 24)\\SDA\\SDA-Final-Project\\HisaabTrack\\lib\\javafx-swt.jar",
+        "d:\\Sem 5 (FALL 24)\\SDA\\SDA-Final-Project\\HisaabTrack\\lib\\javafx.media.jar",
+        "d:\\Sem 5 (FALL 24)\\SDA\\SDA-Final-Project\\HisaabTrack\\lib\\javafx.swing.jar",
+        "d:\\Sem 5 (FALL 24)\\SDA\\SDA-Final-Project\\HisaabTrack\\lib\\javafx.fxml.jar",
+        "d:\\Sem 5 (FALL 24)\\SDA\\SDA-Final-Project\\HisaabTrack\\lib\\javafx.web.jar"
     ]
 }

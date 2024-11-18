@@ -59,186 +59,37 @@ public class Admin {
     
 
     // Method Signatures
-    public InventoryManager addInventoryManager(int mID, Store s, Scanner inputScanner) {
-        try {
-            int managerID = mID;
-    
-            System.out.print("Enter Manager Name: ");
-            String _name = inputScanner.nextLine();
-    
-            System.out.print("Enter CNIC: ");
-            String _CNIC = inputScanner.nextLine();
-    
-            System.out.print("Enter Address: ");
-            String _address = inputScanner.nextLine();
-    
-            InventoryManager newManager = new InventoryManager(managerID, _name, _CNIC, _address);
-            newManager.setManagingStore(s);
-            System.out.println("Inventory Manager added successfully for Store ID: " + s.getStoreID() + " at " + s.getLocation());
-            
-            myManagers.add(newManager);
-
-            return newManager; 
-    
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter the correct data types.");
-            inputScanner.nextLine(); 
-        }
-    
-        return null; 
+    public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address, Store s) {
+        InventoryManager Manager = new InventoryManager(mID, Name, cnic, Address);
+        Manager.setManagingStore(s);            
+        myManagers.add(Manager);
+        return Manager; 
     }
     
 
-    public boolean removeInventoryManager(Scanner inputScanner) {
-        displayManagers();
-        System.out.print("Enter your choice (1-" + myManagers.size() + "): ");
-        
-        try {
-            int choice = inputScanner.nextInt();
-            inputScanner.nextLine(); 
-    
-            if (choice < 1 || choice > myManagers.size()) {
-                System.out.println("Invalid selection. Please enter a valid number.");
-            }
-    
-            InventoryManager selectedManager = myManagers.get(choice - 1);
-            System.out.println("Selected Manager: " + selectedManager.getName() + 
-                               " (ID: " + selectedManager.getManagerID() + ") Store Location: " + selectedManager.getManagingStore().getLocation());
-            System.out.println("Confirm Removal? (y/n)");
-            String option = inputScanner.nextLine();
-            if(option == "y" || option =="Y") {
-                myManagers.remove(choice - 1);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter a number.");
-            inputScanner.nextLine(); 
-        }
+    public boolean removeInventoryManager(int managerID) {
+        // search for this ID in admin's manager list and remove
         return false; // Placeholder for implementation
     }
 
-    public boolean updateInventoryManager(Scanner inputScanner) {
-        displayManagers();
-        System.out.print("Enter your choice (1-" + myManagers.size() + "): ");
-        
-        try {
-            int choice = inputScanner.nextInt();
-            inputScanner.nextLine(); 
-    
-            if (choice < 1 || choice > myManagers.size()) {
-                System.out.println("Invalid selection. Please enter a valid number.");
-            }
-    
-            InventoryManager selectedManager = myManagers.get(choice - 1);
-            System.out.println("Selected Manager: " + selectedManager.getName() + 
-                               " (ID: " + selectedManager.getManagerID() + ") Store Location: " + selectedManager.getManagingStore().getLocation());
-
-            //perform update
-
-            System.out.println("Confirm update? (y/n)");
-            String option = inputScanner.nextLine();
-            if(option == "y" || option =="Y") {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter a number.");
-            inputScanner.nextLine(); 
-        }
+    public boolean updateInventoryManager(int managerID, String Name, String cnic, String Address) {
+        // search for this ID in admin's manager list and update non empty strings
         return false;
     }
 
-    public Supplier addSupplier(int sID, Scanner inputScanner) {
-        try {
-            int supplierID = sID; 
-
-            System.out.print("Enter Supplier Company Name: ");
-            String company = inputScanner.nextLine();
-
-            System.out.print("Enter Location: ");
-            String location = inputScanner.nextLine();
-
-            System.out.print("Enter Registration Number: ");
-            int regNo = inputScanner.nextInt();
-            inputScanner.nextLine(); 
-
-            Supplier newSupplier = new Supplier(supplierID, company, location, regNo);
-            System.out.println("Supplier added successfully!");
-
+    public Supplier addSupplier(int sID, String company, String location, int regNo) {
+            Supplier newSupplier = new Supplier(sID, company, location, regNo);
             return newSupplier; 
-
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter the correct data types.");
-            inputScanner.nextLine(); 
-        }
-
-        return null;
     }
 
-    public boolean removeSupplier(List<Supplier> suppliers, Scanner inputScanner) {
-        displaySuppliers(suppliers, inputScanner);
-        System.out.print("Enter your choice (1-" + suppliers.size() + "): ");
-        
-        try {
-            int choice = inputScanner.nextInt();
-            inputScanner.nextLine(); 
-    
-            if (choice < 1 || choice > suppliers.size()) {
-                System.out.println("Invalid selection. Please enter a valid number.");
-            }
-    
-            Supplier selectedSupplier = suppliers.get(choice - 1);
-            System.out.println("Selected Supplier: " + selectedSupplier.getCompany() + 
-                               " (ID: " + selectedSupplier.getSupplierID() + ")");
-            System.out.println("Confirm Removal? (y/n)");
-            String option = inputScanner.nextLine();
-            if(option == "y" || option =="Y") {
-                suppliers.remove(choice - 1);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter a number.");
-            inputScanner.nextLine(); 
-        }
+    public boolean removeSupplier(int supplierID, List<Supplier> s) {
+        //Search for this ID in system'supplier list and remove
         return false; // Placeholder for implementation
     }
 
-    public boolean updateSupplier(List<Supplier> suppliers, Scanner inputScanner) {
-        displaySuppliers(suppliers, inputScanner);
-        System.out.print("Enter your choice (1-" + suppliers.size() + "): ");
-        
-        try {
-            int choice = inputScanner.nextInt();
-            inputScanner.nextLine(); 
-    
-            if (choice < 1 || choice > suppliers.size()) {
-                System.out.println("Invalid selection. Please enter a valid number.");
-            }
-    
-            Supplier selectedSupplier = suppliers.get(choice - 1);
-            System.out.println("Selected Supplier: " + selectedSupplier.getCompany() + 
-                               " (ID: " + selectedSupplier.getSupplierID() + ")");
-
-            //Update Logic
-
-
-            System.out.println("Confirm Update? (y/n)");
-            String option = inputScanner.nextLine();
-            if(option == "y" || option =="Y") {
-                suppliers.remove(choice - 1);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter a number.");
-            inputScanner.nextLine(); 
-        }
+    public boolean updateSupplier(List<Supplier> s, int supplierID, String company, String location, int regNo) {
+        //if string values non-empty then update
+        //if regNo != -1 then update
         return false; // Placeholder for implementation
     }
 
