@@ -1,9 +1,8 @@
-import java.nio.channels.IllegalBlockingModeException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
-import com.mysql.cj.QueryReturnType;
+//import com.mysql.cj.QueryReturnType;
 
 public class HisaabTrack {
     // Attributes
@@ -24,11 +23,11 @@ public class HisaabTrack {
         DB = new SQLDBHandler();
     }
 
-    public boolean login(Scanner inputScanner) {
+    public boolean login() {
         return true;
     }
 
-    public boolean signUp(Scanner inputScanner) {
+    public boolean signUp() {
         return true;
     }
 
@@ -85,8 +84,6 @@ public class HisaabTrack {
         return newAdmin;
     }
     
-   // public void removeAdmin() {}
-
     public void addManager(int adminID, String Name, String cnic, String address, Store s) {
         InventoryManager e = null;
         for(int i = 0; i < admins.size(); ++i) {
@@ -141,14 +138,57 @@ public class HisaabTrack {
         }
         return true;
     }
+    public List<InventoryManager> getAdminsInventoryManagers(int adminID) {
+         for(int i = 0; i < admins.size(); ++i) {
+            if(adminID == admins.get(i).getAdminID()) {
+               return admins.get(i).getMyManagers();
+            }
+        }
+        return null;
+    }
 
+    // manager functions
+    public void makeSale() {}
     public void generateOrder() {}
-    public void removeOrder() {}
     public void payInvoice() {}
 
     //supplier system functions
-    public void addItem() {}
-    public void removeItem() {}
+    public ProductCatalog getProductCatalog(int supplierID) {
+        for(int i=0;i<suppliers.size();++i){
+            if(suppliers.get(i).getSupplierID() == supplierID) {
+                return suppliers.get(i).getProducts();
+            }
+        }
+        return null;
+    }
+    public void addItem(int supplierID, String name, String description, double price, Date MFG, Date EXP, int amount) {
+        for(int i=0;i<suppliers.size();++i){
+            if(suppliers.get(i).getSupplierID() == supplierID) {
+                Product p = new Product(-1, name, description, price, MFG, EXP);
+                suppliers.get(i).addProduct(p, amount);
+                ProductCatalog catalog = suppliers.get(i).getProducts();
+                //update catalog in DB
+            }
+        }
+    }
+    public void removeItem(int supplierID, int productID) {
+        for(int i=0;i<suppliers.size();++i){
+            if(suppliers.get(i).getSupplierID() == supplierID) {
+                suppliers.get(i).removeProduct(productID);
+                ProductCatalog catalog = suppliers.get(i).getProducts();
+                //update catalog in DB
+            }
+        }
+    }
+    public void updateItem(int supplierID, int productID, int addedAmount) {
+        for(int i=0;i<suppliers.size();++i){
+            if(suppliers.get(i).getSupplierID() == supplierID) {
+                suppliers.get(i).addProduct(suppliers.get(i).getProducts().getProduct().get(j), addedAmount);  
+                ProductCatalog catalog = suppliers.get(i).getProducts();
+                //update catalog in DB        
+            }
+        }
+    }
     public void sendProducts(int ID, int invoiceID) {
         int iManagerID = 0;
         for(int i=0;i<suppliers.size();++i){

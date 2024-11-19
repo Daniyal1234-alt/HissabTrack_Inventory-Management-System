@@ -75,6 +75,14 @@ public class Supplier {
         recievedOrders.add(order);
     }
 
+    public void addProduct(Product p, int amount) {
+        products.addProduct(p, amount);
+    }
+
+    public void removeProduct(int productID) {
+        products.removeProduct(productID);
+    }
+
     public boolean checkStock(Invoice order) {
         //check whether supplier has the facilities to complete an order
         for(int i = 0; i < order.getProducts().size(); ++i) {
