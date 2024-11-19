@@ -1,6 +1,7 @@
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.jar.Attributes;
 
 public class Admin {
     // Attributes
@@ -25,39 +26,6 @@ public class Admin {
         // Placeholder for implementation
     }
 
-    public void displaySuppliers(List<Supplier> suppliers, Scanner inputScanner) {
-        if (suppliers.isEmpty()) {
-            System.out.println("No suppliers available.");
-            return;
-        }
-    
-        System.out.println("Available Suppliers:");
-        for (int i = 0; i < suppliers.size(); i++) {
-            Supplier supplier = suppliers.get(i);
-            System.out.println((i + 1) + "- Supplier ID: " + supplier.getSupplierID() + 
-                               ", Company: " + supplier.getCompany() + 
-                               ", Location: " + supplier.getLocation() + 
-                               ", Registration No: " + supplier.getRegNo());
-        }
-    }
-
-    public void displayManagers() {
-        if (myManagers.isEmpty()) {
-            System.out.println("You are currently have no managers.");
-            return;
-        }
-    
-        System.out.println("Manager List:");
-        for (int i = 0; i < myManagers.size(); i++) {
-            InventoryManager manager = myManagers.get(i);
-            System.out.println((i + 1) + "- Manager ID: " + manager.getManagerID() + 
-                               ", Manager Name: " + manager.getName() + 
-                               ", Manger CNIC: " + manager.getCNIC() + 
-                               ", Store Location: " + manager.getManagingStore().getLocation());
-        }
-    }
-    
-
     // Method Signatures
     public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address, Store s) {
         InventoryManager Manager = new InventoryManager(mID, Name, cnic, Address);
@@ -69,12 +37,29 @@ public class Admin {
 
     public boolean removeInventoryManager(int managerID) {
         // search for this ID in admin's manager list and remove
-        return false; // Placeholder for implementation
+        for(int i=0;i<myManagers.size();++i) {
+            if(myManagers.get(i).getManagerID() == managerID) {
+                myManagers.remove(i);
+                return true;
+            }
+        }
+        return false;
     }
 
-    public boolean updateInventoryManager(int managerID, String Name, String cnic, String Address) {
+    public InventoryManager updateInventoryManager(int managerID, String Name, String cnic, String Address) {
         // search for this ID in admin's manager list and update non empty strings
-        return false;
+        for(int i=0;i<myManagers.size();++i) {
+            if(myManagers.get(i).getManagerID() == managerID) {
+                if(!Name.isBlank())
+                    myManagers.get(i).setName(Name);
+                if(!Address.isBlank())
+                    myManagers.get(i).setAddress(Address);
+                if(!cnic.isBlank())
+                    myManagers.get(i).setCNIC(cnic);
+                return myManagers.get(i);
+            }
+        }
+        return null;
     }
 
     public Supplier addSupplier(int sID, String company, String location, int regNo) {
@@ -84,13 +69,30 @@ public class Admin {
 
     public boolean removeSupplier(int supplierID, List<Supplier> s) {
         //Search for this ID in system'supplier list and remove
-        return false; // Placeholder for implementation
+        for(int i=0;i<s.size();++i) {
+            if(s.get(i).getSupplierID() == supplierID) {
+                s.remove(i);
+                return true;
+            }
+        }
+        return false; 
     }
 
-    public boolean updateSupplier(List<Supplier> s, int supplierID, String company, String location, int regNo) {
+    public Supplier updateSupplier(List<Supplier> s, int supplierID, String company, String location, int regNo) {
         //if string values non-empty then update
         //if regNo != -1 then update
-        return false; // Placeholder for implementation
+        for(int i=0;i<s.size();++i) {
+            if(s.get(i).getSupplierID() == supplierID) {
+                if(!company.isBlank());
+                    s.get(i).setCompany(company);
+                if(!location.isBlank());
+                    s.get(i).setLocation(location);
+                if(regNo!=-1);       
+                    s.get(i).setRegNo(regNo);         
+                return s.get(i);
+            }
+        }
+        return null; // Placeholder for implementation
     }
 
     public boolean payInvoice(Invoice invoice) {

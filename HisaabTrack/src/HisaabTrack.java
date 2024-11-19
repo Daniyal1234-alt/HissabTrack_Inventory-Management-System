@@ -63,17 +63,13 @@ public class HisaabTrack {
     }
     public boolean updateSupplier(int adminID, int supplierID, String company, String location, int regNo) {
         boolean flag = false;
+        Supplier e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
-                flag = admins.get(i).updateSupplier(suppliers, supplierID, company, location, regNo);
-                if (flag) {
-                    //UI displays successful update
-                    //Update DB
-                	DB.updateSupplier();
-                } else {
-                    //not removed
-                }
-                break;
+                e = admins.get(i).updateSupplier(suppliers, supplierID, company, location, regNo);
+                //UI displays successful update
+                //Update DB
+                DB.updateSupplier();
             }
         }
         return flag;
@@ -124,7 +120,6 @@ public class HisaabTrack {
                     //UI displays successful removal
                     //update DB
                 	DB.removeInventoryManager(findManagerByID(managerID));
-                	
                 } else {
                     //not removed
                 }
@@ -133,35 +128,25 @@ public class HisaabTrack {
         }
     }
     public boolean updateManager(int adminID, int managerID, String Name, String cnic, String Address) {
-        boolean flag = false;
+        InventoryManager e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
-                flag = admins.get(i).updateInventoryManager(managerID, Name, cnic, Address);
-                if (flag) {
-                    //UI displays successful update
-                    //Update DB
-                	DB.updateInventoryManager();
-                	
-                } else {
-                    //not removed
-                }
-                break;
+                e = admins.get(i).updateInventoryManager(managerID, Name, cnic, Address);
+                //UI displays successful update
+                //Update DB
+                DB.updateInventoryManager(e);	
             }
         }
-        return flag;
+        return true;
     }
-
-    public void generateReport() {}
-
-    public void addItem() {}
-    public void removeItem() {}
 
     public void generateOrder() {}
     public void removeOrder() {}
-
     public void payInvoice() {}
 
     //supplier system functions
+    public void addItem() {}
+    public void removeItem() {}
     public void sendProducts(int ID, int invoiceID) {
         int iManagerID = 0;
         for(int i=0;i<suppliers.size();++i){
@@ -170,6 +155,19 @@ public class HisaabTrack {
             }
         }
         //notify manager with corresponding ID
+        for(int i=0;i<managers.size();++i) {
+            if(managers.get(i).getManagerID() == iManagerID) {
+                for(int j=0;j<managers.get(i).getRegister().getInvoices().size();++j) {
+                    if(managers.get(i).getRegister().getInvoices().get(j).getInvoiceID() == invoiceID) {
+                        if(managers.get(i).getRegister().getInvoices().get(j).isDelivered()) {
+                            //successful delivery
+                        } else {
+                            //order cancelled
+                        }
+                    }
+                }
+            }
+        }
     }
     public List<Invoice> viewRecievedOrders(int ID) {  //new
         for(int i=0;i<suppliers.size();++i){
@@ -197,6 +195,15 @@ public class HisaabTrack {
             }
         }
         //notify manager with corresponding ID
+        for(int i=0;i<managers.size();++i) {
+            if(managers.get(i).getManagerID() == iManagerID) {
+                for(int j=0;j<managers.get(i).getRegister().getInvoices().size();++j) {
+                    if(managers.get(i).getRegister().getInvoices().get(j).getInvoiceID() == invoiceID) {
+                        // request for payment
+                    }
+                }
+            }
+        }
     }
 
     // Getters and Setters

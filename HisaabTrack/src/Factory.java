@@ -103,14 +103,24 @@ public class Factory {
                     //load admin details from DB
 
                     System.out.println("HisaabTrack Supplier");
-                    System.out.println("\t1- Send Order\n\t2- Request Payment");
+                    System.out.println("\t1- Send Order\n\t2- Request Payment\n\t3- Add Product\n\t4- Remove Product\n\t5- Update Product Quantity");
                     System.err.println("Select an option: ");
                     choice1 = inputScanner.nextInt();
                     inputScanner.nextLine(); 
 
                     if(choice1==1) {
-                        
+                        List<Invoice> Orders = system.viewCompletedOrders(supplierID);
+                        //display orders list
+                        //pick invoice by id
+                        int invoiceID = 0; //picked invoice
+                        system.sendProducts(supplierID, invoiceID);
                     } else if (choice1 == 2) {
+
+                    } else if (choice1 == 3) {
+
+                    } else if (choice1 == 4) {
+
+                    } else if (choice1 == 5) {
 
                     } else {
                         //invalid choice

@@ -11,14 +11,14 @@ public class ProductCatalog {
     // Method Signatures
 
     public void addProduct(Product p) {
-        // Placeholder for implementation
+        product.add(p);
     }
 
-    public boolean removeProduct() {
+    public boolean removeProduct(int productID) {
         return false; // Placeholder for implementation
     }
 
-    public boolean updateQuantity(Product p) {
+    public boolean updateQuantity(int productID, int addedStock) {
         return false; // Placeholder for implementation
     }
 
