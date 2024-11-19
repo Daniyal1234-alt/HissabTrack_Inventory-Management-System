@@ -6,8 +6,16 @@ public class Report {
     private String createdBy;
     private Date createdOn;
     private String reportData;
+    private String userType;
+    public String getUserType() {
+		return userType;
+	}
 
-    // Constructor
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
+	// Constructor
     public Report() {}
 
     // Method Signatures

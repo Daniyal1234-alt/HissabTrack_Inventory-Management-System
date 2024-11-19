@@ -69,7 +69,8 @@ public class HisaabTrack {
                 e = admins.get(i).updateSupplier(suppliers, supplierID, company, location, regNo);
                 //UI displays successful update
                 //Update DB
-                DB.updateSupplier();
+                if(e!=null)
+                	DB.updateSupplier(e);
             }
         }
         return flag;
@@ -134,7 +135,8 @@ public class HisaabTrack {
                 e = admins.get(i).updateInventoryManager(managerID, Name, cnic, Address);
                 //UI displays successful update
                 //Update DB
-                DB.updateInventoryManager(e);	
+                if(e!=null)
+                	DB.updateInventoryManager(e);	
             }
         }
         return true;
