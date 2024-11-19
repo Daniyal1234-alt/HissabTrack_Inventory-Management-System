@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductCatalog {
@@ -6,19 +7,31 @@ public class ProductCatalog {
     private List<Integer> amount;
 
     // Constructor
-    public ProductCatalog() {}
+    public ProductCatalog() {
+        this.product = new ArrayList<>(); // Initialize product list
+        this.amount = new ArrayList<>();  // Initialize amount list
+    }
 
-    // Method Signatures
+    // Method to add a product to the catalog
+    public void addProduct(Product p, int amount) {
+        // Check if the product already exists
+        if(p.getProductID() != -1) {
+            for (int i = 0; i < product.size(); i++) {
+                if (product.get(i).getProductID()==p.getProductID()) {
+                    // Product exists, update the amount
+                    this.amount.set(i, this.amount.get(i) + amount);
+                    return; // Exit after updating
+                }
+            }
+        }
 
-    public void addProduct(Product p) {
-        product.add(p);
+        // Product does not exist, add it to the list
+        p.setProductID(product.size()+1);
+        this.product.add(p);
+        this.amount.add(amount);
     }
 
     public boolean removeProduct(int productID) {
-        return false; // Placeholder for implementation
-    }
-
-    public boolean updateQuantity(int productID, int addedStock) {
         return false; // Placeholder for implementation
     }
 

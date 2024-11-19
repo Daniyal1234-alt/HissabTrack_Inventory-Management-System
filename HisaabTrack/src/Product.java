@@ -5,14 +5,23 @@ public class Product {
     private int productID;
     private String name;
     private String description;
-    private int supplierID;
     private double price;
     private Date MFG; // Manufacturing date
     private Date EXP; // Expiry date
 
     // Constructor
+    // Default constructor
     public Product() {}
 
+    // Parameterized constructor
+    public Product(int productID, String name, String description, double price, Date MFG, Date EXP) {
+        this.productID = productID;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.MFG = MFG;
+        this.EXP = EXP;
+    }
     // Method Signatures
     public int getProductID() {
         return productID;
@@ -36,14 +45,6 @@ public class Product {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public int getSupplierID() {
-        return supplierID;
-    }
-
-    public void setSupplierID(int supplierID) {
-        this.supplierID = supplierID;
     }
 
     public double getPrice() {
