@@ -1,5 +1,4 @@
 import java.awt.im.InputMethodHighlight;
-import java.util.Date;
 
 import java.io.CharConversionException;
 import java.lang.foreign.AddressLayout;
@@ -142,7 +141,7 @@ public class SQLDBHandler {
 	        pstmt.setInt(2, StoreID);
 	        pstmt.setInt(3, stock.getQuantity());
 	        pstmt.setDouble(4, stock.getTotalCost());
-	        pstmt.setDate(5, stock.getArrivalDate());
+	        pstmt.setDate(5, (Date)stock.getArrivalDate());
 	        return pstmt.executeUpdate() > 0;
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -415,6 +414,19 @@ public class SQLDBHandler {
 
 	        // Set the report content in the Report object
 	        report.setReportData(reportContent.toString());
+	     // 2. Insert report into the 'report' table
+	        String insertQuery = "INSERT INTO report ( createdByID, createdOn, userType) VALUES (?, ?, ?, ?)";
+	        PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
+	        insertStmt.setInt(1, manager.getManagerID());
+	        insertStmt.setDate(2, new Date(System.currentTimeMillis()));
+	        insertStmt.setString(3, "Manager");
+
+	        int affectedRows = insertStmt.executeUpdate();
+
+	        // 3. Retrieve and set the generated report ID
+	        if (affectedRows > 0) {
+	            System.out.println("Inserted into Report Table");
+	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	        report.setReportData("Error generating report: " + e.getMessage());
@@ -455,4 +467,52 @@ public class SQLDBHandler {
 	        return false;
 	    }
 	}
+	//Delete an invoice 
+	public boolean deleteInovice(int InvoiceID) {
+		try(Connection conn = DriverManager.getConnection(connection, userName, password)){
+			String sql = "DELETE FROM Invoice WHERE invoiceID = ?";
+	        PreparedStatement pstmt = conn.prepareStatement(sql);
+	        pstmt.setInt(1, InvoiceID);
+	        int rows = pstmt.executeUpdate();
+			return rows > 0;
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	// Adding a product to a catalog and product table
+	public boolean addProduct(Supplier s, Product p) {
+	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
+	        // Insert Product into Product table
+	        String productSql = "INSERT INTO Product (name, description, price, MFG, EXP) "
+	                + "VALUES (?, ?, ?, ?, ?)";
+	        try (PreparedStatement productPstmt = conn.prepareStatement(productSql)) {
+	            productPstmt.setString(1, p.getName());
+	            productPstmt.setDouble(2, p.getPrice());
+	            productPstmt.setDouble(3, p.getPrice());
+	            productPstmt.setDate(4, (Date)p.getMFG());
+	            productPstmt.setDate(5, (Date)p.getEXP());
+	            int rows = productPstmt.executeUpdate();
+	            if(rows > 0 ) {
+	            	String productcatalogproductString = "INSERT INTO productcatalogproducts (CatalogID, ProductID) VALUES (?, ?)";
+	            	PreparedStatement pstmtPreparedStatement = conn.prepareStatement(productcatalogproductString);
+	            	pstmtPreparedStatement.setInt(1, s.getSupplierID());
+	            	pstmtPreparedStatement.setInt(2, p.getProductID());
+	            	rows = pstmtPreparedStatement.executeUpdate();
+	            	if(rows>0) {
+	            		return true;
+	            	}
+	            	else {
+	            		return false;
+	            	}
+	            }
+	            return true;
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+	
+
 }
