@@ -2,8 +2,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.catalog.Catalog;
-
 //import com.mysql.cj.QueryReturnType;
 
 public class HisaabTrack {
@@ -34,7 +32,7 @@ public class HisaabTrack {
     }
 
     // Method signatures
-    public void addSupplier(int adminID,String company, String location, int regNo) {
+    public void addSupplier(int adminID,String company, String location, int regNo, boolean DBCall) {
         Supplier e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
@@ -44,7 +42,8 @@ public class HisaabTrack {
         }
         suppliers.add(e);
         //add new supplier to db
-        DB.addSupplier(e);
+        if(!DBCall)
+            DB.addSupplier(e);
     }
     public boolean removeSupplier(int adminID, int supplierID) {
         boolean flag = false;
@@ -78,16 +77,17 @@ public class HisaabTrack {
         return flag;
     }
 
-    public Admin addAdmin(String Name, String cnic, String Address) {
+    public Admin addAdmin(String Name, String cnic, String Address, boolean DBCall) {
         int adminID = admins.size() + 1;
         Admin newAdmin = new Admin(adminID, Name, cnic, Address);
         // Add the new admin to the list
         admins.add(newAdmin);
-        DB.addAdmin(newAdmin);
+        if(!DBCall)
+            DB.addAdmin(newAdmin);
         return newAdmin;
     }
     
-    public void addManager(int adminID, String Name, String cnic, String address, Store s) {
+    public void addManager(int adminID, String Name, String cnic, String address, Store s, boolean DBCall) {
         InventoryManager e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
@@ -97,8 +97,10 @@ public class HisaabTrack {
         }
         managers.add(e);
         //add new manager to db
-        DB.addInventoryManager(e);
-        DB.addAdminInventoryManager(adminID, e.getManagerID());
+        if(!DBCall) {
+            DB.addInventoryManager(e);
+            DB.addAdminInventoryManager(adminID, e.getManagerID());
+        }
     }
     public String findManagerByID(int ID) {
         // Loop through the list of managers
@@ -186,15 +188,17 @@ public class HisaabTrack {
         }
         return null;
     }
-    public void addItem(int supplierID, String name, String description, double price, Date MFG, Date EXP, int amount) {
+    public void addItem(int supplierID, String name, String description, double price, Date MFG, Date EXP, int amount, boolean DBCall) {
         for(int i=0;i<suppliers.size();++i){
             if(suppliers.get(i).getSupplierID() == supplierID) {
                 Product p = new Product(-1, name, description, price, MFG, EXP);
                 suppliers.get(i).addProduct(p, amount);
                 ProductCatalog catalog = suppliers.get(i).getProducts();
                 //update catalog in DB
-                DB.addProduct(suppliers.get(i), p);
-                DB.addProductCatalog(supplierID, p.getProductID());
+                if(!DBCall) {
+                    DB.addProduct(suppliers.get(i), p);
+                    DB.addProductCatalog(supplierID, p.getProductID());
+                }
             }
         }
     }

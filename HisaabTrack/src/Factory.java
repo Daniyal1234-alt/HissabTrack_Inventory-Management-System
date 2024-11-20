@@ -37,7 +37,7 @@ public class Factory {
                     System.out.print("Address: ");
                     String address = inputScanner.nextLine();
 
-                    admin = system.addAdmin(name, cnic, address);
+                    admin = system.addAdmin(name, cnic, address, false);
                 }
 
                 // Prompt for login details
@@ -93,7 +93,7 @@ public class Factory {
                     String address = inputScanner.nextLine();
                     List<Store> storeList = system.getStores();
                     Store store = null; // Assume store selection is done
-                    system.addManager(admin.getAdminID(), name, cnic, address, store);
+                    system.addManager(admin.getAdminID(), name, cnic, address, store, false);
                     break;
 
                 case 2:
@@ -196,7 +196,7 @@ public class Factory {
                     String location = inputScanner.nextLine();
                     System.out.print("Registration No: ");
                     int regNo = inputScanner.nextInt();
-                    system.addSupplier(admin.getAdminID(), company, location, regNo);
+                    system.addSupplier(admin.getAdminID(), company, location, regNo, false);
                     break;
 
                 case 5:
@@ -454,7 +454,7 @@ public class Factory {
                     double price = inputScanner.nextDouble();
                     System.out.print("Quantity: ");
                     int quantity = inputScanner.nextInt();
-                    system.addItem(supplier.getSupplierID(), name, description, price, new Date(), new Date(), quantity);
+                    system.addItem(supplier.getSupplierID(), name, description, price, new Date(), new Date(), quantity,false);
                     break;
 
                 case 4:

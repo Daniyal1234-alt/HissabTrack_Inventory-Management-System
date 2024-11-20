@@ -3,15 +3,15 @@ import java.sql.*;
 import com.mysql.cj.callback.UsernameCallback;
 public class SQLDBHandler {
 	private String connection;
-	private String className;
+	//private String className;
 	private String userName;
 	private String password;
 	
 	SQLDBHandler(){
-		className = "com.mysql.cj.jdbc.Driver";
+		//className = "com.mysql.cj.jdbc.Driver";
 		connection = "jdbc:mysql://localhost:3306/HisaabTrack";
 		userName = "root";
-		password = "dani";
+		password = "H@mza4257";
 	}
 	//Load from DB into HissabTrack System
 	//public boolean loadFromDB(HisaabTrack System) {
@@ -19,7 +19,7 @@ public class SQLDBHandler {
 	//}
 	// Adding an Admin to the SQL DB
 	public boolean addAdmin(Admin admin) {
-	    try (Connection conn =  DriverManager.getConnection(connection,userName, password)) {
+	    try (Connection conn =  DriverManager.getConnection(connection, userName, password)) {
 	        String sql = "INSERT INTO Admin (name, CNIC, address, active) VALUES (?, ?, ?, ?)";
 	        PreparedStatement pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, admin.getName());

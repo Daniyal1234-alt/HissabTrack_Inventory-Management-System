@@ -1,8 +1,5 @@
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Scanner;
-import java.util.jar.Attributes;
 
 public class Admin {
     // Attributes
@@ -21,9 +18,8 @@ public class Admin {
         this.CNIC = CNIC;
         this.address = address;
         this.active = true;
-        myManagers = new ArrayList<InventoryManager>();
-        unpaidInvoices = new ArrayList<Invoice>();
-        
+        myManagers = new ArrayList<>();
+        unpaidInvoices = new ArrayList<>();
     }
 
     public void updateProfile() {
