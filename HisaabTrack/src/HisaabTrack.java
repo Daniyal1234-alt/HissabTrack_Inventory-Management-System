@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.catalog.Catalog;
+
 //import com.mysql.cj.QueryReturnType;
 
 public class HisaabTrack {
@@ -96,6 +98,7 @@ public class HisaabTrack {
         managers.add(e);
         //add new manager to db
         DB.addInventoryManager(e);
+        DB.addAdminInventoryManager(adminID, e.getManagerID());
     }
     public String findManagerByID(int ID) {
         // Loop through the list of managers
@@ -139,6 +142,7 @@ public class HisaabTrack {
                     //UI displays successful removal
                     //update DB
                 	DB.removeInventoryManager(findManagerByID(managerID));
+                	DB.removeAdminInventoryManager(adminID, managerID);
                 } else {
                     //not removed
                 }
@@ -174,7 +178,6 @@ public class HisaabTrack {
     public void generateOrder() {}
     public void payInvoice() {}
 
-    //supplier system functions
     public ProductCatalog getProductCatalog(int supplierID) {
         for(int i=0;i<suppliers.size();++i){
             if(suppliers.get(i).getSupplierID() == supplierID) {
@@ -190,6 +193,8 @@ public class HisaabTrack {
                 suppliers.get(i).addProduct(p, amount);
                 ProductCatalog catalog = suppliers.get(i).getProducts();
                 //update catalog in DB
+                DB.addProduct(suppliers.get(i), p);
+                DB.addProductCatalog(supplierID, p.getProductID());
             }
         }
     }
@@ -199,6 +204,9 @@ public class HisaabTrack {
                 suppliers.get(i).removeProduct(productID);
                 ProductCatalog catalog = suppliers.get(i).getProducts();
                 //update catalog in DB
+                DB.removeProductCatalog(productID, supplierID);
+                DB.removeProduct(suppliers.get(i), productID);
+                
             }
         }
     }
@@ -214,6 +222,7 @@ public class HisaabTrack {
                 suppliers.get(i).addProduct(p,addedAmount);  
                 ProductCatalog catalog = suppliers.get(i).getProducts();
                 //update catalog in DB        
+                //DB.updateCatalog(supplierID, Catalog);
             }
         }
     }

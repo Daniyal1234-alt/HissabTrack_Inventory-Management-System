@@ -1,5 +1,5 @@
 import java.sql.*;
-
+// System PARHH DEY GAYEEEEEEEEE
 import com.mysql.cj.callback.UsernameCallback;
 public class SQLDBHandler {
 	private String connection;
@@ -13,6 +13,10 @@ public class SQLDBHandler {
 		userName = "root";
 		password = "dani";
 	}
+	//Load from DB into HissabTrack System
+	//public boolean loadFromDB(HisaabTrack System) {
+		
+	//}
 	// Adding an Admin to the SQL DB
 	public boolean addAdmin(Admin admin) {
 	    try (Connection conn =  DriverManager.getConnection(connection,userName, password)) {
@@ -74,7 +78,7 @@ public class SQLDBHandler {
 	// Adding a supplier to the DB
 	public boolean addSupplier(Supplier supplier) {
 	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {
-	        String sql = "INSERT INTO Supplier (companyName, location, registrationNum) VALUES (?, ?, ?)";
+	        String sql = "INSERT INTO Supplier (comapanyName, location, registerationNum) VALUES (?, ?, ?)";
 	        PreparedStatement pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, supplier.getCompany());
 	        pstmt.setString(2, supplier.getLocation());
@@ -506,6 +510,34 @@ public class SQLDBHandler {
 	        return false;
 	    }
 	}
-	
+	public boolean removeProduct(Supplier s, int ProductID) {
+	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
+	        // Delete the association between Product and Supplier from ProductCatalogProducts table
+	        String removeAssociationSql = "DELETE FROM ProductCatalogProducts WHERE CatalogID = ? AND ProductID = ?";
+	        try (PreparedStatement removeAssocStmt = conn.prepareStatement(removeAssociationSql)) {
+	            removeAssocStmt.setInt(1, s.getSupplierID());
+	            removeAssocStmt.setInt(2, ProductID);
+	            int rows = removeAssocStmt.executeUpdate();
+	            
+	            if (rows > 0) {
+	                // If association was successfully removed, delete the product from the Product table
+	                String removeProductSql = "DELETE FROM Product WHERE productID = ?";
+	                try (PreparedStatement removeProductStmt = conn.prepareStatement(removeProductSql)) {
+	                    removeProductStmt.setInt(1, ProductID);
+	                    rows = removeProductStmt.executeUpdate();
+	                    
+	                    if (rows > 0) {
+	                        return true; // Product and its association removed successfully
+	                    }
+	                }
+	            }
+	        }
+	        return false; // Failed to remove product or association
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false; // Error occurred during operation
+	    }
+	}
+
 
 }
