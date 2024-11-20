@@ -1,11 +1,4 @@
-import java.awt.im.InputMethodHighlight;
-
-import java.io.CharConversionException;
-import java.lang.foreign.AddressLayout;
 import java.sql.*;
-
-import javax.naming.ldap.ManageReferralControl;
-import javax.net.ssl.ManagerFactoryParameters;
 
 import com.mysql.cj.callback.UsernameCallback;
 public class SQLDBHandler {

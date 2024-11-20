@@ -1,6 +1,6 @@
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Invoice {
     // Attributes
@@ -37,6 +37,15 @@ public class Invoice {
 
     public List<Integer> getAmount() {
         return amount;
+    }
+    
+    double getTotalAmount() {
+        double total = 0;
+        int i = 0;
+         for(Product p : products) {
+            total += (p.getPrice() * amount.get(i++));
+        }
+        return total;
     }
     
     public int getInvoiceID() {

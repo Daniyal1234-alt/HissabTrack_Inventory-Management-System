@@ -44,7 +44,7 @@ public class HisaabTrack {
         //add new supplier to db
         DB.addSupplier(e);
     }
-    public void removeSupplier(int adminID, int supplierID) {
+    public boolean removeSupplier(int adminID, int supplierID) {
         boolean flag = false;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
@@ -59,6 +59,7 @@ public class HisaabTrack {
                 break;
             }
         }
+        return flag;
     }
     public boolean updateSupplier(int adminID, int supplierID, String company, String location, int regNo) {
         boolean flag = false;
@@ -108,8 +109,28 @@ public class HisaabTrack {
         // Return null if no manager with the given ID is found
         return null;
     }
+    public InventoryManager getManagerByID(int ID) {
+        for (InventoryManager manager : managers) {
+            // Check if the manager's ID matches the provided ID
+            if (manager.getManagerID() == ID) {
+                // Return the manager object if a match is found
+                return manager;
+            }
+        }
+        return null;
+    }
+    public Supplier getSupplierByID(int ID) {
+        for (Supplier s : suppliers) {
+            // Check if the manager's ID matches the provided ID
+            if (s.getSupplierID() == ID) {
+                // Return the manager object if a match is found
+                return s;
+            }
+        }
+        return null;
+    }
 
-    public void removeManager(int adminID, int managerID) {
+    public boolean removeManager(int adminID, int managerID) {
         boolean flag = false;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
@@ -124,6 +145,7 @@ public class HisaabTrack {
                 break;
             }
         }
+        return flag;
     }
     public boolean updateManager(int adminID, int managerID, String Name, String cnic, String Address) {
         InventoryManager e = null;
@@ -181,9 +203,15 @@ public class HisaabTrack {
         }
     }
     public void updateItem(int supplierID, int productID, int addedAmount) {
+        Product p = null;
         for(int i=0;i<suppliers.size();++i){
             if(suppliers.get(i).getSupplierID() == supplierID) {
-                suppliers.get(i).addProduct(suppliers.get(i).getProducts().getProduct().get(j), addedAmount);  
+                for(int j = 0;j<suppliers.get(i).getProducts().getProduct().size();++j) {
+                    if (suppliers.get(i).getProducts().getProduct().get(j).getProductID() == productID) {
+                        p = suppliers.get(i).getProducts().getProduct().get(j);
+                    }
+                }
+                suppliers.get(i).addProduct(p,addedAmount);  
                 ProductCatalog catalog = suppliers.get(i).getProducts();
                 //update catalog in DB        
             }
