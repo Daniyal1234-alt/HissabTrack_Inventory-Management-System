@@ -5,15 +5,26 @@ public class InventoryManager {
     private String CNIC;
     private String address;
     private Store managingStore;
-    private Register register;
+    String password;
+    public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	private Register register;
 
     // Constructor
-    public InventoryManager(int managerID, String name, String CNIC, String address) {
+    public InventoryManager(int managerID, String name, String CNIC, String address, String password) {
         this.managerID = managerID;
         this.name = name;
         this.CNIC = CNIC;
         this.address = address;
+        this.password = password;
     }
+    
     // Method Signatures
     public boolean addStock(Store s) {
         return false; // Placeholder for implementation

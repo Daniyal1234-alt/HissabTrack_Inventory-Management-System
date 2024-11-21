@@ -7,17 +7,35 @@ public class Admin {
     private String name;
     private String CNIC;
     private String address;
-    private List<InventoryManager> myManagers;
+    private String password;
+    public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	private List<InventoryManager> myManagers;
     private List<Invoice> unpaidInvoices;
     private boolean active;
 
     // Constructor
-    public Admin(int adminID, String name, String CNIC, String address) {
+    public Admin() {
+    	  this.adminID = 0;
+          this.name = "\0";
+          this.CNIC = "\0";
+          this.address = "\0";
+          this.active = true;
+          myManagers = new ArrayList<>();
+          unpaidInvoices = new ArrayList<>();
+    }
+    public Admin(int adminID, String name, String CNIC, String address, String password) {
         this.adminID = adminID;
         this.name = name;
         this.CNIC = CNIC;
         this.address = address;
         this.active = true;
+        this.password = password;
         myManagers = new ArrayList<>();
         unpaidInvoices = new ArrayList<>();
     }
@@ -27,8 +45,8 @@ public class Admin {
     }
 
     // Method Signatures
-    public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address, Store s) {
-        InventoryManager Manager = new InventoryManager(mID, Name, cnic, Address);
+    public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address,String password, Store s) {
+        InventoryManager Manager = new InventoryManager(mID, Name, cnic, Address, password);
         Manager.setManagingStore(s);            
         myManagers.add(Manager);
         return Manager; 

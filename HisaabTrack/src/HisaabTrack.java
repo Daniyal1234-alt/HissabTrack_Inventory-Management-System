@@ -77,21 +77,40 @@ public class HisaabTrack {
         return flag;
     }
 
-    public Admin addAdmin(String Name, String cnic, String Address, boolean DBCall) {
+    public Admin addAdmin(String Name, String cnic, String Address,String password, boolean DBCall) {
         int adminID = admins.size() + 1;
-        Admin newAdmin = new Admin(adminID, Name, cnic, Address);
+        Admin newAdmin = new Admin(adminID, Name, cnic, Address, password);
         // Add the new admin to the list
         admins.add(newAdmin);
         if(!DBCall)
             DB.addAdmin(newAdmin);
         return newAdmin;
     }
-    
-    public void addManager(int adminID, String Name, String cnic, String address, Store s, boolean DBCall) {
+    public Store getStore(int storeID) {
+    	 for (Store s : this.stores) {
+             // Check if the manager's ID matches the provided ID
+             if (s.getStoreID() == storeID) {
+                 // Return the manager object if a match is found
+                 return s;
+             }
+         }
+    	 return null;
+    }
+    public Supplier getSupplier(int supplierID) {
+    	for (Supplier s : this.suppliers) {
+            // Check if the manager's ID matches the provided ID
+            if (s.getSupplierID() == supplierID) {
+                // Return the manager object if a match is found
+                return s;
+            }
+        }
+   	 return null;
+    }
+    public void addManager(int adminID, String Name, String cnic, String address, String password, Store s, boolean DBCall) {
         InventoryManager e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
-                e = admins.get(i).addInventoryManager(managers.size() + 1, Name, cnic, address, s);
+                e = admins.get(i).addInventoryManager(managers.size() + 1, Name, cnic, address,password,  s );
                 break;
             }
         }
@@ -101,6 +120,9 @@ public class HisaabTrack {
             DB.addInventoryManager(e);
             DB.addAdminInventoryManager(adminID, e.getManagerID());
         }
+    }
+    public void addStore(Store s) {
+    	this.stores.add(s);
     }
     public String findManagerByID(int ID) {
         // Loop through the list of managers

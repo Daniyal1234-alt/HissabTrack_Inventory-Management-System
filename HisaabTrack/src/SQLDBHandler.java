@@ -1,4 +1,7 @@
+import java.io.IOException;
 import java.sql.*;
+
+import com.mysql.cj.QueryReturnType;
 // System PARHH DEY GAYEEEEEEEEE
 import com.mysql.cj.callback.UsernameCallback;
 public class SQLDBHandler {
@@ -11,12 +14,134 @@ public class SQLDBHandler {
 		//className = "com.mysql.cj.jdbc.Driver";
 		connection = "jdbc:mysql://localhost:3306/HisaabTrack";
 		userName = "root";
-		password = "H@mza4257";
+		password = "dani";
 	}
 	//Load from DB into HissabTrack System
-	//public boolean loadFromDB(HisaabTrack System) {
-		
-	//}
+	public boolean loadFromDB(HisaabTrack system) {
+	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
+	        // Adding Admins
+	        String adminSql = "SELECT * FROM Admin";
+	        try (PreparedStatement adminStmt = conn.prepareStatement(adminSql)) {
+	            ResultSet adminRs = adminStmt.executeQuery();
+	            while (adminRs.next()) {
+	                system.addAdmin(
+	                    adminRs.getString("name"),
+	                    adminRs.getString("CNIC"),
+	                    adminRs.getString("address"),
+	                    adminRs.getString("password"),
+	                    true
+	                );
+	            }
+	        }
+
+	        // Adding Stores and Store Stocks
+	        String storeQuery = """
+	            SELECT st.storeID, st.location,
+	                   sk.stockID, sk.productID, sk.quantity, sk.totalCost, sk.arrivalDate,
+	                   p.name AS productName, p.description AS productDescription,
+	                   p.price AS productPrice, p.MFG AS productMFG, p.EXP AS productEXP
+	            FROM Store st
+	            JOIN Stock sk ON st.storeID = sk.storeID
+	            JOIN Product p ON sk.productID = p.productID
+	        """;
+	        try (PreparedStatement storeStmt = conn.prepareStatement(storeQuery)) {
+	            ResultSet rs = storeStmt.executeQuery();
+	            while (rs.next()) {
+	                // Extract store data
+	                int storeID = rs.getInt("storeID");
+	                String location = rs.getString("location");
+
+	                // Check if store already exists in the system
+	                Store store = system.getStore(storeID);
+	                if (store == null) {
+	                    store = new Store(storeID, location);
+	                    system.addStore(store); // Add store to the system
+	                }
+
+	                // Extract product data
+	                Product product = new Product(
+	                    rs.getInt("productID"),
+	                    rs.getString("productName"),
+	                    rs.getString("productDescription"),
+	                    rs.getDouble("productPrice"),
+	                    rs.getDate("productMFG"),
+	                    rs.getDate("productEXP")
+	                );
+
+	                // Extract stock data
+	                Stock stock = new Stock(
+	                    rs.getInt("stockID"),
+	                    product,
+	                    rs.getInt("quantity"),
+	                    rs.getDouble("totalCost"),
+	                    rs.getDate("arrivalDate")
+	                );
+
+	                // Add stock to the store
+	                store.addStock(stock);
+	            }
+	        }
+
+	        // Adding Suppliers and Products
+	        String supplierSql = """
+	            SELECT s.supplierID, s.companyName, s.location, s.registrationNum,
+	                   sc.catalogID, cp.productID, cp.quantity,
+	                   p.name AS productName, p.description, p.price, p.MFG, p.EXP
+	            FROM Supplier s
+	            JOIN SupplierCatalog sc ON s.supplierID = sc.supplierID
+	            JOIN ProductCatalogProducts cp ON sc.catalogID = cp.catalogID
+	            JOIN Product p ON cp.productID = p.productID
+	        """;
+	        try (PreparedStatement supplierStmt = conn.prepareStatement(supplierSql)) {
+	            ResultSet supplierRs = supplierStmt.executeQuery();
+	            while (supplierRs.next()) {
+	                // Retrieve or create the supplier
+	                Supplier supplier = system.getSupplier(supplierRs.getInt("supplierID"));
+	                if (supplier == null) {
+	                   
+	                    system.addSupplier(0,supplierRs.getString("companyName"),supplierRs.getString("location"),
+		                        supplierRs.getInt("registrationNum"),  true);
+	                }
+
+	                // Create the Product
+	                Product product = new Product(
+	                    supplierRs.getInt("productID"),
+	                    supplierRs.getString("productName"),
+	                    supplierRs.getString("description"),
+	                    supplierRs.getDouble("price"),
+	                    supplierRs.getDate("MFG"),
+	                    supplierRs.getDate("EXP")
+	                );
+
+	                // Add product to supplier
+	                supplier.addProduct(product, supplierRs.getInt("quantity"));
+	            }
+	        }
+
+	        // Adding Inventory Managers
+	        String managerSql = "SELECT * FROM InventoryManager a JOIN admininventorymanager b ON a.managerID = b.inventoryManagerID";
+	        try (PreparedStatement managerStmt = conn.prepareStatement(managerSql)) {
+	            ResultSet managerRs = managerStmt.executeQuery();
+	            while (managerRs.next()) {
+	                system.addManager(
+	                    managerRs.getInt("adminID"),
+	                    managerRs.getString("name"),
+	                    managerRs.getString("CNIC"),
+	                    managerRs.getString("address"),
+	                    managerRs.getString("password"),
+	                    system.getStore(managerRs.getInt("storeID")),
+	                    true
+	                );
+	            }
+	        }
+
+	        return true;
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
 	// Adding an Admin to the SQL DB
 	public boolean addAdmin(Admin admin) {
 	    try (Connection conn =  DriverManager.getConnection(connection, userName, password)) {
