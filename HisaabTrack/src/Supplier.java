@@ -1,6 +1,5 @@
-import com.sun.net.httpserver.Request;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Supplier {
     // Attributes
@@ -8,6 +7,7 @@ public class Supplier {
     private String company;
     private String location;
     private int regNo;
+    private double balance;
     private ProductCatalog products;
     private List<Invoice> recievedOrders;
     private List<Invoice> sentOrders;
@@ -21,7 +21,11 @@ public class Supplier {
         products = new ProductCatalog();
         recievedOrders = new ArrayList<>();
         sentOrders = new ArrayList<>();
+<<<<<<< HEAD
         this.passwordString = password;
+=======
+        balance = 0;
+>>>>>>> 1432832d92661f2b241295b204cc1871604bce95
     }
     // Method Signatures
     public int getSupplierID() {
@@ -74,6 +78,15 @@ public class Supplier {
 
     public void addIncomingOrder (Invoice order) {
         recievedOrders.add(order);
+    }
+
+    public void receivePayment(int invoiceID, double payment) {
+        balance += payment;
+        for(Invoice e : sentOrders) {
+            if(e.getInvoiceID() == invoiceID) {
+                e.setPaymentStatus(true);
+            }
+        }
     }
 
     public void addProduct(Product p, int amount) {
