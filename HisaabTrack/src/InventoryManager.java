@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class InventoryManager {
     // Attributes
     private int managerID;
@@ -26,20 +28,43 @@ public class InventoryManager {
     }
     
     // Method Signatures
-    public boolean addStock(Store s) {
-        return false; // Placeholder for implementation
+    public Invoice findInvoiceByID(int ID) {
+        for (Invoice i : register.getInvoices()) {
+            if (i.getInvoiceID() == ID) {
+                return i;
+            }
+        }
+        return null;
+    }
+    public boolean addStock(Stock s) {
+        this.managingStore.addStock(s);
+        return true; // Placeholder for implementation
     }
 
-    public boolean removeStock(Store s) {
-        return false; // Placeholder for implementation
+    public boolean removeStock(int sID) {
+        this.managingStore.removeStock(sID);
+        return true; // Placeholder for implementation
     }
 
-    public boolean updateStock(Stock s) {
-        return false; // Placeholder for implementation
+    public void updateStock() {
+        for(Invoice e:register.getInvoices()) {
+            if(e.isDelivered() && e.isPaidFor()) {
+                managingStore.updateStock(e);
+                register.removeInvoice(e);
+            }
+        }
     }
 
-    public Invoice placeOrder() {
-        return null; // Placeholder for implementation
+    public List<Invoice> getOrders() {
+        return register.getInvoices();
+    }
+
+    public void makeSale(List<Product> p, List<Integer> q) {
+        managingStore.makeSale(p, q);
+    }
+
+    public Invoice placeOrder(List<Product> p, List<Integer> q) {
+        return register.generateInvoice(p, q);
     }
 
     public Report generateReport() {
@@ -88,6 +113,7 @@ public class InventoryManager {
 
     public void setManagingStore(Store managingStore) {
         this.managingStore = managingStore;
+        setRegister(managingStore.getRegister());;
     }
 
     public Register getRegister() {

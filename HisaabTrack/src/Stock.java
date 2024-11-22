@@ -4,12 +4,15 @@ public class Stock {
     // Attributes
 	int StockID;
     private Product product;
+    private int stockID;
     private int quantity;
     private double totalCost;
     private Date arrivalDate;
 
     // Constructor
-    public Stock() {}
+    public Stock() {
+        arrivalDate = new Date();
+    }
     public Stock(int ID, Product product, int quantity, double totalCost, Date arrivalDate) {
         this.StockID = ID;
     	this.product = product;
@@ -26,6 +29,14 @@ public class Stock {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public int getStockID() {
+        return stockID;
+    }
+
+    public void setStockID(int stockID) {
+        this.stockID = quantity;
     }
 
     public int getQuantity() {

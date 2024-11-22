@@ -45,8 +45,26 @@ public class Admin {
     }
 
     // Method Signatures
-    public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address,String password, Store s) {
-        InventoryManager Manager = new InventoryManager(mID, Name, cnic, Address, password);
+    public boolean isMyManager(int ID) {
+        for(int i=0;i<myManagers.size();++i) {
+            if(myManagers.get(i).getManagerID() == ID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Invoice payInvoice(int invoiceID) {
+        for(Invoice obj:unpaidInvoices ) {
+            if(obj.getInvoiceID() == invoiceID) {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+    public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address, Store s) {
+        InventoryManager Manager = new InventoryManager(mID, Name, cnic, Address);
         Manager.setManagingStore(s);            
         myManagers.add(Manager);
         return Manager; 

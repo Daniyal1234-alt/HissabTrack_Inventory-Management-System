@@ -23,15 +23,15 @@ public class HisaabTrack {
         DB = new SQLDBHandler();
     }
 
+    // Method signatures
     public boolean login() {
         return true;
     }
-
     public boolean signUp() {
         return true;
     }
 
-    // Method signatures
+    // Admin functions
     public void addSupplier(int adminID,String company, String location, int regNo, boolean DBCall) {
         Supplier e = null;
         for(int i = 0; i < admins.size(); ++i) {
@@ -76,7 +76,6 @@ public class HisaabTrack {
         }
         return flag;
     }
-
     public Admin addAdmin(String Name, String cnic, String Address,String password, boolean DBCall) {
         int adminID = admins.size() + 1;
         Admin newAdmin = new Admin(adminID, Name, cnic, Address, password);
@@ -203,12 +202,64 @@ public class HisaabTrack {
         }
         return null;
     }
+    public List<Invoice> handleUnpaidInvoices(int adminID) {
+        for(Admin obj : admins) {
+            if(obj.getAdminID() == adminID) {
+                return obj.getUnpaidInvoices();
+            }
+        }
+        return null;
+    }
+    public void payInvoice(int adminID, int invoiceID) {
+        Invoice e = null;
+        for(Admin obj : admins) {
+            if(obj.getAdminID() == adminID) {
+                e = obj.payInvoice(invoiceID);
+                for(Supplier s : suppliers) {
+                    if(s.getSupplierID() == e.getSupplierID()) {
+                        s.receivePayment(invoiceID, e.getTotalAmount());
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
 
     // manager functions
-    public void makeSale() {}
-    public void generateOrder() {}
-    public void payInvoice() {}
+    public void makeSale(int managerID, List<Product> p, List<Integer> q) {
+        for(InventoryManager obj:managers) {
+            if(obj.getManagerID() == managerID) {
+                obj.makeSale(p,q);
+            }
+        }
+    }
+    public void placeOrder(int managerID, int supplierID, List<Product> p, List<Integer> q) {
+        Invoice e = null;
+        for(InventoryManager manager:managers) {
+            if(manager.getManagerID() == managerID) {
+                e = manager.placeOrder(p, q);
+                e.setSupplierID(supplierID);
+                e.setCreatedBy(managerID);
+            }
+        }
+        for(Supplier s:suppliers) {
+            if(s.getSupplierID() == supplierID) {
+                s.addIncomingOrder(e);
+            }
+        }
+    }
+    public List<Stock> checkStock(int managerID) {
+        return getStoreStock(managerID);
+    }
+    public void generateReport(int managerID) {}
+    public List<Invoice> viewOrderStatus(int managerID) {
+        return getManagerByID(managerID).getOrders();
+    }
+    public void updateProfile(int managerID) {}
 
+    
+    // Supplier functions
     public ProductCatalog getProductCatalog(int supplierID) {
         for(int i=0;i<suppliers.size();++i){
             if(suppliers.get(i).getSupplierID() == supplierID) {
@@ -266,20 +317,27 @@ public class HisaabTrack {
                 iManagerID = suppliers.get(i).sendOrder(invoiceID);
             }
         }
-        //notify manager with corresponding ID
-        for(int i=0;i<managers.size();++i) {
-            if(managers.get(i).getManagerID() == iManagerID) {
-                for(int j=0;j<managers.get(i).getRegister().getInvoices().size();++j) {
-                    if(managers.get(i).getRegister().getInvoices().get(j).getInvoiceID() == invoiceID) {
-                        if(managers.get(i).getRegister().getInvoices().get(j).isDelivered()) {
-                            //successful delivery
-                        } else {
-                            //order cancelled
-                        }
-                    }
-                }
+    }
+    public void requestPayment(int ID, int invoiceID) { //new
+        int iManagerID = 0;
+        for(int i=0;i<suppliers.size();++i){
+            if(suppliers.get(i).getSupplierID() == ID) {
+                iManagerID = suppliers.get(i).requestPayment(invoiceID);
             }
         }
+        //notify manager with corresponding ID
+        Invoice obj = null;
+        for(int i=0;i<managers.size();++i) {
+            if(managers.get(i).getManagerID() == iManagerID) {
+                obj = managers.get(i).findInvoiceByID(invoiceID);
+            }
+        }
+        for (Admin admin : admins) {
+            if (admin.isMyManager(iManagerID)) {
+                admin.addInvoice(obj);
+            }
+        }
+
     }
     public List<Invoice> viewRecievedOrders(int ID) {  //new
         for(int i=0;i<suppliers.size();++i){
@@ -299,62 +357,72 @@ public class HisaabTrack {
         }
         return null;
     } 
-    public void requestPayment(int ID, int invoiceID) { //new
-        int iManagerID = 0;
-        for(int i=0;i<suppliers.size();++i){
-            if(suppliers.get(i).getSupplierID() == ID) {
-                iManagerID = suppliers.get(i).requestPayment(invoiceID);
+
+    // Utility functions
+    public String findManagerByID(int ID) {
+        for (InventoryManager manager : managers) {
+            if (manager.getManagerID() == ID) {
+                return manager.getCNIC();
             }
         }
-        //notify manager with corresponding ID
-        for(int i=0;i<managers.size();++i) {
-            if(managers.get(i).getManagerID() == iManagerID) {
-                for(int j=0;j<managers.get(i).getRegister().getInvoices().size();++j) {
-                    if(managers.get(i).getRegister().getInvoices().get(j).getInvoiceID() == invoiceID) {
-                        // request for payment
-                    }
-                }
+        return null;
+    }
+    public InventoryManager getManagerByID(int ID) {
+        for (InventoryManager manager : managers) {
+            if (manager.getManagerID() == ID) {
+                return manager;
             }
         }
+        return null;
+    }
+    public Supplier getSupplierByID(int ID) {
+        for (Supplier s : suppliers) {
+            if (s.getSupplierID() == ID) {
+                return s;
+            }
+        }
+        return null;
+    }
+    public void addStore (Store obj) {
+        stores.add(obj);
+    }
+    public List<Stock> getStoreStock(int managerID) {
+        for(Store s:stores) {
+            if(s.getManagerID() == managerID) {
+                return s.getStock();
+            }
+        }
+        return null;
     }
 
     // Getters and Setters
     public List<Admin> getAdmins() {
         return admins;
     }
-
     public void setAdmins(List<Admin> admins) {
         this.admins = admins;
     }
-
     public List<Supplier> getSuppliers() {
         return suppliers;
     }
-
     public void setSuppliers(List<Supplier> suppliers) {
         this.suppliers = suppliers;
     }
-
     public List<InventoryManager> getManagers() {
         return managers;
     }
-
     public void setManagers(List<InventoryManager> managers) {
         this.managers = managers;
     }
-
     public List<Store> getStores() {
         return stores;
     }
-
     public void setStores(List<Store> stores) {
         this.stores = stores;
     }
-
     public ITService getIT() {
         return IT;
     }
-
     public void setIT(ITService IT) {
         this.IT = IT;
     }
