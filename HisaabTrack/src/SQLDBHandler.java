@@ -121,7 +121,7 @@ public class SQLDBHandler {
 	                    managerRs.getString("password")
 	                   
 	                );
-	                system.addManager(managerRs.getInt("adminID"), managerRs.getString("name"), managerRs.getString("CNIC"), managerRs.getString("address"),
+	                system.addManager(1, managerRs.getString("name"), managerRs.getString("CNIC"), managerRs.getString("address"),
 	                    managerRs.getString("password"), system.getStore(managerRs.getInt("storeID")), true );
 	            }
 	        }
@@ -347,7 +347,8 @@ public class SQLDBHandler {
 	        String sql = "INSERT INTO Invoice (createdByID, createdOn, userType, paid, delivered) VALUES (?, ?, ?, ?, ?)";
 	        PreparedStatement pstmt = conn.prepareStatement(sql);
 	        pstmt.setInt(1, invoice.getCreatedBy());
-	        pstmt.setDate(2, (Date)invoice.getCreatedOn());
+	        java.sql.Date sqlDate = new java.sql.Date(invoice.getCreatedOn().getTime());
+	        pstmt.setDate(2, sqlDate);
 	        pstmt.setString(3, invoice.getCreatorType());
 	        pstmt.setBoolean(4, invoice.isPaidFor());
 	        pstmt.setBoolean(5, invoice.isDelivered());
@@ -378,7 +379,8 @@ public class SQLDBHandler {
 	        pstmt.setInt(2, StoreID);
 	        pstmt.setInt(3, stock.getQuantity());
 	        pstmt.setDouble(4, stock.getTotalCost());
-	        pstmt.setDate(5, (Date)stock.getArrivalDate());
+	        java.sql.Date sqlDate = new java.sql.Date(stock.getArrivalDate().getTime());
+	        pstmt.setDate(5, sqlDate);
 	        return pstmt.executeUpdate() > 0;
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -758,8 +760,10 @@ public class SQLDBHandler {
 	            productPstmt.setString(1, p.getName());
 	            productPstmt.setDouble(2, p.getPrice());
 	            productPstmt.setDouble(3, p.getPrice());
-	            productPstmt.setDate(4, (Date)p.getMFG());
-	            productPstmt.setDate(5, (Date)p.getEXP());
+	            java.sql.Date mfgDate = new java.sql.Date(p.getMFG().getTime());
+	            java.sql.Date expDate = new java.sql.Date(p.getEXP().getTime());
+	            productPstmt.setDate(4, mfgDate);
+	            productPstmt.setDate(5, expDate);
 	            int rows = productPstmt.executeUpdate();
 	            if(rows > 0 ) {
 	            	String productcatalogproductString = "INSERT INTO productcatalogproducts (CatalogID, ProductID) VALUES (?, ?)";
