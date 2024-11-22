@@ -27,21 +27,20 @@ public class Store {
     }
 
     public boolean updateStock(Invoice e) {
-        Stock s = new Stock();
         boolean flag = false;
         int i = 0;
         for(Product p: e.getProducts()) {
             flag = false;
             for(Stock s1:stock) {
-                if(s1.getProduct().getName().equals(p.getName())) {
-                    s1.setQuantity(s.getQuantity() + e.getAmount().get(i));
+                if(s1.getProduct().getName().equals(p.getName())) {      	
+                    s1.setQuantity(s1.getQuantity() + e.getAmount().get(i));
                     s1.setArrivalDate(new Date());
                     flag = true;
                     break;
                 } 
             }
             if(!flag) {
-                s.setStockID(stock.size() + 1);
+                Stock s = new Stock();
                 s.setProduct(p);
                 s.setQuantity(e.getAmount().get(i));
                 s.setTotalCost(p.getPrice() * s.getQuantity());
@@ -64,6 +63,7 @@ public class Store {
     }
 
     public boolean addStock(Stock s) {
+    	this.stock.add(s);
         return false; // Placeholder for implementation
     }
 

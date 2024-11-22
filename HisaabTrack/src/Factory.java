@@ -106,7 +106,9 @@ public class Factory {
                     System.out.print("Password: ");
                     String password = inputScanner.nextLine();
                     List<Store> storeList = system.getStores();
-                    Store store = null; // Assume store selection is done
+                    System.out.print("Store ID: ");
+                    int storeID = inputScanner.nextInt();
+                    Store store = system.getStore(storeID); // Assume store selection is done
                     System.out.print("AdminID: ");
                     int admin_ID = inputScanner.nextInt();
                     system.addManager(admin_ID, name, cnic, address,password, store, false);

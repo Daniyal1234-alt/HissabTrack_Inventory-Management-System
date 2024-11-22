@@ -2,7 +2,7 @@ import java.util.Date;
 
 public class Stock {
     // Attributes
-	int StockID;
+	static int totalStock = 0 ;
     private Product product;
     private int stockID;
     private int quantity;
@@ -11,14 +11,18 @@ public class Stock {
 
     // Constructor
     public Stock() {
+    	totalCost = totalCost + 1;
+    	this.stockID = totalStock;
         arrivalDate = new Date();
     }
     public Stock(int ID, Product product, int quantity, double totalCost, Date arrivalDate) {
-        this.StockID = ID;
+    	totalStock = totalStock + 1;
+    	this.stockID = totalStock;
     	this.product = product;
         this.quantity = quantity;
         this.totalCost = totalCost;
         this.arrivalDate = arrivalDate;
+        
     }
 
 

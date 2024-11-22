@@ -47,6 +47,7 @@ public class HisaabTrack {
         if(!DBCall)
             DB.addSupplier(e);
     }
+    // Add admin
     public boolean removeSupplier(int adminID, int supplierID) {
         boolean flag = false;
         for(int i = 0; i < admins.size(); ++i) {
@@ -122,10 +123,11 @@ public class HisaabTrack {
             DB.addAdminInventoryManager(adminID, e.getManagerID());
         }
     }
+    
     public void addUnpaidInvoice(int adminID, Invoice invoice) {
     	for(Admin a: this.admins) {
     		if(a.getAdminID()==adminID) {
-    			//a.addunpaidinvoice(invoice);
+    			a.addunpaidinvoice(invoice);
     		}
     	}
     }
@@ -133,7 +135,7 @@ public class HisaabTrack {
     	this.stores.add(s);
     }
     
-
+    
     public boolean removeManager(int adminID, int managerID) {
         boolean flag = false;
         for(int i = 0; i < admins.size(); ++i) {
@@ -277,7 +279,7 @@ public class HisaabTrack {
                 suppliers.get(i).addProduct(p,addedAmount);  
                 ProductCatalog catalog = suppliers.get(i).getProducts();
                 //update catalog in DB        
-                //DB.updateCatalog(supplierID, Catalog);
+                DB.updateCatalog(supplierID, productID, addedAmount );
             }
         }
     }

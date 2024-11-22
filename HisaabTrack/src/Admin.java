@@ -39,7 +39,9 @@ public class Admin {
         myManagers = new ArrayList<>();
         unpaidInvoices = new ArrayList<>();
     }
-
+    public void addunpaidinvoice(Invoice e) {
+    	this.unpaidInvoices.add(e);
+    }
     public void updateProfile() {
         // Placeholder for implementation
     }
@@ -65,7 +67,8 @@ public class Admin {
 
     public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address, Store s, String password) {
         InventoryManager Manager = new InventoryManager(mID, Name, cnic, Address, password);
-        Manager.setManagingStore(s);            
+        if(s!=null)
+        	Manager.setManagingStore(s);            
         myManagers.add(Manager);
         return Manager; 
     }
