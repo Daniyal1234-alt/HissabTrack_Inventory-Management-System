@@ -21,11 +21,9 @@ public class Supplier {
         products = new ProductCatalog();
         recievedOrders = new ArrayList<>();
         sentOrders = new ArrayList<>();
-<<<<<<< HEAD
         this.passwordString = password;
-=======
         balance = 0;
->>>>>>> 1432832d92661f2b241295b204cc1871604bce95
+
     }
     // Method Signatures
     public int getSupplierID() {

@@ -111,7 +111,7 @@ public class HisaabTrack {
         InventoryManager e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
-                e = admins.get(i).addInventoryManager(managers.size() + 1, Name, cnic, address,password,  s );
+                e = admins.get(i).addInventoryManager(managers.size() + 1, Name, cnic, address,  s, password );
                 break;
             }
         }
