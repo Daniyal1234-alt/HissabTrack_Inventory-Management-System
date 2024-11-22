@@ -1,4 +1,3 @@
-CREATE DATABASE IF NOT EXISTS HissabTrack;
 
 -- ADMIN TABLE
 CREATE TABLE IF NOT EXISTS Admin (
@@ -6,23 +5,25 @@ CREATE TABLE IF NOT EXISTS Admin (
     name VARCHAR(255),
     CNIC VARCHAR(255) UNIQUE,
     address VARCHAR(255),
-    active BOOLEAN
+    active BOOLEAN,
+    password VARCHAR(255)
 );
-ALTER TABLE Admin
-ADD COLUMN password VARCHAR(255) NOT NULL;
 -- INVENTORY MANAGER TABLE
 CREATE TABLE IF NOT EXISTS InventoryManager (
     managerID INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
     CNIC VARCHAR(255) UNIQUE,
     address VARCHAR(255),
-    storeID INT UNIQUE
+    storeID INT UNIQUE,
+    password VARCHAR(255)
+
 );
 SELECT * FROM InventoryManager a JOIN admininventorymanager b WHERE a.managerID = b.inventoryManagerID
 -- STORE TABLE
 CREATE TABLE IF NOT EXISTS Store (
     storeID INT AUTO_INCREMENT PRIMARY KEY,
-    location VARCHAR(255)
+    location VARCHAR(255),
+    managerID INT
 );
 
 -- SUPPLIER TABLE
@@ -30,7 +31,9 @@ CREATE TABLE IF NOT EXISTS Supplier (
     supplierID INT AUTO_INCREMENT PRIMARY KEY,
     companyName VARCHAR(255),
     location VARCHAR(255),
-    registrationNum INT UNIQUE
+    registrationNum INT UNIQUE,
+    balance FLOAT,
+    password VARCHAR(255)
 );
 
 -- INVOICE TABLE
@@ -40,7 +43,7 @@ CREATE TABLE IF NOT EXISTS Invoice (
     createdOn DATE,
     userType VARCHAR(255),
     paid BOOLEAN, 
-    deliverd BOOLEAN
+    delivered BOOLEAN
 );
 -- REPORT TABLE
 CREATE TABLE IF NOT EXISTS Report (
@@ -55,17 +58,14 @@ CREATE TABLE IF NOT EXISTS Product (
     productID INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
     description VARCHAR(255),
-    supplierID INT,
     price DOUBLE,
     MFG DATE,
     EXP DATE
 );
-
 -- STOCK TABLE
 CREATE TABLE IF NOT EXISTS Stock (
     stockID INT AUTO_INCREMENT PRIMARY KEY,
-    productID INT,
-    storeID INT, 
+    productID INT, 
     quantity INT,
     totalCost DOUBLE,
     arrivalDate DATE
@@ -73,11 +73,11 @@ CREATE TABLE IF NOT EXISTS Stock (
 
 -- PRODUCT CATALOG TABLE
 CREATE TABLE IF NOT EXISTS ProductCatalog (
-    productCatalogID INT AUTO_INCREMENT PRIMARY KEY,
+    productCatalogID INT ,
     supplierID INT
 );
 
--- ADMIN-INVENTORY MANAGER RELATION TABLE
+-- ADMIN - INVENTORYMANAGER TABLE
 CREATE TABLE IF NOT EXISTS AdminInventoryManager (
     adminID INT,
     inventoryManagerID INT
@@ -98,15 +98,8 @@ CREATE TABLE IF NOT EXISTS StoreStock (
 -- PRODUCT CATALOG-PRODUCTS TABLE
 CREATE TABLE IF NOT EXISTS ProductCatalogProducts (
     catalogID INT,
-    productID INT
-);
-ALTER TABLE ProductCatalogProducts
-ADD COLUMN quantity INT NOT NULL DEFAULT 0;
-
--- SUPPLIER-CATALOG RELATION TABLE
-CREATE TABLE IF NOT EXISTS SupplierCatalog (
-    supplierID INT,
-    catalogID INT
+    productID INT,
+    quantity INT
 );
 
 -- SUPPLIER-PENDING ORDERS TABLE
@@ -114,80 +107,59 @@ CREATE TABLE IF NOT EXISTS SupplierPendingOrders (
     supplierID INT,
     invoiceID INT
 );
--- SUPPLIER-ADMIN TABLE
-CREATE TABLE IF NOT EXISTS SupplierAdmin (
+-- SUPPLIER-DELIVERED ORDERS TABLES
+CREATE TABLE IF NOT EXISTS SupplierDeliveredOrders (
     supplierID INT,
-    adminID INT
+    invoiceID INT
 );
-SELECT* FROM Supplier s JOIN SupplierCatalog sc ON s.supplierID = sc.supplierID JOIN productcatalogproducts cp ON sc.catalogID = cp.catalogID JOIN product ps ON cp.productID = ps.productID 
-SELECT s.supplierID, s.comapanyName, s.location, s.registerationNum, 
-		                       sc.catalogID, cp.productID, p.name AS productName, p.description, 
-		                       p.price, p.MFG, p.EXP 
-		                FROM Supplier s 
-		                JOIN SupplierCatalog sc ON s.supplierID = sc.supplierID 
-		                JOIN ProductCatalogProducts cp ON sc.catalogID = cp.catalogID 
-		                JOIN Product p ON cp.productID = p.productID
+drop table SupplierdDeliveredOrders
+-- Manager-Store Table
+CREATE TABLE IF NOT EXISTS ManagerStore (
+    managerID INT,
+   	storeID INT
+);
+
+INSERT INTO Store (location, managerID)
+VALUES
+    ('Location 1', 0),
+    ('Location 2', 0),
+    ('Location 3', 0),
+    ('Location 4', 0),
+    ('Location 5', 0),
+    ('Location 6', 0),
+    ('Location 7', 0),
+    ('Location 8', 0),
+    ('Location 9', 0),
+    ('Location 10', 0),
+    ('Location 11', 0),
+    ('Location 12', 0),
+    ('Location 13', 0),
+    ('Location 14', 0),
+    ('Location 15', 0),
+    ('Location 16', 0),
+    ('Location 17', 0),
+    ('Location 18', 0),
+    ('Location 19', 0),
+    ('Location 20', 0);
+
 SHOW TABLES
-DESCRIBE supplier;
-
--- Add password field to InventoryManager
-ALTER TABLE InventoryManager
-ADD COLUMN password VARCHAR(255) NOT NULL;
-
--- Add password field to Supplier
-ALTER TABLE Supplier
-ADD COLUMN password VARCHAR(255) NOT NULL;
-  SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.delivered, i.paid
-        FROM Invoice i 
-        JOIN SupplierPendingOrders spo ON i.invoiceID = spo.invoiceID 
-        WHERE spo.supplierID = 1
-SELECT * FROM Invoice i JOIN adminunpaidinvoices AI ON i.invoiceID = AI.invoiceID WHERE paid = FALSE
--- ALTER TABLE TO ADD FOREIGN KEYS
-ALTER TABLE InventoryManager
-ADD FOREIGN KEY (storeID) REFERENCES Store(storeID) ON DELETE SET NULL;
-
-ALTER TABLE Product
-ADD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID) ON DELETE CASCADE;
-
-ALTER TABLE Stock
-ADD FOREIGN KEY (productID) REFERENCES Product(productID) ON DELETE CASCADE,
-ADD FOREIGN KEY (storeID) REFERENCES Store(storeID) ON DELETE CASCADE;
-
-ALTER TABLE ProductCatalog
-ADD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID) ON DELETE CASCADE;
-
-ALTER TABLE AdminInventoryManager
-ADD FOREIGN KEY (adminID) REFERENCES Admin(adminID) ON DELETE CASCADE,
-ADD FOREIGN KEY (inventoryManagerID) REFERENCES InventoryManager(managerID) ON DELETE CASCADE;
-
-ALTER TABLE AdminUnpaidInvoices
-ADD FOREIGN KEY (adminID) REFERENCES Admin(adminID) ON DELETE CASCADE,
-ADD FOREIGN KEY (invoiceID) REFERENCES Invoice(invoiceID) ON DELETE CASCADE;
-
-ALTER TABLE StoreStock
-ADD FOREIGN KEY (storeID) REFERENCES Store(storeID) ON DELETE CASCADE,
-ADD FOREIGN KEY (stockID) REFERENCES Stock(stockID) ON DELETE CASCADE;
-
-ALTER TABLE ProductCatalogProducts
-ADD FOREIGN KEY (catalogID) REFERENCES ProductCatalog(productCatalogID) ON DELETE CASCADE,
-ADD FOREIGN KEY (productID) REFERENCES Product(productID) ON DELETE CASCADE;
-
-ALTER TABLE SupplierCatalog
-ADD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID) ON DELETE CASCADE,
-ADD FOREIGN KEY (catalogID) REFERENCES ProductCatalog(productCatalogID) ON DELETE CASCADE;
-
-ALTER TABLE SupplierPendingOrders
-ADD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID) ON DELETE CASCADE,
-ADD FOREIGN KEY (invoiceID) REFERENCES Invoice(invoiceID) ON DELETE CASCADE;
-
-INSERT INTO Store (location) VALUES
-('Downtown'),
-('Uptown'),
-('Suburban Area'),
-('Central Plaza'),
-('Industrial Zone'),
-('Eastside Market'),
-('West End Mall'),
-('City Center'),
-('North Avenue'),
-('South Park');
+TRUNCATE TABLE SupplierdDeliveredOrders;
+TRUNCATE TABLE SupplierPendingOrders;
+TRUNCATE TABLE ProductCatalogProducts;
+TRUNCATE TABLE StoreStock;
+TRUNCATE TABLE AdminUnpaidInvoices;
+TRUNCATE TABLE AdminInventoryManager;
+TRUNCATE TABLE ProductCatalog;
+TRUNCATE TABLE Stock;
+TRUNCATE TABLE Product;
+TRUNCATE TABLE Report;
+TRUNCATE TABLE Invoice;
+TRUNCATE TABLE Supplier;
+TRUNCATE TABLE ManagerStore;
+TRUNCATE TABLE Store;
+TRUNCATE TABLE InventoryManager;
+TRUNCATE TABLE Admin;
+SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered, sdo.supplierID
+    FROM Invoice i
+    JOIN SupplierDeliveredOrders sdo ON i.invoiceID = sdo.invoiceID
+    WHERE i.delivered = TRUE

@@ -11,7 +11,31 @@ public class Supplier {
     private ProductCatalog products;
     private List<Invoice> recievedOrders;
     private List<Invoice> sentOrders;
-    private String passwordString;
+    public double getBalance() {
+		return balance;
+	}
+	public void setBalance(double balance) {
+		this.balance = balance;
+	}
+	public List<Invoice> getSentOrders() {
+		return sentOrders;
+	}
+	public void setSentOrders(List<Invoice> sentOrders) {
+		this.sentOrders = sentOrders;
+	}
+	public String getPasswordString() {
+		return passwordString;
+	}
+	public void setPasswordString(String passwordString) {
+		this.passwordString = passwordString;
+	}
+	public void setRecievedOrders(List<Invoice> recievedOrders) {
+		this.recievedOrders = recievedOrders;
+	}
+	public void addDeliveredOrder(Invoice i) {
+		this.sentOrders.add(i);
+	}
+	private String passwordString;
     // Constructor
     public Supplier(int supplierID, String company, String location, int regNo, String password) {
         this.supplierID = supplierID;

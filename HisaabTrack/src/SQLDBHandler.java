@@ -262,7 +262,31 @@ public class SQLDBHandler {
 	                system.addUnpaidInvoice(rs.getInt("createdByID"), invoice);
 	            }
 	        }
+	        //Add Delivered Invoices
+	        String supplierDeliveredSql = """
+	        	    SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered, sdo.supplierID
+	        	    FROM Invoice i
+	        	    JOIN SupplierDeliveredOrders sdo ON i.invoiceID = sdo.invoiceID
+	        	    WHERE i.delivered = TRUE
+	        	""";
+	        try (PreparedStatement deliveredStmt = conn.prepareStatement(supplierDeliveredSql)) {
+	            ResultSet rs = deliveredStmt.executeQuery();
+	            while (rs.next()) {
+	                // Create an Invoice object from the ResultSet
+	                Invoice invoice = new Invoice(
+	                    rs.getInt("invoiceID"),
+	                    rs.getInt("createdByID"),
+	                    rs.getDate("createdOn"),
+	                    rs.getBoolean("delivered"),
+	                    rs.getBoolean("paid"),
+	                    rs.getString("userType")
+	                );
 
+	                // Add the invoice to the system for the corresponding supplier
+	                int supplierID = rs.getInt("supplierID");
+	                system.addDeliveredOrder(supplierID, invoice);
+	            }
+	        }
 	        return true;
 
 	    } catch (SQLException e) {

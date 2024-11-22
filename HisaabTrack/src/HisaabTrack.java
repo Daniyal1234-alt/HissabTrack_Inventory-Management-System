@@ -88,6 +88,13 @@ public class HisaabTrack {
             DB.addAdmin(newAdmin);
         return newAdmin;
     }
+    public void addDeliveredOrder(int supplierID, Invoice i) {
+    	for(Supplier s: this.suppliers) {
+    		if(s.getSupplierID() == supplierID) {
+    			s.addDeliveredOrder(i);
+    		}
+    	}
+    }
     public Store getStore(int storeID) {
     	 for (Store s : this.stores) {
              // Check if the manager's ID matches the provided ID
