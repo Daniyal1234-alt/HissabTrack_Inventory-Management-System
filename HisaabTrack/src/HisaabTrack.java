@@ -32,13 +32,9 @@ public class HisaabTrack {
         return true;
     }
 
-<<<<<<< HEAD
-    // Method signatures
-    public void addSupplier(int adminID,String company, String location, int regNo, String password,  boolean DBCall) {
-=======
+
     // Admin functions
-    public void addSupplier(int adminID,String company, String location, int regNo, boolean DBCall) {
->>>>>>> 1432832d92661f2b241295b204cc1871604bce95
+    public void addSupplier(int adminID,String company, String location, int regNo,String password,  boolean DBCall) {
         Supplier e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
@@ -136,38 +132,7 @@ public class HisaabTrack {
     public void addStore(Store s) {
     	this.stores.add(s);
     }
-    public String findManagerByID(int ID) {
-        // Loop through the list of managers
-        for (InventoryManager manager : managers) {
-            // Check if the manager's ID matches the provided ID
-            if (manager.getManagerID() == ID) {
-                // Return the manager object if a match is found
-                return manager.getCNIC();
-            }
-        }
-        // Return null if no manager with the given ID is found
-        return null;
-    }
-    public InventoryManager getManagerByID(int ID) {
-        for (InventoryManager manager : managers) {
-            // Check if the manager's ID matches the provided ID
-            if (manager.getManagerID() == ID) {
-                // Return the manager object if a match is found
-                return manager;
-            }
-        }
-        return null;
-    }
-    public Supplier getSupplierByID(int ID) {
-        for (Supplier s : suppliers) {
-            // Check if the manager's ID matches the provided ID
-            if (s.getSupplierID() == ID) {
-                // Return the manager object if a match is found
-                return s;
-            }
-        }
-        return null;
-    }
+    
 
     public boolean removeManager(int adminID, int managerID) {
         boolean flag = false;
@@ -389,9 +354,7 @@ public class HisaabTrack {
         }
         return null;
     }
-    public void addStore (Store obj) {
-        stores.add(obj);
-    }
+   
     public List<Stock> getStoreStock(int managerID) {
         for(Store s:stores) {
             if(s.getManagerID() == managerID) {

@@ -63,8 +63,8 @@ public class Admin {
         return null;
     }
 
-    public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address, Store s) {
-        InventoryManager Manager = new InventoryManager(mID, Name, cnic, Address);
+    public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address, Store s, String password) {
+        InventoryManager Manager = new InventoryManager(mID, Name, cnic, Address, password);
         Manager.setManagingStore(s);            
         myManagers.add(Manager);
         return Manager; 
