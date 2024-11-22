@@ -16,6 +16,52 @@ public class SQLDBHandler {
 		userName = "root";
 		password = "dani";
 	}
+	// login
+	public String Login(String username, String password) {
+	    String queryAdmin = "SELECT * FROM Admin WHERE name = ? AND password = ?";
+	    String queryManager = "SELECT * FROM InventoryManager WHERE name = ? AND password = ?";
+	    String querySupplier = "SELECT * FROM Supplier WHERE comapanyName = ? AND password  = ?";
+	    
+	    try (Connection conn = DriverManager.getConnection(connection, username, password)) {
+	        // Check Admin
+	        try (PreparedStatement stmt = conn.prepareStatement(queryAdmin)) {
+	            stmt.setString(1, username);
+	            stmt.setString(2, password);
+	            try (ResultSet rs = stmt.executeQuery()) {
+	                if (rs.next()) {
+	                    return "Admin";
+	                }
+	            }
+	        }
+
+	        // Check Inventory Manager
+	        try (PreparedStatement stmt = conn.prepareStatement(queryManager)) {
+	            stmt.setString(1, username);
+	            stmt.setString(2, password);
+	            try (ResultSet rs = stmt.executeQuery()) {
+	                if (rs.next()) {
+	                    return "Inventory Manager";
+	                }
+	            }
+	        }
+
+	        // Check Supplier
+	        try (PreparedStatement stmt = conn.prepareStatement(querySupplier)) {
+	            stmt.setString(1, username);
+	            stmt.setString(2, password);
+	            try (ResultSet rs = stmt.executeQuery()) {
+	                if (rs.next()) {
+	                    return "Supplier";
+	                }
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return null; // No match found
+	}
+
 	//Load from DB into HissabTrack System
 	public boolean loadFromDB(HisaabTrack system) {
 	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
@@ -134,6 +180,26 @@ public class SQLDBHandler {
 	                );
 	            }
 	        }
+	        // Load unpaid invoices into AdminUnpaidInvoices
+	        String unpaidInvoicesSql = "SELECT * FROM Invoice i JOIN adminunpaidinvoices AI ON i.invoiceID = AI.invoiceID WHERE paid = FALSE";
+	        try (PreparedStatement unpaidStmt = conn.prepareStatement(unpaidInvoicesSql)) {
+	            ResultSet rs = unpaidStmt.executeQuery();
+	            while (rs.next()) {
+	                int adminID = rs.getInt("createdByID");
+	                Invoice invoice = new Invoice(
+		                    rs.getInt("invoiceID"),
+		                    rs.getInt("createdByID"),
+		                    rs.getDate("createdOn"),
+		                    rs.getBoolean("delivered"),
+		                    rs.getBoolean("paid"),
+		                    rs.getString("userType")
+		                );
+	                // Assuming addUnpaidInvoice is a method in your system
+	                system.addUnpaidInvoice(adminID, invoice); 
+	            }
+	        }
+
+	        
 
 	        return true;
 
@@ -663,6 +729,7 @@ public class SQLDBHandler {
 	        return false; // Error occurred during operation
 	    }
 	}
+	
 
 
 }

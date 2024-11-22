@@ -121,6 +121,13 @@ public class HisaabTrack {
             DB.addAdminInventoryManager(adminID, e.getManagerID());
         }
     }
+    public void addUnpaidInvoice(int adminID, Invoice invoice) {
+    	for(Admin a: this.admins) {
+    		if(a.getAdminID()==adminID) {
+    			a.addunpaidinvoice(invoice);
+    		}
+    	}
+    }
     public void addStore(Store s) {
     	this.stores.add(s);
     }

@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS Admin (
     address VARCHAR(255),
     active BOOLEAN
 );
-
+ALTER TABLE Admin
+ADD COLUMN password VARCHAR(255) NOT NULL;
 -- INVENTORY MANAGER TABLE
 CREATE TABLE IF NOT EXISTS InventoryManager (
     managerID INT AUTO_INCREMENT PRIMARY KEY,
@@ -17,7 +18,7 @@ CREATE TABLE IF NOT EXISTS InventoryManager (
     address VARCHAR(255),
     storeID INT UNIQUE
 );
-
+SELECT * FROM InventoryManager a JOIN admininventorymanager b WHERE a.managerID = b.inventoryManagerID
 -- STORE TABLE
 CREATE TABLE IF NOT EXISTS Store (
     storeID INT AUTO_INCREMENT PRIMARY KEY,
@@ -99,6 +100,8 @@ CREATE TABLE IF NOT EXISTS ProductCatalogProducts (
     catalogID INT,
     productID INT
 );
+ALTER TABLE ProductCatalogProducts
+ADD COLUMN quantity INT NOT NULL DEFAULT 0;
 
 -- SUPPLIER-CATALOG RELATION TABLE
 CREATE TABLE IF NOT EXISTS SupplierCatalog (
@@ -111,9 +114,33 @@ CREATE TABLE IF NOT EXISTS SupplierPendingOrders (
     supplierID INT,
     invoiceID INT
 );
+-- SUPPLIER-ADMIN TABLE
+CREATE TABLE IF NOT EXISTS SupplierAdmin (
+    supplierID INT,
+    adminID INT
+);
+SELECT* FROM Supplier s JOIN SupplierCatalog sc ON s.supplierID = sc.supplierID JOIN productcatalogproducts cp ON sc.catalogID = cp.catalogID JOIN product ps ON cp.productID = ps.productID 
+SELECT s.supplierID, s.comapanyName, s.location, s.registerationNum, 
+		                       sc.catalogID, cp.productID, p.name AS productName, p.description, 
+		                       p.price, p.MFG, p.EXP 
+		                FROM Supplier s 
+		                JOIN SupplierCatalog sc ON s.supplierID = sc.supplierID 
+		                JOIN ProductCatalogProducts cp ON sc.catalogID = cp.catalogID 
+		                JOIN Product p ON cp.productID = p.productID
 SHOW TABLES
 DESCRIBE supplier;
+-- Add password field to InventoryManager
+ALTER TABLE InventoryManager
+ADD COLUMN password VARCHAR(255) NOT NULL;
 
+-- Add password field to Supplier
+ALTER TABLE Supplier
+ADD COLUMN password VARCHAR(255) NOT NULL;
+  SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.delivered, i.paid
+        FROM Invoice i 
+        JOIN SupplierPendingOrders spo ON i.invoiceID = spo.invoiceID 
+        WHERE spo.supplierID = 1
+SELECT * FROM Invoice i JOIN adminunpaidinvoices AI ON i.invoiceID = AI.invoiceID WHERE paid = FALSE
 -- ALTER TABLE TO ADD FOREIGN KEYS
 ALTER TABLE InventoryManager
 ADD FOREIGN KEY (storeID) REFERENCES Store(storeID) ON DELETE SET NULL;

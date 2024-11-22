@@ -29,12 +29,24 @@ public class Invoice {
         createdOn = new Date();
         creatorType = "\0";
     }
-
+    //Parameterized Constructor
+    public Invoice(int invoiceID, int createdBy, Date createdOn, boolean deliveryStatus, boolean paymentStatus, String creatorType) {
+        this.invoiceID = invoiceID;
+        this.createdBy = createdBy;
+        this.createdOn = createdOn;
+        this.deliveryStatus = deliveryStatus;
+        this.paymentStatus = paymentStatus;
+        this.creatorType = creatorType;
+    }
     // Method Signatures
     public Invoice generateInvoice(List<Product> P) {
         return null; // Placeholder for implementation
     }
-
+    // Adding a product to the invoice
+    public void addProduct(Product p, int amount) {
+    	this.products.add(p);
+    	this.amount.add(amount);
+    }
     public List<Integer> getAmount() {
         return amount;
     }

@@ -9,7 +9,10 @@ public class Store {
 
     // Constructor
     public Store() {}
-
+    public Store(int id, String locString) {
+    	this.storeID = id;
+    	this.location = locString;
+    }
     // Method Signatures
     public void printStock() {
         // Placeholder for implementation
