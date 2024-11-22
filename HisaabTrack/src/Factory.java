@@ -338,7 +338,7 @@ public class Factory {
                     System.out.println("Updating Profile...");
                     // Update profile logic
                     break;
-
+                    
                 case 9:
                     adminFlag = false;
                     break;
@@ -498,14 +498,14 @@ public class Factory {
                     if(p.getProduct().isEmpty()) {
                         System.out.println("Empty Product Catalog.");
                     } else {
-                        System.out.println("\n=== Completed Orders ==="); 
+                        System.out.println("\n=== Product Catalog ==="); 
                         int i = 0;
                         for(Product product : p.getProduct()) {
                             System.err.println("Name: " + product.getName()  + "\nDescription: " + product.getDescription() + "\nAmount: " + p.getAmount().get(i++));
                         }
                     }
                     break;
-
+                
                 case 7:
                     supplierFlag = false;
                     break;

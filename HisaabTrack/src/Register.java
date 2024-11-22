@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Register {
@@ -7,15 +9,28 @@ public class Register {
     private List<Invoice> invoices;
 
     // Constructor
-    public Register() {}
+    public Register(int ID) {
+        registerID = ID;
+        reports = new ArrayList<>();
+        invoices = new ArrayList<>();
+    }
 
     // Method Signatures
     public Report generateReport(Store s) {
         return null; // Placeholder for implementation
     }
 
-    public Invoice generateInvoice(List<Product> p) {
-        return null; // Placeholder for implementation
+    public Invoice generateInvoice(List<Product> p, List<Integer> q) {
+        Invoice obj = new Invoice();
+        obj.setProducts(p);
+        obj.setQuantity(q);
+        obj.setCreatedOn(new Date());
+        invoices.add(obj);
+        return obj; // Placeholder for implementation
+    }
+
+    public void removeInvoice(Invoice e) {
+        invoices.remove(e);
     }
 
     // Getters and Setters

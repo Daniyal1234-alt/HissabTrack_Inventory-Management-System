@@ -6,6 +6,7 @@ public class Invoice {
     // Attributes
     private int invoiceID;
     private int createdBy; //inventory manager ID
+    private int supplierID;
     private Date createdOn;
     private List<Product> products;
     private List<Integer> amount;
@@ -60,13 +61,27 @@ public class Invoice {
         return total;
     }
     
+    void addItem(Product p, int quantity) {
+        products.add(p);
+        amount.add(quantity);
+    }
+
     public int getInvoiceID() {
         return invoiceID;
+    }
+
+    public void setSupplierID(int supplierID) {
+        this.supplierID = supplierID;
+    }
+    
+    public int getSupplierID() {
+        return supplierID;
     }
 
     public void setInvoiceID(int invoiceID) {
         this.invoiceID = invoiceID;
     }
+
 
     public int getCreatedBy() {
         return createdBy;
@@ -90,6 +105,14 @@ public class Invoice {
 
     public void setProducts(List<Product> products) {
         this.products = products;
+    }
+
+    public List<Integer> getQuantity() {
+        return amount;
+    }
+
+    public void setQuantity(List<Integer> quantity) {
+        this.amount = quantity;
     }
 
     public boolean isDelivered() {
