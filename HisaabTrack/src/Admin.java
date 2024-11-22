@@ -80,8 +80,8 @@ public class Admin {
         return null;
     }
 
-    public Supplier addSupplier(int sID, String company, String location, int regNo) {
-            Supplier newSupplier = new Supplier(sID, company, location, regNo);
+    public Supplier addSupplier(int sID, String company, String location, int regNo, String password) {
+            Supplier newSupplier = new Supplier(sID, company, location, regNo, password);
             return newSupplier; 
     }
 

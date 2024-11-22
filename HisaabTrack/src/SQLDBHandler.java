@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.sql.*;
+import java.util.regex.PatternSyntaxException;
 
 import com.mysql.cj.QueryReturnType;
 // System PARHH DEY GAYEEEEEEEEE
@@ -9,13 +10,21 @@ public class SQLDBHandler {
 	//private String className;
 	private String userName;
 	private String password;
+	private static SQLDBHandler instanceHandler = null;
 	
-	SQLDBHandler(){
-		//className = "com.mysql.cj.jdbc.Driver";
-		connection = "jdbc:mysql://localhost:3306/HisaabTrack";
-		userName = "root";
-		password = "dani";
-	}
+	private SQLDBHandler() {
+        this.connection = "jdbc:mysql://localhost:3306/HisaabTrack";
+        this.userName = "root";
+        this.password = "dani";
+    }
+
+    // Public method to get the singleton instance
+    public static synchronized SQLDBHandler getInstance() {
+        if (instanceHandler == null) {
+            instanceHandler = new SQLDBHandler();
+        }
+        return instanceHandler;
+    }
 	// login
 	public String Login(String username, String password) {
 	    String queryAdmin = "SELECT * FROM Admin WHERE name = ? AND password = ?";
@@ -130,7 +139,7 @@ public class SQLDBHandler {
 
 	        // Adding Suppliers and Products
 	        String supplierSql = """
-	            SELECT s.supplierID, s.companyName, s.location, s.registrationNum,
+	            SELECT s.supplierID, s.comapanyName, s.location, s.registerationNum,
 	                   sc.catalogID, cp.productID, cp.quantity,
 	                   p.name AS productName, p.description, p.price, p.MFG, p.EXP
 	            FROM Supplier s
@@ -145,8 +154,8 @@ public class SQLDBHandler {
 	                Supplier supplier = system.getSupplier(supplierRs.getInt("supplierID"));
 	                if (supplier == null) {
 	                   
-	                    system.addSupplier(0,supplierRs.getString("companyName"),supplierRs.getString("location"),
-		                        supplierRs.getInt("registrationNum"),  true);
+	                    system.addSupplier(0,supplierRs.getString("comapanyName"),supplierRs.getString("location"),
+		                        supplierRs.getInt("registerationNum"), supplierRs.getString("password"), true);
 	                }
 
 	                // Create the Product
@@ -211,12 +220,13 @@ public class SQLDBHandler {
 	// Adding an Admin to the SQL DB
 	public boolean addAdmin(Admin admin) {
 	    try (Connection conn =  DriverManager.getConnection(connection, userName, password)) {
-	        String sql = "INSERT INTO Admin (name, CNIC, address, active) VALUES (?, ?, ?, ?)";
+	        String sql = "INSERT INTO Admin (name, CNIC, address, active, password) VALUES (?, ?, ?, ?, ?)";
 	        PreparedStatement pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, admin.getName());
 	        pstmt.setString(2, admin.getCNIC());
 	        pstmt.setString(3, admin.getAddress());
 	        pstmt.setBoolean(4, admin.isActive());
+	        pstmt.setString(5, admin.getPassword());
 	        return pstmt.executeUpdate() > 0;
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -238,7 +248,7 @@ public class SQLDBHandler {
 	// Adding an Inventory Manager
 	public boolean addInventoryManager(InventoryManager manager) {
 	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {
-	        String sql = "INSERT INTO InventoryManager (name, CNIC, address, storeID) VALUES (?, ?, ?, ?)";
+	        String sql = "INSERT INTO InventoryManager (name, CNIC, address, storeID, password) VALUES (?, ?, ?, ?, ?)";
 	        PreparedStatement pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, manager.getName());
 	        pstmt.setString(2, manager.getCNIC());
@@ -246,8 +256,9 @@ public class SQLDBHandler {
 	        if (manager.getManagingStore() != null) {
 	            pstmt.setInt(4, manager.getManagingStore().getStoreID());
 	        } else {
-	            pstmt.setNull(4, java.sql.Types.INTEGER);
+	            pstmt.setInt(4, 9);
 	        }
+	        pstmt.setString(5, manager.getPassword());
 	        return pstmt.executeUpdate() > 0;
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -269,11 +280,12 @@ public class SQLDBHandler {
 	// Adding a supplier to the DB
 	public boolean addSupplier(Supplier supplier) {
 	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {
-	        String sql = "INSERT INTO Supplier (comapanyName, location, registerationNum) VALUES (?, ?, ?)";
+	        String sql = "INSERT INTO Supplier (comapanyName, location, registerationNum, password) VALUES (?, ?, ?, ?)";
 	        PreparedStatement pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, supplier.getCompany());
 	        pstmt.setString(2, supplier.getLocation());
 	        pstmt.setInt(3, supplier.getRegNo());
+	        pstmt.setString(4, password);
 	        return pstmt.executeUpdate() > 0;
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -642,7 +654,7 @@ public class SQLDBHandler {
 	//SQL Query for updating supplier
 	public boolean updateSupplier(Supplier supplier) {
 		try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
-	        String sql = "UPDATE supplier SET companyName = ?, location = ?, registrationNum = ? WHERE supplierID = ?";
+	        String sql = "UPDATE supplier SET comapanyName = ?, location = ?, registerationNum = ? WHERE supplierID = ?";
 	        PreparedStatement pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, supplier.getCompany());
 	        pstmt.setString(2, supplier.getLocation());

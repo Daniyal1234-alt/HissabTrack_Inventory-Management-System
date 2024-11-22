@@ -129,6 +129,7 @@ SELECT s.supplierID, s.comapanyName, s.location, s.registerationNum,
 		                JOIN Product p ON cp.productID = p.productID
 SHOW TABLES
 DESCRIBE supplier;
+
 -- Add password field to InventoryManager
 ALTER TABLE InventoryManager
 ADD COLUMN password VARCHAR(255) NOT NULL;
@@ -178,3 +179,15 @@ ADD FOREIGN KEY (catalogID) REFERENCES ProductCatalog(productCatalogID) ON DELET
 ALTER TABLE SupplierPendingOrders
 ADD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID) ON DELETE CASCADE,
 ADD FOREIGN KEY (invoiceID) REFERENCES Invoice(invoiceID) ON DELETE CASCADE;
+
+INSERT INTO Store (location) VALUES
+('Downtown'),
+('Uptown'),
+('Suburban Area'),
+('Central Plaza'),
+('Industrial Zone'),
+('Eastside Market'),
+('West End Mall'),
+('City Center'),
+('North Avenue'),
+('South Park');

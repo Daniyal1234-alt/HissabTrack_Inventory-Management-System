@@ -11,9 +11,9 @@ public class Supplier {
     private ProductCatalog products;
     private List<Invoice> recievedOrders;
     private List<Invoice> sentOrders;
-
+    private String passwordString;
     // Constructor
-    public Supplier(int supplierID, String company, String location, int regNo) {
+    public Supplier(int supplierID, String company, String location, int regNo, String password) {
         this.supplierID = supplierID;
         this.company = company;
         this.location = location;
@@ -21,6 +21,7 @@ public class Supplier {
         products = new ProductCatalog();
         recievedOrders = new ArrayList<>();
         sentOrders = new ArrayList<>();
+        this.passwordString = password;
     }
     // Method Signatures
     public int getSupplierID() {

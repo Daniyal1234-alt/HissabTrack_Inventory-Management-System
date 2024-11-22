@@ -27,7 +27,17 @@ public class Factory {
                 System.out.print("Select an option: ");
                 int adminChoice = inputScanner.nextInt();
                 inputScanner.nextLine(); // Clear the buffer
-
+                if(adminChoice==1) {
+                	System.out.print("Enter ID: ");
+                    int id = inputScanner.nextInt();
+                	for(Admin a: system.getAdmins()) {
+                		  
+                          if(a.getAdminID()==id) {
+                        	  this.admin = a;
+                          }
+                        System.out.println("Admin: " + a.getAdminID());
+                	}
+                }
                 if (adminChoice == 2) {
                     System.out.println("Enter Admin Details:");
                     System.out.print("Name: ");
@@ -36,8 +46,10 @@ public class Factory {
                     String cnic = inputScanner.nextLine();
                     System.out.print("Address: ");
                     String address = inputScanner.nextLine();
+                    System.out.print("Password: ");
+                    String password = inputScanner.nextLine();
 
-                    admin = system.addAdmin(name, cnic, address, false);
+                    admin = system.addAdmin(name, cnic, address, password, false);
                 }
 
                 // Prompt for login details
@@ -91,9 +103,13 @@ public class Factory {
                     String cnic = inputScanner.nextLine();
                     System.out.print("Address: ");
                     String address = inputScanner.nextLine();
+                    System.out.print("Password: ");
+                    String password = inputScanner.nextLine();
                     List<Store> storeList = system.getStores();
                     Store store = null; // Assume store selection is done
-                    system.addManager(admin.getAdminID(), name, cnic, address, store, false);
+                    System.out.print("AdminID: ");
+                    int admin_ID = inputScanner.nextInt();
+                    system.addManager(admin_ID, name, cnic, address,password, store, false);
                     break;
 
                 case 2:
@@ -194,9 +210,12 @@ public class Factory {
                     String company = inputScanner.nextLine();
                     System.out.print("Location: ");
                     String location = inputScanner.nextLine();
+                    System.out.print("Password: ");
+                    password = inputScanner.nextLine();
                     System.out.print("Registration No: ");
                     int regNo = inputScanner.nextInt();
-                    system.addSupplier(admin.getAdminID(), company, location, regNo, false);
+                    
+                    system.addSupplier(admin.getAdminID(), company, location, regNo,password,false);
                     break;
 
                 case 5:

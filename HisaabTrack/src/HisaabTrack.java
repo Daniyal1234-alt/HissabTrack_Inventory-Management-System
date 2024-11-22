@@ -20,7 +20,8 @@ public class HisaabTrack {
         managers = new ArrayList<>();
         stores = new ArrayList<>();
         IT = new ITService();
-        DB = new SQLDBHandler();
+        DB = SQLDBHandler.getInstance();
+        DB.loadFromDB(this);
     }
 
     public boolean login() {
@@ -32,11 +33,11 @@ public class HisaabTrack {
     }
 
     // Method signatures
-    public void addSupplier(int adminID,String company, String location, int regNo, boolean DBCall) {
+    public void addSupplier(int adminID,String company, String location, int regNo, String password,  boolean DBCall) {
         Supplier e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
-                e = admins.get(i).addSupplier(suppliers.size() + 1,company,location,regNo);
+                e = admins.get(i).addSupplier(suppliers.size() + 1,company,location,regNo, password);
                 break;
             }
         }
@@ -124,7 +125,7 @@ public class HisaabTrack {
     public void addUnpaidInvoice(int adminID, Invoice invoice) {
     	for(Admin a: this.admins) {
     		if(a.getAdminID()==adminID) {
-    			a.addunpaidinvoice(invoice);
+    			//a.addunpaidinvoice(invoice);
     		}
     	}
     }
