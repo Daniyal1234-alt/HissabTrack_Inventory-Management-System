@@ -129,8 +129,7 @@ public class HisaabTrack {
             DB.addInventoryManager(e);
             DB.addAdminInventoryManager(adminID, e.getManagerID());
         }
-    }
-    
+    }  
     public void addUnpaidInvoice(int adminID, Invoice invoice) {
     	for(Admin a: this.admins) {
     		if(a.getAdminID()==adminID) {
@@ -141,8 +140,6 @@ public class HisaabTrack {
     public void addStore(Store s) {
     	this.stores.add(s);
     }
-    
-    
     public boolean removeManager(int adminID, int managerID) {
         boolean flag = false;
         for(int i = 0; i < admins.size(); ++i) {
@@ -237,6 +234,9 @@ public class HisaabTrack {
         return getManagerByID(managerID).getOrders();
     }
     public void updateProfile(int managerID) {}
+    public Product getProductByID (int managerID, int productID) {
+        return getManagerByID(managerID).getProduct(productID);
+    }
 
     
     // Supplier functions
@@ -362,8 +362,7 @@ public class HisaabTrack {
             }
         }
         return null;
-    }
-   
+    } 
     public List<Stock> getStoreStock(int managerID) {
         for(Store s:stores) {
             if(s.getManagerID() == managerID) {

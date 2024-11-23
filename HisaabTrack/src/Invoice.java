@@ -40,6 +40,32 @@ public class Invoice {
         this.creatorType = creatorType;
     }
     // Method Signatures
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Invoice ID: ").append(invoiceID).append("\n")
+          .append("Created By (Manager ID): ").append(createdBy).append("\n")
+          .append("Supplier ID: ").append(supplierID).append("\n")
+          .append("Created On: ").append(createdOn).append("\n")
+          .append("Creator Type: ").append(creatorType).append("\n")
+          .append("Delivery Status: ").append(deliveryStatus ? "Delivered" : "Pending").append("\n")
+          .append("Payment Status: ").append(paymentStatus ? "Paid" : "Unpaid").append("\n")
+          .append("Products Ordered:\n");
+    
+        // Loop through products and amounts
+        for (int i = 0; i < products.size(); i++) {
+            Product product = products.get(i);
+            sb.append("   - Product ID: ").append(product.getProductID()).append("\n")
+              .append("     Name: ").append(product.getName()).append("\n")
+              .append("     Description: ").append(product.getDescription()).append("\n")
+              .append("     Price: $").append(product.getPrice()).append("\n")
+              .append("     Amount: ").append(amount.get(i)).append("\n");
+        }
+    
+        sb.append("-----------------------------------------");
+        return sb.toString();
+    }    
+
     public Invoice generateInvoice(List<Product> P) {
         return null; // Placeholder for implementation
     }

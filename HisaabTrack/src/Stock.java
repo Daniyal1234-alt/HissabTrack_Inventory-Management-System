@@ -27,6 +27,22 @@ public class Stock {
 
 
     // Method Signatures
+    @Override
+    public String toString() {
+        return "Stock ID: " + stockID + "\n" +
+            "Product Details: \n" +
+            "   Product ID: " + product.getProductID() + "\n" +
+            "   Name: " + product.getName() + "\n" +
+            "   Description: " + product.getDescription() + "\n" +
+            "   Price: $" + product.getPrice() + "\n" +
+            "   Manufacturing Date: " + product.getMFG() + "\n" +
+            "   Expiry Date: " + product.getEXP() + "\n" +
+            "Quantity in Stock: " + quantity + "\n" +
+            "Total Cost: $" + totalCost + "\n" +
+            "Arrival Date: " + arrivalDate + "\n" +
+            "-----------------------------------------";
+    }
+
     public Product getProduct() {
         return product;
     }

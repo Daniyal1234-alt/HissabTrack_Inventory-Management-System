@@ -28,6 +28,14 @@ public class InventoryManager {
     }
     
     // Method Signatures
+    public Product getProduct(int ID) {
+        for(Stock s:managingStore.getStock()) {
+            if(s.getProduct().getProductID() == ID) {
+                return s.getProduct();
+            }
+        }
+        return null;
+    }
     public Invoice findInvoiceByID(int ID) {
         for (Invoice i : register.getInvoices()) {
             if (i.getInvoiceID() == ID) {

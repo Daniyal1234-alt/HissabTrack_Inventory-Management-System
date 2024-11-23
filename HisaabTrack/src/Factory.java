@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -517,6 +518,107 @@ public class Factory {
             }
         }
     }
+
+    private void managerMenu(Scanner inputScanner) {
+        int managerID = manager.getManagerID(); // Capture manager ID
+
+        while (true) {
+            System.out.println("\nManager Menu:");
+            System.out.println("1. Make a Sale");
+            System.out.println("2. Place an Order");
+            System.out.println("3. Check Stock");
+            System.out.println("4. Generate Report");
+            System.out.println("5. View Order Status");
+            System.out.println("6. Update Profile");
+            System.out.println("7. Exit");
+            System.out.print("Choose an option: ");
+            
+            int choice = inputScanner.nextInt();
+            inputScanner.nextLine(); // Clear the buffer
+
+            switch (choice) {
+                case 1: // Make a Sale
+                    System.out.println("Enter number of products:");
+                    int productCount = inputScanner.nextInt();
+                    inputScanner.nextLine(); // Clear buffer
+
+                    List<Product> products = new ArrayList<>();
+                    List<Integer> quantities = new ArrayList<>();
+                    for (int i = 0; i < productCount; i++) {
+                        System.out.println("Enter product ID for product " + (i + 1) + ":");
+                        int productID = inputScanner.nextInt();
+                        inputScanner.nextLine(); // Clear buffer
+                        System.out.println("Enter quantity for product " + (i + 1) + ":");
+                        int quantity = inputScanner.nextInt();
+                        inputScanner.nextLine(); // Clear buffer
+                        products.add(system.getProductByID(managerID, productID)); // Assume getProductByID is implemented
+                        quantities.add(quantity);
+                    }
+                    system.makeSale(managerID, products, quantities);
+                    System.out.println("Sale completed successfully.");
+                    break;
+
+                case 2: // Place an Order
+                    System.out.println("Enter Supplier ID:");
+                    int supplierID = inputScanner.nextInt();
+                    inputScanner.nextLine(); // Clear buffer
+
+                    System.out.println("Enter number of products to order:");
+                    productCount = inputScanner.nextInt();
+                    inputScanner.nextLine(); // Clear buffer
+
+                    products = new ArrayList<>();
+                    quantities = new ArrayList<>();
+                    for (int i = 0; i < productCount; i++) {
+                        System.out.println("Enter product ID for product " + (i + 1) + ":");
+                        int productID = inputScanner.nextInt();
+                        inputScanner.nextLine(); // Clear buffer
+                        System.out.println("Enter quantity for product " + (i + 1) + ":");
+                        int quantity = inputScanner.nextInt();
+                        inputScanner.nextLine(); // Clear buffer
+                        products.add(system.getProductByID(managerID, productID)); 
+                        quantities.add(quantity);
+                    }
+                    system.placeOrder(managerID, supplierID, products, quantities);
+                    System.out.println("Order placed successfully.");
+                    break;
+
+                case 3: // Check Stock
+                    List<Stock> stockList = system.checkStock(managerID);
+                    System.out.println("Stock details:");
+                    for (Stock stock : stockList) {
+                        System.out.println(stock); // Assuming Stock has a meaningful toString()
+                    }
+                    break;
+
+                case 4: // Generate Report
+                    system.generateReport(managerID);
+                    System.out.println("Report generated successfully.");
+                    break;
+
+                case 5: // View Order Status
+                    List<Invoice> invoices = system.viewOrderStatus(managerID);
+                    System.out.println("Order Status:");
+                    for (Invoice invoice : invoices) {
+                        System.out.println(invoice); // Assuming Invoice has a meaningful toString()
+                    }
+                    break;
+
+                case 6: // Update Profile
+                    system.updateProfile(managerID);
+                    System.out.println("Profile updated successfully.");
+                    break;
+
+                case 7: // Exit
+                    System.out.println("Exiting Manager Menu.");
+                    return;
+
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
 
     public void start() {
         Scanner inputScanner = new Scanner(System.in);
