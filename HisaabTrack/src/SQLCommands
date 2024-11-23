@@ -186,7 +186,7 @@ SELECT * FROM ManagerStore;
 SELECT * FROM Store;
 SELECT * FROM InventoryManager;
 SELECT * FROM Admin;
-
+SELECT * FROM InvoiceProduct;
 INSERT INTO InvoiceProduct VALUES (1,1,100);
 -- DELETE FROM ALL TABLES
 -- DELETE statements for all tables
@@ -210,26 +210,23 @@ DELETE FROM Admin;
 
 ----------------------------------------------------------------------------------------------------------------------------
 SELECT 
+    s.supplierID, 
+    s.companyName, 
+    s.location AS supplierLocation, 
     i.invoiceID, 
-    i.createdByID, 
-    i.createdOn, 
-    i.userType, 
-    i.paid, 
-    i.delivered, 
     ip.productID, 
-    ip.quantity, 
-    p.name AS productName, 
-    p.description, 
-    p.price, 
-    p.MFG, 
-    p.EXP
+  
 FROM 
-    Invoice i
+    Supplier s
 JOIN 
-    InvoiceProduct ip 
-ON 
-    i.invoiceID = ip.invoiceID
+    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID
 JOIN 
-    Product p 
-ON 
-    ip.productID = p.productID;
+    Invoice i ON sdo.invoiceID = i.invoiceID
+JOIN 
+    InvoiceProduct ip ON i.invoiceID = ip.invoiceID
+JOIN 
+    Product p ON ip.productID = p.productID  -- Ensure Product table is joined correctly
+WHERE 
+    i.delivered = TRUE;
+
+	           

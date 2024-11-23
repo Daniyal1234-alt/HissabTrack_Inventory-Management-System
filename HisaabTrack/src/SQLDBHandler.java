@@ -1,7 +1,12 @@
 import java.io.IOException;
+import java.security.PublicKey;
 import java.sql.*;
 import java.util.regex.PatternSyntaxException;
 
+import javax.sql.rowset.JoinRowSet;
+
+import java.util.ArrayList;
+import java.util.List;
 import com.mysql.cj.QueryReturnType;
 // System PARHH DEY GAYEEEEEEEEE
 import com.mysql.cj.callback.UsernameCallback;
@@ -119,11 +124,11 @@ public class SQLDBHandler {
 	        System.err.println("Error removing ManagerStore relationship: " + e.getMessage());
 	    }
 	}
-
-	// Loading from DB
-	public boolean loadFromDB(HisaabTrack system) {
+	// Loading from DB to HissabTrack
+	public void loadFromDB(HisaabTrack system) {
 	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
-	        // Adding Admins
+	        
+	        // Adding an Admin
 	        String adminSql = "SELECT * FROM Admin";
 	        try (PreparedStatement adminStmt = conn.prepareStatement(adminSql)) {
 	            ResultSet adminRs = adminStmt.executeQuery();
@@ -136,30 +141,28 @@ public class SQLDBHandler {
 	                    adminRs.getBoolean("active")
 	                );
 	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error loading Admin data: " + e.getMessage());
 	        }
 
-	        // Adding Stores
+	        // Adding a store
 	        String storeSqlString = "SELECT * FROM Store";
 	        try (PreparedStatement storeStmt = conn.prepareStatement(storeSqlString)) {
 	            ResultSet rs = storeStmt.executeQuery();
 	            while (rs.next()) {
-	                // Extract store data
 	                int storeID = rs.getInt("storeID");
 	                String location = rs.getString("location");
-
-	                // Check if store already exists in the system
-	                Store store = system.getStore(storeID);
-	                if (store == null) {
-	                    store = new Store(storeID, location);
-	                    system.addStore(store);
-	                }
+	                Store store = new Store(storeID, location);
+	                system.addStore(store);
 	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error loading Store data: " + e.getMessage());
 	        }
 
 	        // Adding Inventory Managers
 	        String managerSql = """
 	            SELECT ai.adminID, a.managerID, a.name, a.CNIC, a.address, a.password, ms.storeID
-	            FROM InventoryManager a 
+	            FROM InventoryManager a
 	            JOIN admininventorymanager ai ON a.managerID = ai.inventoryManagerID
 	            JOIN ManagerStore ms ON a.managerID = ms.managerID
 	        """;
@@ -176,254 +179,200 @@ public class SQLDBHandler {
 	                    true
 	                );
 	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error loading Inventory Manager data: " + e.getMessage());
 	        }
 
-	        // Adding Stores and Store Stocks
-	        String storeQuery = """
-	            SELECT st.storeID, st.location,
-	                   s.stockID, s.productID, s.quantity, s.totalCost, s.arrivalDate,
-	                   p.name AS productName, p.description AS productDescription,
-	                   p.price AS productPrice, p.MFG AS productMFG, p.EXP AS productEXP
-	            FROM Store st
-	            LEFT JOIN StoreStock ss ON st.storeID = ss.storeID
-	            JOIN Stock s ON s.stockID = ss.stockID
-	            JOIN Product p ON s.productID = p.productID
-	        """;
-	        try (PreparedStatement storeStmt = conn.prepareStatement(storeQuery)) {
-	            ResultSet rs = storeStmt.executeQuery();
+	        // Adding a list of Products
+	        List<Product> products = new ArrayList<>();
+	        String query = "SELECT * FROM Product";
+	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 	            while (rs.next()) {
-	                // Extract store data
+	                Product product = new Product(
+	                    rs.getInt("productID"),
+	                    rs.getString("name"),
+	                    rs.getString("description"),
+	                    rs.getFloat("price"),
+	                    rs.getDate("MFG"),
+	                    rs.getDate("EXP")
+	                );
+	                products.add(product);
+	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error loading Product data: " + e.getMessage());
+	        }
+
+	        // Adding stock
+	        query = "SELECT st.*, s.*, m.managerID FROM Store st "
+	              + "LEFT JOIN StoreStock ss ON st.storeID = ss.storeID "
+	              + "LEFT JOIN ManagerStore m ON m.storeID = st.storeID "
+	              + "JOIN Stock s ON s.stockID = ss.stockID";
+	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+	            while (rs.next()) {
 	                int storeID = rs.getInt("storeID");
-	                String location = rs.getString("location");
-
-	                // Check if store already exists in the system
 	                Store store = system.getStore(storeID);
-	                if (store == null) {
-	                    store = new Store(storeID, location);
-	                    system.addStore(store);
-	                }
-
-	                // Add manager to store if applicable
-	                int managerID = rs.getInt("managerID");
-	                if (!rs.wasNull()) {
-	                    InventoryManager manager = system.getManagerByID(managerID);
-	                    if (manager != null) {
-	                        store.setManagerID(managerID);
-	                    }
-	                }
-
-	                // Add stock to the store if applicable
-	                int stockID = rs.getInt("stockID");
-	                if (!rs.wasNull()) {
-	                    Product product = new Product(
-	                        rs.getInt("productID"),
-	                        rs.getString("productName"),
-	                        rs.getString("productDescription"),
-	                        rs.getDouble("productPrice"),
-	                        rs.getDate("productMFG"),
-	                        rs.getDate("productEXP")
-	                    );
-
-	                    Stock stock = new Stock(
-	                        stockID,
-	                        product,
-	                        rs.getInt("quantity"),
-	                        rs.getDouble("totalCost"),
-	                        rs.getDate("arrivalDate")
-	                    );
-	                    store.addStock(stock);
-	                }
+	                store.setManagerID(rs.getInt("managerID"));
+	                Stock stock = new Stock(
+	                    rs.getInt("stockID"),
+	                    getProduct(products, rs.getInt("productID")),
+	                    rs.getInt("quantity"),
+	                    rs.getDouble("totalCost"),
+	                    rs.getDate("arrivalDate")
+	                );
+	                store.addStock(stock);
 	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error loading Stock data: " + e.getMessage());
 	        }
 
-	        // Adding Suppliers and Products
-	        String supplierSql = """
-	            SELECT s.supplierID, s.companyName, s.location, s.registrationNum, s.password,
-	                   cp.productID, cp.quantity,
-	                   p.name AS productName, p.description, p.price, p.MFG, p.EXP
-	            FROM Supplier s
-	            JOIN ProductCatalogProducts cp ON cp.catalogID = s.supplierID
-	            JOIN Product p ON cp.productID = p.productID
-	        """;
-	        try (PreparedStatement supplierStmt = conn.prepareStatement(supplierSql)) {
-	            ResultSet supplierRs = supplierStmt.executeQuery();
-	            while (supplierRs.next()) {
-	                Supplier supplier = system.getSupplier(supplierRs.getInt("supplierID"));
-	                if (supplier == null) {
-	                    system.addSupplier(
-	                        1,
-	                        supplierRs.getString("companyName"),
-	                        supplierRs.getString("location"),
-	                        supplierRs.getInt("registrationNum"),
-	                        supplierRs.getString("password"),
-	                        true
-	                    );
-	                }
-	                supplier = system.getSupplier(supplierRs.getInt("supplierID"));
-	                // Add product to supplier if applicable
-	                int productID = supplierRs.getInt("productID");
-	                if (!supplierRs.wasNull()) {
-	                    Product product = new Product(
-	                        productID,
-	                        supplierRs.getString("productName"),
-	                        supplierRs.getString("description"),
-	                        supplierRs.getDouble("price"),
-	                        supplierRs.getDate("MFG"),
-	                        supplierRs.getDate("EXP")
-	                    );
-	                    supplier.addProduct(product, supplierRs.getInt("quantity"));
-	                }
+	        // Adding a supplier
+	        query = "SELECT s.supplierID, s.companyName, s.location, s.registrationNum, s.password, "
+	              + "cp.productID, cp.quantity FROM Supplier s "
+	              + "JOIN ProductCatalogProducts cp ON cp.catalogID = s.supplierID "
+	              + "JOIN Product p ON cp.productID = p.productID";
+	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+	            while (rs.next()) {
+	                system.addSupplier(
+	                    1, // You may need to adjust this field if needed
+	                    rs.getString("companyName"),
+	                    rs.getString("location"),
+	                    rs.getInt("registrationNum"),
+	                    rs.getString("password"),
+	                    true
+	                );
+	                Supplier supplier = system.getSupplier(rs.getInt("s.supplierID"));
+	                supplier.addProduct(getProduct(products, rs.getInt("productID")), rs.getInt("quantity"));
 	            }
-	        }
-
-	        // Add to unpaid invoices
-	        String query = """
-	            SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered, a.adminID
-	            FROM Invoice i
-	            JOIN AdminUnpaidInvoices a ON i.invoiceID = a.invoiceID
-	            WHERE i.paid = FALSE;
-	        """;
-	        try (PreparedStatement unpaidPreparedStatement = conn.prepareStatement(query)) {
-	            try (ResultSet rs = unpaidPreparedStatement.executeQuery()) {
-	                while (rs.next()) {
-	                    // Create an Invoice object from the current row
-	                    Invoice invoice = new Invoice(
-	                        rs.getInt("invoiceID"),
-	                        rs.getInt("createdByID"),
-	                        rs.getDate("createdOn"),
-	                        rs.getBoolean("delivered"),
-	                        rs.getBoolean("paid"),
-	                        rs.getString("userType")
-	                    );
-	                    String productQuery = """
-	                        SELECT 
-	                            i.invoiceID, 
-	                            i.createdByID, 
-	                            i.createdOn, 
-	                            i.userType, 
-	                            i.paid, 
-	                            i.delivered, 
-	                            ip.productID, 
-	                            ip.quantity, 
-	                            p.name AS productName, 
-	                            p.description, 
-	                            p.price, 
-	                            p.MFG, 
-	                            p.EXP
-	                        FROM 
-	                            Invoice i
-	                        JOIN 
-	                            InvoiceProduct ip 
-	                        ON 
-	                            i.invoiceID = ip.invoiceID
-	                        JOIN 
-	                            Product p 
-	                        ON 
-	                            ip.productID = p.productID;
-	                    """;
-
-	                    try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
-	                        ResultSet rs2 = stmt.executeQuery();
-	                        while (rs2.next()) {
-	                            // Extract product details
-	                            int productID = rs2.getInt("productID");
-	                            int quantity = rs2.getInt("quantity");
-	                            String productName = rs2.getString("productName");
-	                            String description = rs2.getString("description");
-	                            double price = rs2.getDouble("price");
-	                            Date mfgDate = rs2.getDate("MFG");
-	                            Date expDate = rs2.getDate("EXP");
-
-	                            // Create Product and add to the invoice
-	                            Product product = new Product(productID, productName, description, price, mfgDate, expDate);
-	                            invoice.addProduct(product, quantity);
-	                        }
-
-	                        // Add the invoice to the system
-	                        system.addUnpaidInvoice(rs.getInt("adminID"), invoice);
-	                    }
-	                }
-	            }
-	        }
-	     // Add to delivered invoices
-	        String deliveredQuery = """
-	            SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered, a.adminID
-	            FROM Invoice i
-	            JOIN AdminDeliveredInvoices a ON i.invoiceID = a.invoiceID
-	            WHERE i.delivered = TRUE;
-	        """;
-	        try (PreparedStatement deliveredPreparedStatement = conn.prepareStatement(deliveredQuery)) {
-	            try (ResultSet rs = deliveredPreparedStatement.executeQuery()) {
-	                while (rs.next()) {
-	                    // Create an Invoice object from the current row
-	                    Invoice invoice = new Invoice(
-	                        rs.getInt("invoiceID"),
-	                        rs.getInt("createdByID"),
-	                        rs.getDate("createdOn"),
-	                        rs.getBoolean("delivered"),
-	                        rs.getBoolean("paid"),
-	                        rs.getString("userType")
-	                    );
-
-	                    // Query for invoice products
-	                    String productQuery = """
-	                        SELECT 
-	                            i.invoiceID, 
-	                            i.createdByID, 
-	                            i.createdOn, 
-	                            i.userType, 
-	                            i.paid, 
-	                            i.delivered, 
-	                            ip.productID, 
-	                            ip.quantity, 
-	                            p.name AS productName, 
-	                            p.description, 
-	                            p.price, 
-	                            p.MFG, 
-	                            p.EXP
-	                        FROM 
-	                            Invoice i
-	                        JOIN 
-	                            InvoiceProduct ip 
-	                        ON 
-	                            i.invoiceID = ip.invoiceID
-	                        JOIN 
-	                            Product p 
-	                        ON 
-	                            ip.productID = p.productID;
-	                    """;
-
-	                    try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
-	                        ResultSet rs2 = stmt.executeQuery();
-	                        while (rs2.next()) {
-	                            // Extract product details
-	                            int productID = rs2.getInt("productID");
-	                            int quantity = rs2.getInt("quantity");
-	                            String productName = rs2.getString("productName");
-	                            String description = rs2.getString("description");
-	                            double price = rs2.getDouble("price");
-	                            Date mfgDate = rs2.getDate("MFG");
-	                            Date expDate = rs2.getDate("EXP");
-
-	                            // Create Product and add to the invoice
-	                            Product product = new Product(productID, productName, description, price, mfgDate, expDate);
-	                            invoice.addProduct(product, quantity);
-	                        }
-
-	                        // Add the invoice to the system
-	                        system.addDeliveredOrder(rs.getInt("supplierID"), invoice);
-	                    }
-	                }
-	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error loading Supplier data: " + e.getMessage());
 	        }
 	        
-	        return true;
+	        // Listing an invoice
+	        List<Invoice> invoiceDetailsList = new ArrayList<>();
+	        query = "SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn "
+	              + "FROM Invoice i JOIN InvoiceProduct ip ON i.invoiceID = ip.invoiceID";
+	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+	            while (rs.next()) {
+	                Invoice details = new Invoice(
+	                    rs.getInt("invoiceID"),
+	                    rs.getInt("createdByID"),
+	                    rs.getDate("createdOn"),
+	                    rs.getBoolean("delivered"),
+	                    rs.getBoolean("paid"),
+	                    ""
+	                );
+	                invoiceDetailsList.add(details);
+	                query = """
+	                    SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn,
+	                           ip.productID, p.name AS productName, p.description AS productDescription, 
+	                           ip.quantity, p.price
+	                    FROM Invoice i
+	                    JOIN InvoiceProduct ip ON i.invoiceID = ip.invoiceID
+	                    JOIN Product p ON ip.productID = p.productID
+	                    WHERE i.invoiceID = ?
+	                    ORDER BY i.invoiceID;
+	                """;
+	                int invoiceID = rs.getInt("invoiceID");
+	                try (PreparedStatement stmt2 = conn.prepareStatement(query)) {
+	                    stmt2.setInt(1, invoiceID);
+	                    try (ResultSet rs2 = stmt2.executeQuery()) {
+	                        while (rs2.next()) {
+	                        	System.out.println("Product: "+getProduct(products, rs2.getInt("productID")).getName() + "   " +  rs2.getInt("quantity"));
+	                            details.addItem(getProduct(products, rs2.getInt("productID")), rs2.getInt("quantity"));
+	                        }
+	                    }
+	                }
+	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error loading Invoice data: " + e.getMessage());
+	        }
+
+	        query = "SELECT "
+	                + "    s.supplierID, "
+	                + "    s.companyName, "
+	                + "    s.location AS supplierLocation, "
+	                + "    i.invoiceID, "
+	                + "    ip.productID, "
+	                + "    p.name AS productName, "
+	                + "    p.description AS productDescription, "
+	                + "    ip.quantity AS quantityDelivered, "
+	                + "    i.createdOn AS deliveryDate "
+	                + "FROM "
+	                + "    Supplier s "
+	                + "JOIN "
+	                + "    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID "
+	                + "JOIN "
+	                + "    Invoice i ON sdo.invoiceID = i.invoiceID "
+	                + "JOIN "
+	                + "    InvoiceProduct ip ON i.invoiceID = ip.invoiceID "
+	                + "JOIN "
+	                + "    Product p ON ip.productID = p.productID "
+	                + "WHERE "
+	                + "    i.delivered = TRUE;";
+
+			try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+			    while (rs.next()) {
+			        system.addPendingOrder(rs.getInt("supplierID"), getInvoice(invoiceDetailsList, rs.getInt("invoiceID")));
+			    }
+			} catch (SQLException e) {
+			    System.err.println("Error loading Supplier Pending Orders: " + e.getMessage());
+			}
+
+
+	        // Adding to supplier's sentOrders
+	        query = "SELECT s.supplierID, s.companyName, s.location AS supplierLocation, i.invoiceID, "
+	              + "ip.productID, "
+	              + "ip.quantity AS quantityDelivered, i.createdOn AS deliveryDate "
+	              + "FROM Supplier s "
+	              + "JOIN SupplierDeliveredOrders sdo ON s.supplierID = sdo.supplierID "
+	              + "JOIN Invoice i ON sdo.invoiceID = i.invoiceID "
+	              + "JOIN InvoiceProduct ip ON i.invoiceID = ip.invoiceID "
+	              + "WHERE i.delivered = TRUE;";
+	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+	            while (rs.next()) {
+	                system.addDeliveredOrder(rs.getInt("s.supplierID"), getInvoice(invoiceDetailsList, rs.getInt("i.invoiceID")));
+	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error loading Supplier Delivered Orders: " + e.getMessage());
+	        }
+
+	        // Adding unpaidInvoices in Admin
+	        query = "SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn "
+	              + "FROM AdminUnpaidInvoices au "
+	              + "JOIN Invoice i ON au.invoiceID = i.invoiceID "
+	              + "WHERE  i.paid = FALSE;";
+	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+	            while (rs.next()) {
+	                system.addUnpaidInvoice(rs.getInt("adminID"), getInvoice(invoiceDetailsList, rs.getInt("i.invoiceID")));
+	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error loading Unpaid Invoices: " + e.getMessage());
+	        }
+
 	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        return false;
+	        System.err.println("Error connecting to the database: " + e.getMessage());
 	    }
 	}
 
+	// Get an invoice
+	public Invoice getInvoice(List<Invoice> invoice, int invoiceID) {
+		for(Invoice i : invoice) {
+			if(i.getInvoiceID()==invoiceID) {
+				return i;
+			}
+		}
+		return null;
+	}
+	// Get a product 
+	public Product getProduct(List<Product> products , int ProductID) {
+		for(Product p: products) {
+			if(p.getProductID()==ProductID) {
+				return p;
+			}
+		}
+		return null;
+	}
+	
 	// Removing an Admin based on it's CNIC
 	public boolean removeAdmin(String CNIC) {
 	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {

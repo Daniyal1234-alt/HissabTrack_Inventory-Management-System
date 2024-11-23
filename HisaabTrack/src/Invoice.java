@@ -32,7 +32,13 @@ public class Invoice {
     }
     //Parameterized Constructor
     public Invoice(int invoiceID, int createdBy, Date createdOn, boolean deliveryStatus, boolean paymentStatus, String creatorType) {
-        this.invoiceID = invoiceID;
+    	 products = new ArrayList<>();
+         amount = new ArrayList<>();
+         deliveryStatus = false;
+         paymentStatus = false;
+         createdOn = new Date();
+         creatorType = "\0";
+    	this.invoiceID = invoiceID;
         this.createdBy = createdBy;
         this.createdOn = createdOn;
         this.deliveryStatus = deliveryStatus;

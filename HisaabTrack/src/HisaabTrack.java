@@ -282,6 +282,7 @@ public class HisaabTrack {
             	if(e!=null) {
             		s.addunpaidinvoice(e);
             		//update DB
+            		DB.addAdminUnpaidInvoice(s.getAdminID(), e.getInvoiceID());
             	} 
             }
         }
