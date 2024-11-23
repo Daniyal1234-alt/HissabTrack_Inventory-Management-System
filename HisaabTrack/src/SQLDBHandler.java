@@ -104,11 +104,12 @@ public class SQLDBHandler {
 	                );
 	            }
 	        }
+	        
 	     // Adding Inventory Managers
 	        String managerSql = """
 	            SELECT a.managerID, a.name, a.CNIC, a.address, a.password, ms.storeID
 	            FROM InventoryManager a JOIN admininventorymanager ai ON a.managerID = ai.inventoryManagerID
-	            LEFT JOIN ManagerStore ms ON a.managerID = ms.managerID
+	            JOIN ManagerStore ms ON a.managerID = ms.managerID
 	        """;
 	        try (PreparedStatement managerStmt = conn.prepareStatement(managerSql)) {
 	            ResultSet managerRs = managerStmt.executeQuery();
@@ -121,7 +122,7 @@ public class SQLDBHandler {
 	                    managerRs.getString("password")
 	                   
 	                );
-	                system.addManager(1, managerRs.getString("name"), managerRs.getString("CNIC"), managerRs.getString("address"),
+	                system.addManager(managerRs.getInt("adminID"), managerRs.getString("name"), managerRs.getString("CNIC"), managerRs.getString("address"),
 	                    managerRs.getString("password"), system.getStore(managerRs.getInt("storeID")), true );
 	            }
 	        }
@@ -143,7 +144,7 @@ public class SQLDBHandler {
 	        }
 	        // Adding Stores and Store Stocks
 	        String storeQuery = """
-	            SELECT st.storeID, st.location, st.managerID,
+	            SELECT st.storeID, st.location,
 	                   s.stockID, s.productID, s.quantity, s.totalCost, s.arrivalDate,
 	                   p.name AS productName, p.description AS productDescription,
 	                   p.price AS productPrice, p.MFG AS productMFG, p.EXP AS productEXP
@@ -341,12 +342,13 @@ public class SQLDBHandler {
 	// Adding a supplier to the DB
 	public boolean addSupplier(Supplier supplier) {
 	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {
-	        String sql = "INSERT INTO Supplier (companyName, location, registrationNum, password) VALUES (?, ?, ?, ?)";
+	        String sql = "INSERT INTO Supplier (companyName, location, registrationNum, balance, password) VALUES (?, ?, ?, ?, ?)";
 	        PreparedStatement pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, supplier.getCompany());
 	        pstmt.setString(2, supplier.getLocation());
 	        pstmt.setInt(3, supplier.getRegNo());
-	        pstmt.setString(4, password);
+	        pstmt.setDouble(4, supplier.getBalance());
+	        pstmt.setString(5, password);
 	        return pstmt.executeUpdate() > 0;
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -477,12 +479,13 @@ public class SQLDBHandler {
 	    }
 	}
 	// Adding product to product catalog
-	public boolean addProductCatalog(int productCatalogID, int productID) {
+	public boolean addProductCatalog(int productCatalogID, int productID, int quantity) {
 	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
-	        String sql = "INSERT INTO ProductCatalogProducts (catalogID, productID) VALUES (?, ?)";
+	        String sql = "INSERT INTO ProductCatalogProducts (catalogID, productID, quantity) VALUES (?, ?, ?)";
 	        PreparedStatement pstmt = conn.prepareStatement(sql);
 	        pstmt.setInt(1, productCatalogID);
 	        pstmt.setInt(2, productID);
+	        pstmt.setInt(3, quantity);
 	        return pstmt.executeUpdate() > 0;
 	    } catch (SQLException e) {
 	        e.printStackTrace();

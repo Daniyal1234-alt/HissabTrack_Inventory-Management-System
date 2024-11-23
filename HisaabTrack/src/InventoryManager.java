@@ -48,7 +48,7 @@ public class InventoryManager {
         this.managingStore.addStock(s);
         return true; // Placeholder for implementation
     }
-
+    
     public boolean removeStock(int sID) {
         this.managingStore.removeStock(sID);
         return true; // Placeholder for implementation
@@ -62,7 +62,7 @@ public class InventoryManager {
             }
         }
     }
-
+    
     public List<Invoice> getOrders() {
         return register.getInvoices();
     }

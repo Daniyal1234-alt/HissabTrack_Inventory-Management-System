@@ -21,7 +21,32 @@ public class HisaabTrack {
         stores = new ArrayList<>();
         IT = new ITService();
         DB = SQLDBHandler.getInstance();
+        for(Admin a: this.admins) {
+        	System.out.println("Admin: " + a.getAdminID());
+        }
+        for(InventoryManager a: this.managers) {
+        	System.out.println("Manager: " + a.getManagerID());
+        }
+        for(Store a: this.stores) {
+        	System.out.println("Store: " + a.getStoreID());
+        }
+        for(Supplier s: this.suppliers) {
+        	System.out.println("Supplier: " + s.getSupplierID());
+        }
         DB.loadFromDB(this);
+        for(Admin a: this.admins) {
+        	System.out.println("Admin: " + a.getAdminID());
+        }
+        for(InventoryManager a: this.managers) {
+        	System.out.println("Manager: " + a.getManagerID());
+        }
+        for(Store a: this.stores) {
+        	System.out.println("Store: " + a.getStoreID());
+        }
+        for(Supplier s: this.suppliers) {
+        	System.out.println("Supplier: " + s.getSupplierID());
+        }
+        
     }
 
     // Method signatures
@@ -119,7 +144,8 @@ public class HisaabTrack {
         InventoryManager e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
-                e = admins.get(i).addInventoryManager(managers.size() + 1, Name, cnic, address,  s, password );
+            	s.setManagerID(managers.size()+1);
+            	e = admins.get(i).addInventoryManager(managers.size() + 1, Name, cnic, address,  s, password );
                 break;
             }
         }
@@ -257,7 +283,7 @@ public class HisaabTrack {
                 //update catalog in DB
                 if(!DBCall) {
                     DB.addProduct(suppliers.get(i), p);
-                    DB.addProductCatalog(supplierID, p.getProductID());
+                    DB.addProductCatalog(supplierID, p.getProductID(), amount);
                 }
             }
         }

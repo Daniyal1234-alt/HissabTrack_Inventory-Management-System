@@ -119,31 +119,31 @@ CREATE TABLE IF NOT EXISTS ManagerStore (
    	storeID INT
 );
 
-INSERT INTO Store (location, managerID)
+INSERT INTO Store (location)
 VALUES
-    ('Location 1', 0),
-    ('Location 2', 0),
-    ('Location 3', 0),
-    ('Location 4', 0),
-    ('Location 5', 0),
-    ('Location 6', 0),
-    ('Location 7', 0),
-    ('Location 8', 0),
-    ('Location 9', 0),
-    ('Location 10', 0),
-    ('Location 11', 0),
-    ('Location 12', 0),
-    ('Location 13', 0),
-    ('Location 14', 0),
-    ('Location 15', 0),
-    ('Location 16', 0),
-    ('Location 17', 0),
-    ('Location 18', 0),
-    ('Location 19', 0),
-    ('Location 20', 0);
+    ('Location 1'),
+    ('Location 2'),
+    ('Location 3'),
+    ('Location 4'),
+    ('Location 5'),
+    ('Location 6'),
+    ('Location 7'),
+    ('Location 8'),
+    ('Location 9'),
+    ('Location 10'),
+    ('Location 11'),
+    ('Location 12'),
+    ('Location 13'),
+    ('Location 14'),
+    ('Location 15'),
+    ('Location 16'),
+    ('Location 17'),
+    ('Location 18'),
+    ('Location 19'),
+    ('Location 20');
 
 SHOW TABLES
-TRUNCATE TABLE SupplierdDeliveredOrders;
+TRUNCATE TABLE SupplierDeliveredOrders;
 TRUNCATE TABLE SupplierPendingOrders;
 TRUNCATE TABLE ProductCatalogProducts;
 TRUNCATE TABLE StoreStock;
@@ -163,3 +163,45 @@ SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered,
     FROM Invoice i
     JOIN SupplierDeliveredOrders sdo ON i.invoiceID = sdo.invoiceID
     WHERE i.delivered = TRUE
+    SELECT * FROM SupplierDeliveredOrders;
+SELECT * FROM SupplierPendingOrders;
+SELECT * FROM ProductCatalogProducts;
+SELECT * FROM StoreStock;
+SELECT * FROM AdminUnpaidInvoices;
+SELECT * FROM AdminInventoryManager;
+SELECT * FROM ProductCatalog;
+SELECT * FROM Stock;
+SELECT * FROM Product;
+SELECT * FROM Report;
+SELECT * FROM Invoice;
+SELECT * FROM Supplier;
+SELECT * FROM ManagerStore;
+SELECT * FROM Store;
+SELECT * FROM InventoryManager;
+SELECT * FROM Admin;
+
+-- DELETE FROM ALL TABLES
+-- DELETE statements for all tables
+DELETE FROM SupplierDeliveredOrders;
+DELETE FROM SupplierPendingOrders;
+DELETE FROM ProductCatalogProducts;
+DELETE FROM StoreStock;
+DELETE FROM AdminUnpaidInvoices;
+DELETE FROM AdminInventoryManager;
+DELETE FROM ProductCatalog;
+DELETE FROM Stock;
+DELETE FROM Product;
+DELETE FROM Report;
+DELETE FROM Invoice;
+DELETE FROM Supplier;
+DELETE FROM ManagerStore;
+DELETE FROM Store;
+DELETE FROM InventoryManager;
+DELETE FROM Admin;
+SELECT CONCAT('DROP TABLE IF EXISTS ', table_name, ';') 
+FROM information_schema.tables 
+WHERE table_schema = 'HissabTrackDB';
+select * from InventoryManager
+SELECT a.managerID, a.name, a.CNIC, a.address, a.password, ms.storeID
+	            FROM InventoryManager a JOIN admininventorymanager ai ON a.managerID = ai.inventoryManagerID
+	            LEFT JOIN ManagerStore ms ON a.managerID = ms.managerID
