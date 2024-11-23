@@ -88,6 +88,39 @@ public class SQLDBHandler {
 	        return false;
 	    }
 	}
+	public void addManagerStore(int managerID, int storeID) {
+		try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
+		    String sql = "INSERT INTO ManagerStore (managerID, storeID) VALUES (?, ?)";
+		    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		        pstmt.setInt(1, managerID);
+		        pstmt.setInt(2, storeID);
+		        pstmt.executeUpdate();
+		        System.out.println("ManagerStore relationship added successfully.");
+		    }
+		}catch (SQLException e) {
+	        System.err.println("Error adding ManagerStore relationship: " + e.getMessage());
+	    }
+	}
+
+	public void removeManagerStore(int managerID, int storeID) {
+		try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
+		    String sql = "DELETE FROM ManagerStore WHERE managerID = ? AND storeID = ?";
+		    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		        pstmt.setInt(1, managerID);
+		        pstmt.setInt(2, storeID);
+		        int rowsAffected = pstmt.executeUpdate();
+		        if (rowsAffected > 0) {
+		            System.out.println("ManagerStore relationship removed successfully.");
+		        } else {
+		            System.out.println("No relationship found to remove.");
+		        }
+		    } 
+	    }catch (SQLException e) {
+	        System.err.println("Error removing ManagerStore relationship: " + e.getMessage());
+	    }
+	}
+
+	// Loading from DB
 	public boolean loadFromDB(HisaabTrack system) {
 	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
 	        // Adding Admins
@@ -104,29 +137,9 @@ public class SQLDBHandler {
 	                );
 	            }
 	        }
-	        
-	     // Adding Inventory Managers
-	        String managerSql = """
-	            SELECT a.managerID, a.name, a.CNIC, a.address, a.password, ms.storeID
-	            FROM InventoryManager a JOIN admininventorymanager ai ON a.managerID = ai.inventoryManagerID
-	            JOIN ManagerStore ms ON a.managerID = ms.managerID
-	        """;
-	        try (PreparedStatement managerStmt = conn.prepareStatement(managerSql)) {
-	            ResultSet managerRs = managerStmt.executeQuery();
-	            while (managerRs.next()) {
-	                InventoryManager manager = new InventoryManager(
-	                    managerRs.getInt("managerID"),
-	                    managerRs.getString("name"),
-	                    managerRs.getString("CNIC"),
-	                    managerRs.getString("address"),
-	                    managerRs.getString("password")
-	                   
-	                );
-	                system.addManager(managerRs.getInt("adminID"), managerRs.getString("name"), managerRs.getString("CNIC"), managerRs.getString("address"),
-	                    managerRs.getString("password"), system.getStore(managerRs.getInt("storeID")), true );
-	            }
-	        }
-	        String storeSqlString = "Select * FROM Store";
+
+	        // Adding Stores
+	        String storeSqlString = "SELECT * FROM Store";
 	        try (PreparedStatement storeStmt = conn.prepareStatement(storeSqlString)) {
 	            ResultSet rs = storeStmt.executeQuery();
 	            while (rs.next()) {
@@ -142,6 +155,29 @@ public class SQLDBHandler {
 	                }
 	            }
 	        }
+
+	        // Adding Inventory Managers
+	        String managerSql = """
+	            SELECT ai.adminID, a.managerID, a.name, a.CNIC, a.address, a.password, ms.storeID
+	            FROM InventoryManager a 
+	            JOIN admininventorymanager ai ON a.managerID = ai.inventoryManagerID
+	            JOIN ManagerStore ms ON a.managerID = ms.managerID
+	        """;
+	        try (PreparedStatement managerStmt = conn.prepareStatement(managerSql)) {
+	            ResultSet managerRs = managerStmt.executeQuery();
+	            while (managerRs.next()) {
+	                system.addManager(
+	                    managerRs.getInt("adminID"),
+	                    managerRs.getString("name"),
+	                    managerRs.getString("CNIC"),
+	                    managerRs.getString("address"),
+	                    managerRs.getString("password"),
+	                    system.getStore(managerRs.getInt("storeID")),
+	                    true
+	                );
+	            }
+	        }
+
 	        // Adding Stores and Store Stocks
 	        String storeQuery = """
 	            SELECT st.storeID, st.location,
@@ -151,7 +187,7 @@ public class SQLDBHandler {
 	            FROM Store st
 	            LEFT JOIN StoreStock ss ON st.storeID = ss.storeID
 	            JOIN Stock s ON s.stockID = ss.stockID
-	            JOIN Product p ON s.productID = s.productID
+	            JOIN Product p ON s.productID = p.productID
 	        """;
 	        try (PreparedStatement storeStmt = conn.prepareStatement(storeQuery)) {
 	            ResultSet rs = storeStmt.executeQuery();
@@ -172,7 +208,7 @@ public class SQLDBHandler {
 	                if (!rs.wasNull()) {
 	                    InventoryManager manager = system.getManagerByID(managerID);
 	                    if (manager != null) {
-	                        store.setManagerID(managerID);;
+	                        store.setManagerID(managerID);
 	                    }
 	                }
 
@@ -206,9 +242,8 @@ public class SQLDBHandler {
 	                   cp.productID, cp.quantity,
 	                   p.name AS productName, p.description, p.price, p.MFG, p.EXP
 	            FROM Supplier s
-	            LEFT JOIN ProductCatalog pc ON s.supplierID = pc.supplierID
-	            LEFT JOIN ProductCatalogProducts cp ON pc.productCatalogID = cp.catalogID
-	            LEFT JOIN Product p ON cp.productID = p.productID
+	            JOIN ProductCatalogProducts cp ON cp.catalogID = s.supplierID
+	            JOIN Product p ON cp.productID = p.productID
 	        """;
 	        try (PreparedStatement supplierStmt = conn.prepareStatement(supplierSql)) {
 	            ResultSet supplierRs = supplierStmt.executeQuery();
@@ -216,7 +251,7 @@ public class SQLDBHandler {
 	                Supplier supplier = system.getSupplier(supplierRs.getInt("supplierID"));
 	                if (supplier == null) {
 	                    system.addSupplier(
-	                    	1,
+	                        1,
 	                        supplierRs.getString("companyName"),
 	                        supplierRs.getString("location"),
 	                        supplierRs.getInt("registrationNum"),
@@ -224,7 +259,7 @@ public class SQLDBHandler {
 	                        true
 	                    );
 	                }
-
+	                supplier = system.getSupplier(supplierRs.getInt("supplierID"));
 	                // Add product to supplier if applicable
 	                int productID = supplierRs.getInt("productID");
 	                if (!supplierRs.wasNull()) {
@@ -241,60 +276,154 @@ public class SQLDBHandler {
 	            }
 	        }
 
-	        
-	        // Adding Unpaid Invoices
-	        String unpaidInvoicesSql = """
-	            SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered
+	        // Add to unpaid invoices
+	        String query = """
+	            SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered, a.adminID
 	            FROM Invoice i
-	            JOIN AdminUnpaidInvoices ai ON i.invoiceID = ai.invoiceID
-	            WHERE i.paid = FALSE
+	            JOIN AdminUnpaidInvoices a ON i.invoiceID = a.invoiceID
+	            WHERE i.paid = FALSE;
 	        """;
-	        try (PreparedStatement unpaidStmt = conn.prepareStatement(unpaidInvoicesSql)) {
-	            ResultSet rs = unpaidStmt.executeQuery();
-	            while (rs.next()) {
-	                Invoice invoice = new Invoice(
-	                    rs.getInt("invoiceID"),
-	                    rs.getInt("createdByID"),
-	                    rs.getDate("createdOn"),
-	                    rs.getBoolean("delivered"),
-	                    rs.getBoolean("paid"),
-	                    rs.getString("userType")
-	                );
-	                system.addUnpaidInvoice(rs.getInt("createdByID"), invoice);
-	            }
-	        }
-	        //Add Delivered Invoices
-	        String supplierDeliveredSql = """
-	        	    SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered, sdo.supplierID
-	        	    FROM Invoice i
-	        	    JOIN SupplierDeliveredOrders sdo ON i.invoiceID = sdo.invoiceID
-	        	    WHERE i.delivered = TRUE
-	        	""";
-	        try (PreparedStatement deliveredStmt = conn.prepareStatement(supplierDeliveredSql)) {
-	            ResultSet rs = deliveredStmt.executeQuery();
-	            while (rs.next()) {
-	                // Create an Invoice object from the ResultSet
-	                Invoice invoice = new Invoice(
-	                    rs.getInt("invoiceID"),
-	                    rs.getInt("createdByID"),
-	                    rs.getDate("createdOn"),
-	                    rs.getBoolean("delivered"),
-	                    rs.getBoolean("paid"),
-	                    rs.getString("userType")
-	                );
+	        try (PreparedStatement unpaidPreparedStatement = conn.prepareStatement(query)) {
+	            try (ResultSet rs = unpaidPreparedStatement.executeQuery()) {
+	                while (rs.next()) {
+	                    // Create an Invoice object from the current row
+	                    Invoice invoice = new Invoice(
+	                        rs.getInt("invoiceID"),
+	                        rs.getInt("createdByID"),
+	                        rs.getDate("createdOn"),
+	                        rs.getBoolean("delivered"),
+	                        rs.getBoolean("paid"),
+	                        rs.getString("userType")
+	                    );
+	                    String productQuery = """
+	                        SELECT 
+	                            i.invoiceID, 
+	                            i.createdByID, 
+	                            i.createdOn, 
+	                            i.userType, 
+	                            i.paid, 
+	                            i.delivered, 
+	                            ip.productID, 
+	                            ip.quantity, 
+	                            p.name AS productName, 
+	                            p.description, 
+	                            p.price, 
+	                            p.MFG, 
+	                            p.EXP
+	                        FROM 
+	                            Invoice i
+	                        JOIN 
+	                            InvoiceProduct ip 
+	                        ON 
+	                            i.invoiceID = ip.invoiceID
+	                        JOIN 
+	                            Product p 
+	                        ON 
+	                            ip.productID = p.productID;
+	                    """;
 
-	                // Add the invoice to the system for the corresponding supplier
-	                int supplierID = rs.getInt("supplierID");
-	                system.addDeliveredOrder(supplierID, invoice);
+	                    try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
+	                        ResultSet rs2 = stmt.executeQuery();
+	                        while (rs2.next()) {
+	                            // Extract product details
+	                            int productID = rs2.getInt("productID");
+	                            int quantity = rs2.getInt("quantity");
+	                            String productName = rs2.getString("productName");
+	                            String description = rs2.getString("description");
+	                            double price = rs2.getDouble("price");
+	                            Date mfgDate = rs2.getDate("MFG");
+	                            Date expDate = rs2.getDate("EXP");
+
+	                            // Create Product and add to the invoice
+	                            Product product = new Product(productID, productName, description, price, mfgDate, expDate);
+	                            invoice.addProduct(product, quantity);
+	                        }
+
+	                        // Add the invoice to the system
+	                        system.addUnpaidInvoice(rs.getInt("adminID"), invoice);
+	                    }
+	                }
 	            }
 	        }
+	     // Add to delivered invoices
+	        String deliveredQuery = """
+	            SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered, a.adminID
+	            FROM Invoice i
+	            JOIN AdminDeliveredInvoices a ON i.invoiceID = a.invoiceID
+	            WHERE i.delivered = TRUE;
+	        """;
+	        try (PreparedStatement deliveredPreparedStatement = conn.prepareStatement(deliveredQuery)) {
+	            try (ResultSet rs = deliveredPreparedStatement.executeQuery()) {
+	                while (rs.next()) {
+	                    // Create an Invoice object from the current row
+	                    Invoice invoice = new Invoice(
+	                        rs.getInt("invoiceID"),
+	                        rs.getInt("createdByID"),
+	                        rs.getDate("createdOn"),
+	                        rs.getBoolean("delivered"),
+	                        rs.getBoolean("paid"),
+	                        rs.getString("userType")
+	                    );
+
+	                    // Query for invoice products
+	                    String productQuery = """
+	                        SELECT 
+	                            i.invoiceID, 
+	                            i.createdByID, 
+	                            i.createdOn, 
+	                            i.userType, 
+	                            i.paid, 
+	                            i.delivered, 
+	                            ip.productID, 
+	                            ip.quantity, 
+	                            p.name AS productName, 
+	                            p.description, 
+	                            p.price, 
+	                            p.MFG, 
+	                            p.EXP
+	                        FROM 
+	                            Invoice i
+	                        JOIN 
+	                            InvoiceProduct ip 
+	                        ON 
+	                            i.invoiceID = ip.invoiceID
+	                        JOIN 
+	                            Product p 
+	                        ON 
+	                            ip.productID = p.productID;
+	                    """;
+
+	                    try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
+	                        ResultSet rs2 = stmt.executeQuery();
+	                        while (rs2.next()) {
+	                            // Extract product details
+	                            int productID = rs2.getInt("productID");
+	                            int quantity = rs2.getInt("quantity");
+	                            String productName = rs2.getString("productName");
+	                            String description = rs2.getString("description");
+	                            double price = rs2.getDouble("price");
+	                            Date mfgDate = rs2.getDate("MFG");
+	                            Date expDate = rs2.getDate("EXP");
+
+	                            // Create Product and add to the invoice
+	                            Product product = new Product(productID, productName, description, price, mfgDate, expDate);
+	                            invoice.addProduct(product, quantity);
+	                        }
+
+	                        // Add the invoice to the system
+	                        system.addDeliveredOrder(rs.getInt("supplierID"), invoice);
+	                    }
+	                }
+	            }
+	        }
+	        
 	        return true;
-
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	        return false;
 	    }
 	}
+
 	// Removing an Admin based on it's CNIC
 	public boolean removeAdmin(String CNIC) {
 	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {
@@ -369,21 +498,53 @@ public class SQLDBHandler {
 	}
 	// Adding a generic invoice to invoice table 
 	public boolean addInvoice(Invoice invoice) {
-	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {
+	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
+	        // Step 1: Insert the Invoice into the Invoice table
 	        String sql = "INSERT INTO Invoice (createdByID, createdOn, userType, paid, delivered) VALUES (?, ?, ?, ?, ?)";
-	        PreparedStatement pstmt = conn.prepareStatement(sql);
+	        PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);  // Get generated keys
 	        pstmt.setInt(1, invoice.getCreatedBy());
 	        java.sql.Date sqlDate = new java.sql.Date(invoice.getCreatedOn().getTime());
 	        pstmt.setDate(2, sqlDate);
 	        pstmt.setString(3, invoice.getCreatorType());
 	        pstmt.setBoolean(4, invoice.isPaidFor());
 	        pstmt.setBoolean(5, invoice.isDelivered());
-	        return pstmt.executeUpdate() > 0;
+
+	        int affectedRows = pstmt.executeUpdate();
+	        
+	        // Check if the invoice was successfully inserted
+	        if (affectedRows > 0) {
+	            // Step 2: Get the generated invoiceID
+	            ResultSet generatedKeys = pstmt.getGeneratedKeys();
+	            if (generatedKeys.next()) {
+	                int invoiceID = generatedKeys.getInt(1);  // Get the generated invoiceID
+
+	                // Step 3: Insert each product related to this invoice into InvoiceProduct table
+	                String invoiceProductSql = "INSERT INTO InvoiceProduct (invoiceID, productID, quantity) VALUES (?, ?, ?)";
+	                try (PreparedStatement pstmtInvoiceProduct = conn.prepareStatement(invoiceProductSql)) {
+	                	int idx = 0;
+	                    for (Product  invoiceProduct: invoice.getProducts()) {  // Assuming invoice has a list of products
+	                        pstmtInvoiceProduct.setInt(1, invoiceID);  // Use the generated invoiceID
+	                        pstmtInvoiceProduct.setInt(2, invoiceProduct.getProductID());
+	                        int amount = invoice.getQuantity().get(idx++);
+	                        pstmtInvoiceProduct.setInt(3, amount);
+	                        pstmtInvoiceProduct.addBatch();  // Add to batch
+	                    }
+
+	                    // Execute the batch insert
+	                    pstmtInvoiceProduct.executeBatch();
+	                }
+	                return true;  // Successfully added the invoice and products
+	            }
+	        }
+
+	        return false;  // Failed to insert the invoice
+
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	        return false;
 	    }
 	}
+
 	// Removing an invoice based on invoiceID
 	public boolean removeInvoice(int invoiceID) {
 	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {
@@ -738,10 +899,8 @@ public class SQLDBHandler {
         String updateQuery = """
             UPDATE ProductCatalogProducts 
             SET quantity = quantity + ? 
-            WHERE catalogID = (SELECT productCatalogID 
-                               FROM ProductCatalog 
-                               WHERE supplierID = ?)
-              AND productID = ?;
+            WHERE catalogID = ?
+            AND productID = ?;
         """;
 
         try (Connection conn = DriverManager.getConnection(connection, userName, password);
@@ -812,6 +971,7 @@ public class SQLDBHandler {
 	        return false;
 	    }
 	}
+	 
 	public boolean removeProduct(Supplier s, int ProductID) {
 	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
 	        // Delete the association between Product and Supplier from ProductCatalogProducts table

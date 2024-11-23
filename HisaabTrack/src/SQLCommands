@@ -118,6 +118,12 @@ CREATE TABLE IF NOT EXISTS ManagerStore (
     managerID INT,
    	storeID INT
 );
+CREATE TABLE IF NOT EXISTS InvoiceProduct(
+	invoiceID INT,
+	productID INT, 
+	quantity INT
+	
+)
 
 INSERT INTO Store (location)
 VALUES
@@ -163,7 +169,7 @@ SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered,
     FROM Invoice i
     JOIN SupplierDeliveredOrders sdo ON i.invoiceID = sdo.invoiceID
     WHERE i.delivered = TRUE
-    SELECT * FROM SupplierDeliveredOrders;
+SELECT * FROM SupplierDeliveredOrders;
 SELECT * FROM SupplierPendingOrders;
 SELECT * FROM ProductCatalogProducts;
 SELECT * FROM StoreStock;
@@ -174,12 +180,14 @@ SELECT * FROM Stock;
 SELECT * FROM Product;
 SELECT * FROM Report;
 SELECT * FROM Invoice;
+SELECT * FROM InvoiceProduct;
 SELECT * FROM Supplier;
 SELECT * FROM ManagerStore;
 SELECT * FROM Store;
 SELECT * FROM InventoryManager;
 SELECT * FROM Admin;
 
+INSERT INTO InvoiceProduct VALUES (1,1,100);
 -- DELETE FROM ALL TABLES
 -- DELETE statements for all tables
 DELETE FROM SupplierDeliveredOrders;
@@ -188,7 +196,7 @@ DELETE FROM ProductCatalogProducts;
 DELETE FROM StoreStock;
 DELETE FROM AdminUnpaidInvoices;
 DELETE FROM AdminInventoryManager;
-DELETE FROM ProductCatalog;
+DELETE FROM ProductCatalog ;
 DELETE FROM Stock;
 DELETE FROM Product;
 DELETE FROM Report;
@@ -198,10 +206,30 @@ DELETE FROM ManagerStore;
 DELETE FROM Store;
 DELETE FROM InventoryManager;
 DELETE FROM Admin;
-SELECT CONCAT('DROP TABLE IF EXISTS ', table_name, ';') 
-FROM information_schema.tables 
-WHERE table_schema = 'HissabTrackDB';
-select * from InventoryManager
-SELECT a.managerID, a.name, a.CNIC, a.address, a.password, ms.storeID
-	            FROM InventoryManager a JOIN admininventorymanager ai ON a.managerID = ai.inventoryManagerID
-	            LEFT JOIN ManagerStore ms ON a.managerID = ms.managerID
+
+
+----------------------------------------------------------------------------------------------------------------------------
+SELECT 
+    i.invoiceID, 
+    i.createdByID, 
+    i.createdOn, 
+    i.userType, 
+    i.paid, 
+    i.delivered, 
+    ip.productID, 
+    ip.quantity, 
+    p.name AS productName, 
+    p.description, 
+    p.price, 
+    p.MFG, 
+    p.EXP
+FROM 
+    Invoice i
+JOIN 
+    InvoiceProduct ip 
+ON 
+    i.invoiceID = ip.invoiceID
+JOIN 
+    Product p 
+ON 
+    ip.productID = p.productID;

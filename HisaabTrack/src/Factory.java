@@ -69,6 +69,7 @@ public class Factory {
                 System.out.println("Enter Manager ID: ");
                 int managerID = inputScanner.nextInt();
                 manager = system.getManagerByID(managerID);
+                
                 break;
 
             default:
@@ -483,7 +484,8 @@ public class Factory {
                     // Remove product logic
                     ProductCatalog p = system.getProductCatalog(supplierID);
                     //display the catalog and get the product ID you want to remove
-                    int productID = 0;
+                    System.out.println("Enter ProductID: ");
+                    int productID = inputScanner.nextInt();
                     system.removeItem(supplierID, productID);
                     break;
 
@@ -491,7 +493,10 @@ public class Factory {
                     // Update product quantity logic
                     p = system.getProductCatalog(supplierID);
                     //display and get ID of product to update
-                    productID = 0; int amount = 0;
+                    System.out.println("Enter ProductID: ");
+                    productID = inputScanner.nextInt();
+                    System.out.println("Enter amount: ");
+                    int amount = inputScanner.nextInt();
                     system.updateItem(supplierID, productID, amount);
                     break;
 
@@ -634,6 +639,7 @@ public class Factory {
                 break;
             case 3:
                 // Inventory Manager menu logic
+            	managerMenu(inputScanner);
                 break;
             default:
                 System.out.println("Invalid Role!");

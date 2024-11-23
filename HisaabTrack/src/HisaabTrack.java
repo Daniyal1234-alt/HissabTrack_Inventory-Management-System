@@ -154,6 +154,7 @@ public class HisaabTrack {
         if(!DBCall) {
             DB.addInventoryManager(e);
             DB.addAdminInventoryManager(adminID, e.getManagerID());
+            DB.addManagerStore(adminID, s.getStoreID());
         }
     }  
     public void addUnpaidInvoice(int adminID, Invoice invoice) {
@@ -170,12 +171,14 @@ public class HisaabTrack {
         boolean flag = false;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
+            	int storeID = getManagerByID(managerID).getManagingStore().getStoreID();
                 flag = admins.get(i).removeInventoryManager(managerID);
                 if (flag) {
                     //UI displays successful removal
                     //update DB
                 	DB.removeInventoryManager(findManagerByID(managerID));
                 	DB.removeAdminInventoryManager(adminID, managerID);
+                	DB.removeManagerStore(managerID, storeID);
                 } else {
                     //not removed
                 }
@@ -213,20 +216,46 @@ public class HisaabTrack {
         }
         return null;
     }
-    public void payInvoice(int adminID, int invoiceID) {
-        Invoice e = null;
+    public void payInvoice(int adminID, int invoiceID, int supplierID) {
         for(Admin obj : admins) {
             if(obj.getAdminID() == adminID) {
-                e = obj.payInvoice(invoiceID);
+                double payment = obj.payInvoice(invoiceID);
                 for(Supplier s : suppliers) {
-                    if(s.getSupplierID() == e.getSupplierID()) {
-                        s.receivePayment(invoiceID, e.getTotalAmount());
+                    if(s.getSupplierID() == supplierID) {
+                        s.receivePayment(invoiceID, payment);
                         break;
                     }
                 }
                 break;
             }
         }
+    }
+    public boolean approveOrder(int adminID, int invoiceID) {
+        Invoice e = null;
+        boolean flag = false;
+        for(Admin obj : admins) {
+            if(obj.getAdminID() == adminID) {
+                e = obj.getInvoiceByID(invoiceID);
+                for(Supplier s : suppliers) {
+                    if(s.getSupplierID() == e.getSupplierID()) {
+                        flag = s.addIncomingOrder(e);
+                        if(flag) {
+                        	payInvoice(adminID, invoiceID,e.getSupplierID());
+                        	getManagerByID(e.getCreatedBy()).findInvoiceByID(invoiceID).setPaymentStatus(true);;
+                        	// Updating
+                        	DB.invoicePaid(invoiceID);
+                        	DB.removeAdminUnpaidInvoice(adminID, invoiceID);
+                        	DB.addSupplierPendingOrder(e.getSupplierID(), invoiceID);
+                        } 
+                        //update DB
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        return flag;
+        // if true then order successful else supplier cannot fulfill order
     }
 
     // manager functions
@@ -236,6 +265,7 @@ public class HisaabTrack {
                 obj.makeSale(p,q);
             }
         }
+        //update DB
     }
     public void placeOrder(int managerID, int supplierID, List<Product> p, List<Integer> q) {
         Invoice e = null;
@@ -244,13 +274,18 @@ public class HisaabTrack {
                 e = manager.placeOrder(p, q);
                 e.setSupplierID(supplierID);
                 e.setCreatedBy(managerID);
+                DB.addInvoice(e);
             }
         }
-        for(Supplier s:suppliers) {
-            if(s.getSupplierID() == supplierID) {
-                s.addIncomingOrder(e);
+        for(Admin s:admins) {
+            if(s.isMyManager(managerID)) {
+            	if(e!=null) {
+            		s.addunpaidinvoice(e);
+            		//update DB
+            	} 
             }
         }
+        //update DB
     }
     public List<Stock> checkStock(int managerID) {
         return getStoreStock(managerID);
@@ -305,12 +340,13 @@ public class HisaabTrack {
         for(int i=0;i<suppliers.size();++i){
             if(suppliers.get(i).getSupplierID() == supplierID) {
                 for(int j = 0;j<suppliers.get(i).getProducts().getProduct().size();++j) {
+                	System.out.println("Product ID: " + productID);
                     if (suppliers.get(i).getProducts().getProduct().get(j).getProductID() == productID) {
+                    	
                         p = suppliers.get(i).getProducts().getProduct().get(j);
                     }
                 }
                 suppliers.get(i).addProduct(p,addedAmount);  
-                ProductCatalog catalog = suppliers.get(i).getProducts();
                 //update catalog in DB        
                 DB.updateCatalog(supplierID, productID, addedAmount );
             }
@@ -321,6 +357,7 @@ public class HisaabTrack {
         for(int i=0;i<suppliers.size();++i){
             if(suppliers.get(i).getSupplierID() == ID) {
                 iManagerID = suppliers.get(i).sendOrder(invoiceID);
+                getManagerByID(iManagerID).findInvoiceByID(invoiceID).setDeliveryStatus(true);
             }
         }
     }
@@ -365,6 +402,9 @@ public class HisaabTrack {
     } 
 
     // Utility functions
+    public void addPendingOrder(int supplierID, Invoice obj) {
+    	getSupplierByID(supplierID).addIncomingOrder(obj);
+    }
     public String findManagerByID(int ID) {
         for (InventoryManager manager : managers) {
             if (manager.getManagerID() == ID) {

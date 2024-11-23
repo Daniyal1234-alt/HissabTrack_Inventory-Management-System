@@ -56,13 +56,24 @@ public class Admin {
         return false;
     }
 
-    public Invoice payInvoice(int invoiceID) {
+    public double payInvoice(int invoiceID) {
         for(Invoice obj:unpaidInvoices ) {
             if(obj.getInvoiceID() == invoiceID) {
-                return obj;
+            	double amount = obj.getTotalAmount();
+                unpaidInvoices.remove(this.getInvoiceByID(invoiceID));
+                return amount;
             }
         }
-        return null;
+        return 0;
+    }
+    
+    public Invoice getInvoiceByID(int ID) {
+    	for(Invoice e: unpaidInvoices) {
+    		if(e.getInvoiceID() == ID) {
+    			return e;
+    		}
+    	}
+    	return null;
     }
 
     public InventoryManager addInventoryManager(int mID, String Name, String cnic, String Address, Store s, String password) {
