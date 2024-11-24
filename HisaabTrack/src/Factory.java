@@ -547,7 +547,7 @@ public class Factory {
                     int productCount = inputScanner.nextInt();
                     inputScanner.nextLine(); // Clear buffer
 
-                    List<Product> products = new ArrayList<>();
+                    List<Integer> products = new ArrayList<>();
                     List<Integer> quantities = new ArrayList<>();
                     for (int i = 0; i < productCount; i++) {
                         System.out.println("Enter product ID for product " + (i + 1) + ":");
@@ -556,9 +556,13 @@ public class Factory {
                         System.out.println("Enter quantity for product " + (i + 1) + ":");
                         int quantity = inputScanner.nextInt();
                         inputScanner.nextLine(); // Clear buffer
-                        products.add(system.getProductByID(managerID, productID)); // Assume getProductByID is implemented
-                        quantities.add(quantity);
-                    }
+                        if(system.isValidProduct(managerID, productID)) {
+                            products.add(productID);
+                            quantities.add(quantity);
+                        } else {
+                            System.err.println("Invalid Product ID. Not added to list");
+                        }
+                    }                   
                     system.makeSale(managerID, products, quantities);
                     System.out.println("Sale completed successfully.");
                     break;
@@ -581,8 +585,12 @@ public class Factory {
                         System.out.println("Enter quantity for product " + (i + 1) + ":");
                         int quantity = inputScanner.nextInt();
                         inputScanner.nextLine(); // Clear buffer
-                        products.add(system.getProductByID(managerID, productID)); 
-                        quantities.add(quantity);
+                        if(system.isValidProduct(managerID, productID)) {
+                            products.add(productID);
+                            quantities.add(quantity);
+                        } else {
+                            System.err.println("Invalid Product ID. Not added to list");
+                        }
                     }
                     system.placeOrder(managerID, supplierID, products, quantities);
                     System.out.println("Order placed successfully.");

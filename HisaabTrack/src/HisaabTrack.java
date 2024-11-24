@@ -59,6 +59,13 @@ public class HisaabTrack {
 
 
     // Admin functions
+    public boolean updateAdminProfile(int adminID, String Name, String cnic, String Address,String password) {
+        Admin admin = getAdminByID(adminID);
+        if(admin == null)
+            return false;
+        admin.updateProfile(Name, cnic, Address, password);
+        return true;
+    }
     public void addSupplier(int adminID,String company, String location, int regNo,String password,  boolean DBCall) {
         Supplier e = null;
         for(int i = 0; i < admins.size(); ++i) {
@@ -259,7 +266,13 @@ public class HisaabTrack {
     }
 
     // manager functions
-    public void makeSale(int managerID, List<Product> p, List<Integer> q) {
+    public boolean isValidProduct(int managerID, int productID) {
+        if(getManagerByID(managerID).getProduct(productID) == null) {
+            return false;
+        }
+        return true;
+    }
+    public void makeSale(int managerID, List<Integer> p, List<Integer> q) {
         for(InventoryManager obj:managers) {
             if(obj.getManagerID() == managerID) {
                 obj.makeSale(p,q);
@@ -267,7 +280,7 @@ public class HisaabTrack {
         }
         //update DB
     }
-    public void placeOrder(int managerID, int supplierID, List<Product> p, List<Integer> q) {
+    public void placeOrder(int managerID, int supplierID, List<Integer> p, List<Integer> q) {
         Invoice e = null;
         for(InventoryManager manager:managers) {
             if(manager.getManagerID() == managerID) {
@@ -296,9 +309,6 @@ public class HisaabTrack {
         return getManagerByID(managerID).getOrders();
     }
     public void updateProfile(int managerID) {}
-    public Product getProductByID (int managerID, int productID) {
-        return getManagerByID(managerID).getProduct(productID);
-    }
 
     
     // Supplier functions
@@ -437,6 +447,15 @@ public class HisaabTrack {
             }
         }
         return null;
+    }
+    public Admin getAdminByID(int adminID) {
+        Admin admin = null;
+        for(Admin a: admins) {
+            if(a.getAdminID()==adminID) {
+                admin = a;
+            }
+        }
+        return admin;
     }
 
     // Getters and Setters

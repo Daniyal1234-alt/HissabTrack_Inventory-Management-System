@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryManager {
@@ -67,12 +68,24 @@ public class InventoryManager {
         return register.getInvoices();
     }
 
-    public void makeSale(List<Product> p, List<Integer> q) {
-        managingStore.makeSale(p, q);
+    public void makeSale(List<Integer> p, List<Integer> q) {
+        List<Product> pList = new ArrayList<>();
+        for(int ID:p) {
+            Product product = getProduct(ID);
+            if(product!=null)
+                pList.add(product);
+        }
+        managingStore.makeSale(pList, q);
     }
 
-    public Invoice placeOrder(List<Product> p, List<Integer> q) {
-        return register.generateInvoice(p, q);
+    public Invoice placeOrder(List<Integer> p, List<Integer> q) {
+        List<Product> pList = new ArrayList<>();
+        for(int ID:p) {
+            Product product = getProduct(ID);
+            if(product!=null)
+                pList.add(product);
+        }
+        return register.generateInvoice(pList, q);
     }
 
     public Report generateReport() {

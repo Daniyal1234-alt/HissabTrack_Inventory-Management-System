@@ -42,8 +42,12 @@ public class Admin {
     public void addunpaidinvoice(Invoice e) {
     	this.unpaidInvoices.add(e);
     }
-    public void updateProfile() {
+    public void updateProfile(String Name, String cnic, String Address,String password) {
         // Placeholder for implementation
+        this.name = Name;
+        this.CNIC = cnic;
+        this.address = Address;
+        this.password = password;
     }
 
     // Method Signatures
