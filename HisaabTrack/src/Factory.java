@@ -359,7 +359,7 @@ public class Factory {
         while (supplierFlag) {
             System.out.println("\n=== Supplier Menu ===");
             System.out.println("1. Send Order");
-            System.out.println("2. Request Payment");
+            System.out.println("2. View Order History");
             System.out.println("3. Add Product");
             System.out.println("4. Remove Product");
             System.out.println("5. Update Product Quantity");
@@ -420,10 +420,9 @@ public class Factory {
                     break;
 
                 case 2:
-                    // Request payment logic
+                    // Order History
                     orders = system.viewCompletedOrders(supplierID);
 
-                    // Check if there are any completed orders
                     if (orders.isEmpty()) {
                         System.out.println("No completed orders found.");
                     } else {
@@ -442,28 +441,6 @@ public class Factory {
                             }
                             System.out.println("-------------------------");
                         }
-                        // Prompt the user to select an invoice by ID
-                        System.out.print("Enter the Invoice ID to request payment: ");
-                        int invoiceID = inputScanner.nextInt();
-                        inputScanner.nextLine(); // Clear the buffer
-
-                        // Validate the entered invoice ID
-                        boolean orderExists = false;
-                        for (Invoice order : orders) {
-                            if (order.getInvoiceID() == invoiceID) {
-                                orderExists = true;
-                                break;
-                            }
-                        }
-
-                        if (!orderExists) {
-                            System.out.println("Invalid Invoice ID. Please try again.");
-                        } else {
-                            // Attempt to request payment
-                            system.requestPayment(supplierID, invoiceID);
-                            System.out.println("Payment for Invoice ID " + invoiceID + " has been successfully requested.");
-                    }
-
                     break;
                 }
 

@@ -161,15 +161,4 @@ public class Supplier {
         }
         return managerID;
     }
-
-    public int requestPayment(int invoiceID) {
-        //sent a request to system for payment from respective managers
-        int managerID = 0; //manager of store that issued invoice
-           for(int i=0;i<sentOrders.size();++i){
-            if(sentOrders.get(i).getInvoiceID() == invoiceID && !sentOrders.get(i).isPaidFor()) {
-                managerID = sentOrders.get(i).getCreatedBy();
-            }
-        }
-        return managerID;
-    }
 }

@@ -372,27 +372,6 @@ public class HisaabTrack {
             }
         }
     }
-    public void requestPayment(int ID, int invoiceID) { //new
-        int iManagerID = 0;
-        for(int i=0;i<suppliers.size();++i){
-            if(suppliers.get(i).getSupplierID() == ID) {
-                iManagerID = suppliers.get(i).requestPayment(invoiceID);
-            }
-        }
-        //notify manager with corresponding ID
-        Invoice obj = null;
-        for(int i=0;i<managers.size();++i) {
-            if(managers.get(i).getManagerID() == iManagerID) {
-                obj = managers.get(i).findInvoiceByID(invoiceID);
-            }
-        }
-        for (Admin admin : admins) {
-            if (admin.isMyManager(iManagerID)) {
-                admin.addInvoice(obj);
-            }
-        }
-
-    }
     public List<Invoice> viewRecievedOrders(int ID) {  //new
         for(int i=0;i<suppliers.size();++i){
             if(suppliers.get(i).getSupplierID() == ID) {
