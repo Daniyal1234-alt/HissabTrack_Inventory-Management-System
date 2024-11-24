@@ -57,7 +57,6 @@ public class HisaabTrack {
         return true;
     }
 
-
     // Admin functions
     public boolean updateAdminProfile(int adminID, String Name, String cnic, String Address,String password) {
         Admin admin = getAdminByID(adminID);
@@ -84,7 +83,6 @@ public class HisaabTrack {
         if(!DBCall)
             DB.addSupplier(e);
     }
-    // Add admin
     public boolean removeSupplier(int adminID, int supplierID) {
         boolean flag = false;
         for(int i = 0; i < admins.size(); ++i) {
@@ -318,9 +316,7 @@ public class HisaabTrack {
     public List<Invoice> viewOrderStatus(int managerID) {
         return getManagerByID(managerID).getOrders();
     }
-    public void updateProfile(int managerID) {}
 
-    
     // Supplier functions
     public ProductCatalog getProductCatalog(int supplierID) {
         for(int i=0;i<suppliers.size();++i){

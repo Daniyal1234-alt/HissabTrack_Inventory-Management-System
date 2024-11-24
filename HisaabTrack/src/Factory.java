@@ -511,8 +511,7 @@ public class Factory {
             System.out.println("3. Check Stock");
             System.out.println("4. Generate Report");
             System.out.println("5. View Order Status");
-            System.out.println("6. Update Profile");
-            System.out.println("7. Exit");
+            System.out.println("6. Exit");
             System.out.print("Choose an option: ");
             
             int choice = inputScanner.nextInt();
@@ -594,12 +593,7 @@ public class Factory {
                     }
                     break;
 
-                case 6: // Update Profile
-                    system.updateProfile(managerID);
-                    System.out.println("Profile updated successfully.");
-                    break;
-
-                case 7: // Exit
+                case 6: // Exit
                     System.out.println("Exiting Manager Menu.");
                     return;
 
