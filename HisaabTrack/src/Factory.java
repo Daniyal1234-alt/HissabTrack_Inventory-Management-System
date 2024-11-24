@@ -582,7 +582,7 @@ public class Factory {
                     break;
 
                 case 4: // Generate Report
-                    system.generateReport(managerID);
+                    Store s = system.generateManagerReport(managerID);
                     System.out.println("Report generated successfully.");
                     break;
 

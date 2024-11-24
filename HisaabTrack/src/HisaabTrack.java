@@ -66,6 +66,11 @@ public class HisaabTrack {
         admin.updateProfile(Name, cnic, Address, password);
         return true;
     }
+    public Store generateAdminReport(int adminID, int managerID) {
+        if(getAdminByID(adminID).isMyManager(managerID))
+            return generateManagerReport(managerID);
+        return null;
+    }
     public void addSupplier(int adminID,String company, String location, int regNo,String password,  boolean DBCall) {
         Supplier e = null;
         for(int i = 0; i < admins.size(); ++i) {
@@ -304,7 +309,12 @@ public class HisaabTrack {
     public List<Stock> checkStock(int managerID) {
         return getStoreStock(managerID);
     }
-    public void generateReport(int managerID) {}
+    public Store generateManagerReport(int managerID) {
+        return getManagerByID(managerID).getManagingStore();
+    }
+    public List<Invoice> getInvoiceReport(int managerID) {
+        return getManagerByID(managerID).getRegister().getInvoices();
+    }
     public List<Invoice> viewOrderStatus(int managerID) {
         return getManagerByID(managerID).getOrders();
     }
