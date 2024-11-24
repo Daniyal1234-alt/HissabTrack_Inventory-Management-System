@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS InventoryManager (
     password VARCHAR(255)
 
 );
-SELECT * FROM InventoryManager a JOIN admininventorymanager b WHERE a.managerID = b.inventoryManagerID
 -- STORE TABLE
 CREATE TABLE IF NOT EXISTS Store (
     storeID INT AUTO_INCREMENT PRIMARY KEY,
@@ -112,7 +111,6 @@ CREATE TABLE IF NOT EXISTS SupplierDeliveredOrders (
     supplierID INT,
     invoiceID INT
 );
-drop table SupplierdDeliveredOrders
 -- Manager-Store Table
 CREATE TABLE IF NOT EXISTS ManagerStore (
     managerID INT,
@@ -123,7 +121,7 @@ CREATE TABLE IF NOT EXISTS InvoiceProduct(
 	productID INT, 
 	quantity INT
 	
-)
+);
 
 INSERT INTO Store (location)
 VALUES
@@ -165,10 +163,9 @@ TRUNCATE TABLE ManagerStore;
 TRUNCATE TABLE Store;
 TRUNCATE TABLE InventoryManager;
 TRUNCATE TABLE Admin;
-SELECT i.invoiceID, i.createdByID, i.createdOn, i.userType, i.paid, i.delivered, sdo.supplierID
-    FROM Invoice i
-    JOIN SupplierDeliveredOrders sdo ON i.invoiceID = sdo.invoiceID
-    WHERE i.delivered = TRUE
+TRUNCATE TABLE InvoiceProduct;
+
+-- Printing the tables
 SELECT * FROM SupplierDeliveredOrders;
 SELECT * FROM SupplierPendingOrders;
 SELECT * FROM ProductCatalogProducts;
@@ -187,9 +184,8 @@ SELECT * FROM Store;
 SELECT * FROM InventoryManager;
 SELECT * FROM Admin;
 SELECT * FROM InvoiceProduct;
-INSERT INTO InvoiceProduct VALUES (1,1,100);
--- DELETE FROM ALL TABLES
 -- DELETE statements for all tables
+
 DELETE FROM SupplierDeliveredOrders;
 DELETE FROM SupplierPendingOrders;
 DELETE FROM ProductCatalogProducts;
@@ -207,26 +203,237 @@ DELETE FROM Store;
 DELETE FROM InventoryManager;
 DELETE FROM Admin;
 
-
+-------------------------------------------------------------------------------------------------------------------------------------------
+SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn,
+	                           ip.productID, p.name AS productName, p.description AS productDescription, 
+	                           ip.quantity, p.price
+	                    FROM Invoice i
+	                    JOIN InvoiceProduct ip ON i.invoiceID = ip.invoiceID
+	                    JOIN Product p ON ip.productID = p.productID
+	                    WHERE i.invoiceID = 2
+	                    ORDER BY i.invoiceID;
+SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn FROM Invoice i
 ----------------------------------------------------------------------------------------------------------------------------
-SELECT 
-    s.supplierID, 
-    s.companyName, 
-    s.location AS supplierLocation, 
-    i.invoiceID, 
-    ip.productID, 
-  
-FROM 
-    Supplier s
-JOIN 
-    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID
-JOIN 
-    Invoice i ON sdo.invoiceID = i.invoiceID
-JOIN 
-    InvoiceProduct ip ON i.invoiceID = ip.invoiceID
-JOIN 
-    Product p ON ip.productID = p.productID  -- Ensure Product table is joined correctly
-WHERE 
-    i.delivered = TRUE;
+-- Insert data into Admin table
+INSERT INTO Admin (name, CNIC, address, active, password) VALUES
+('Admin One', '12345-1234567-1', '123 Admin St.', TRUE, 'adminpass1'),
+('Admin Two', '12345-1234567-2', '124 Admin St.', TRUE, 'adminpass2'),
+('Admin Three', '12345-1234567-3', '125 Admin St.', TRUE, 'adminpass3'),
+('Admin Four', '12345-1234567-4', '126 Admin St.', FALSE, 'adminpass4'),
+('Admin Five', '12345-1234567-5', '127 Admin St.', TRUE, 'adminpass5'),
+('Admin Six', '12345-1234567-6', '128 Admin St.', FALSE, 'adminpass6'),
+('Admin Seven', '12345-1234567-7', '129 Admin St.', TRUE, 'adminpass7'),
+('Admin Eight', '12345-1234567-8', '130 Admin St.', TRUE, 'adminpass8'),
+('Admin Nine', '12345-1234567-9', '131 Admin St.', TRUE, 'adminpass9'),
+('Admin Ten', '12345-1234567-10', '132 Admin St.', FALSE, 'adminpass10');
+
+-- Insert data into InventoryManager table
+INSERT INTO InventoryManager (name, CNIC, address, storeID, password) VALUES
+('Manager One', '23456-2345678-1', '123 Manager St.', 1, 'managerpass1'),
+('Manager Two', '23456-2345678-2', '124 Manager St.', 2, 'managerpass2'),
+('Manager Three', '23456-2345678-3', '125 Manager St.', 3, 'managerpass3'),
+('Manager Four', '23456-2345678-4', '126 Manager St.', 4, 'managerpass4'),
+('Manager Five', '23456-2345678-5', '127 Manager St.', 5, 'managerpass5'),
+('Manager Six', '23456-2345678-6', '128 Manager St.', 6, 'managerpass6'),
+('Manager Seven', '23456-2345678-7', '129 Manager St.', 7, 'managerpass7'),
+('Manager Eight', '23456-2345678-8', '130 Manager St.', 8, 'managerpass8'),
+('Manager Nine', '23456-2345678-9', '131 Manager St.', 9, 'managerpass9'),
+('Manager Ten', '23456-2345678-10', '132 Manager St.', 10, 'managerpass10');
+
+-- Insert data into Store table
+INSERT INTO Store (location) VALUES
+('Location One'),
+('Location Two'),
+('Location Three'),
+('Location Four'),
+('Location Five'),
+('Location Six'),
+('Location Seven'),
+('Location Eight'),
+('Location Nine'),
+('Location Ten');
+
+-- Insert data into Supplier table
+INSERT INTO Supplier (companyName, location, registrationNum, balance, password) VALUES
+('Supplier One', 'Location A', 1001, 1000.50, 'supplierpass1'),
+('Supplier Two', 'Location B', 1002, 2000.75, 'supplierpass2'),
+('Supplier Three', 'Location C', 1003, 1500.30, 'supplierpass3'),
+('Supplier Four', 'Location D', 1004, 1200.40, 'supplierpass4'),
+('Supplier Five', 'Location E', 1005, 1800.60, 'supplierpass5'),
+('Supplier Six', 'Location F', 1006, 1100.70, 'supplierpass6'),
+('Supplier Seven', 'Location G', 1007, 1300.80, 'supplierpass7'),
+('Supplier Eight', 'Location H', 1008, 1700.90, 'supplierpass8'),
+('Supplier Nine', 'Location I', 1009, 1400.25, 'supplierpass9'),
+('Supplier Ten', 'Location J', 1010, 1600.95, 'supplierpass10');
+
+-- Insert data into Invoice table
+INSERT INTO Invoice (createdByID, createdOn, userType, paid, delivered) VALUES
+(1, '2024-11-01', 'Admin', TRUE, TRUE),
+(2, '2024-11-02', 'Admin', FALSE, FALSE),
+(3, '2024-11-03', 'Inventory Manager', TRUE, FALSE),
+(4, '2024-11-04', 'Admin', TRUE, TRUE),
+(5, '2024-11-05', 'Inventory Manager', FALSE, TRUE),
+(6, '2024-11-06', 'Admin', TRUE, TRUE),
+(7, '2024-11-07', 'Admin', FALSE, FALSE),
+(8, '2024-11-08', 'Inventory Manager', TRUE, FALSE),
+(9, '2024-11-09', 'Admin', TRUE, TRUE),
+(10, '2024-11-10', 'Inventory Manager', FALSE, TRUE);
+
+-- Insert data into Report table
+INSERT INTO Report (createdByID, createdOn, userType) VALUES
+(1, '2024-11-01', 'Admin'),
+(2, '2024-11-02', 'Admin'),
+(3, '2024-11-03', 'Inventory Manager'),
+(4, '2024-11-04', 'Admin'),
+(5, '2024-11-05', 'Inventory Manager'),
+(6, '2024-11-06', 'Admin'),
+(7, '2024-11-07', 'Admin'),
+(8, '2024-11-08', 'Inventory Manager'),
+(9, '2024-11-09', 'Admin'),
+(10, '2024-11-10', 'Inventory Manager');
+
+-- Insert data into Product table
+INSERT INTO Product (name, description, price, MFG, EXP) VALUES
+('Product One', 'Description One', 15.50, '2024-01-01', '2025-01-01'),
+('Product Two', 'Description Two', 25.75, '2024-02-01', '2025-02-01'),
+('Product Three', 'Description Three', 35.60, '2024-03-01', '2025-03-01'),
+('Product Four', 'Description Four', 45.90, '2024-04-01', '2025-04-01'),
+('Product Five', 'Description Five', 55.20, '2024-05-01', '2025-05-01'),
+('Product Six', 'Description Six', 65.80, '2024-06-01', '2025-06-01'),
+('Product Seven', 'Description Seven', 75.10, '2024-07-01', '2025-07-01'),
+('Product Eight', 'Description Eight', 85.30, '2024-08-01', '2025-08-01'),
+('Product Nine', 'Description Nine', 95.40, '2024-09-01', '2025-09-01'),
+('Product Ten', 'Description Ten', 105.50, '2024-10-01', '2025-10-01');
+
+-- Insert data into Stock table
+INSERT INTO Stock (productID, quantity, totalCost, arrivalDate) VALUES
+(1, 100, 1500.00, '2024-11-01'),
+(2, 200, 5150.00, '2024-11-02'),
+(3, 150, 5340.00, '2024-11-03'),
+(4, 250, 11475.00, '2024-11-04'),
+(5, 300, 16560.00, '2024-11-05'),
+(6, 350, 23080.00, '2024-11-06'),
+(7, 400, 30040.00, '2024-11-07'),
+(8, 450, 38385.00, '2024-11-08'),
+(9, 500, 47700.00, '2024-11-09'),
+(10, 550, 58275.00, '2024-11-10');
+
+-- Insert data into ProductCatalog table
+INSERT INTO ProductCatalog (productCatalogID, supplierID) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8),
+(9, 9),
+(10, 10);
+
+-- Insert data into AdminInventoryManager table
+INSERT INTO AdminInventoryManager (adminID, inventoryManagerID) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8),
+(9, 9),
+(10, 10);
+
+-- Insert data into AdminUnpaidInvoices table
+INSERT INTO AdminUnpaidInvoices (adminID, invoiceID) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8),
+(9, 9),
+(10, 10);
+
+-- Insert data into StoreStock table
+INSERT INTO StoreStock (storeID, stockID) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8),
+(9, 9),
+(10, 10);
+
+-- Insert data into ProductCatalogProducts table
+INSERT INTO ProductCatalogProducts (catalogID, productID, quantity) VALUES
+(1, 1, 100),
+(2, 2, 200),
+(3, 3, 150),
+(4, 4, 250),
+(5, 5, 300),
+(6, 6, 350),
+(7, 7, 400),
+(8, 8, 450),
+(9, 9, 500),
+(10, 10, 550);
+
+-- Insert data into SupplierPendingOrders table
+INSERT INTO SupplierPendingOrders (supplierID, invoiceID) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8),
+(9, 9),
+(10, 10);
+
+-- Insert data into SupplierDeliveredOrders table
+INSERT INTO SupplierDeliveredOrders (supplierID, invoiceID) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8),
+(9, 9),
+(10, 10);
+
+-- Insert data into ManagerStore table
+INSERT INTO ManagerStore (managerID, storeID) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8),
+(9, 9),
+(10, 10);
+
+-- Insert data into InvoiceProduct table
+INSERT INTO InvoiceProduct (invoiceID, productID, quantity) VALUES
+(1, 1, 10),
+(2, 2, 20),
+(3, 3, 15),
+(4, 4, 25),
+(5, 5, 30),
+(6, 6, 35),
+(7, 7, 40),
+(8, 8, 45),
+(9, 9, 50),
+(10, 10, 55);
+
 
 	           

@@ -63,6 +63,7 @@ public class HisaabTrack {
         if(admin == null)
             return false;
         admin.updateProfile(Name, cnic, Address, password);
+        DB.updateAdmin(admin);
         return true;
     }
     public Store generateAdminReport(int adminID, int managerID) {

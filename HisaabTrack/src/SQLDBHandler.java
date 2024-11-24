@@ -138,7 +138,7 @@ public class SQLDBHandler {
 	                    adminRs.getString("CNIC"),
 	                    adminRs.getString("address"),
 	                    adminRs.getString("password"),
-	                    adminRs.getBoolean("active")
+	                    true
 	                );
 	            }
 	        } catch (SQLException e) {
@@ -201,7 +201,9 @@ public class SQLDBHandler {
 	        } catch (SQLException e) {
 	            System.err.println("Error loading Product data: " + e.getMessage());
 	        }
-
+	        for(Product product : products) {
+	        	System.out.println("Product: " + product.getProductID() + "Product Name: " + product.getName());
+	        }
 	        // Adding stock
 	        query = "SELECT st.*, s.*, m.managerID FROM Store st "
 	              + "LEFT JOIN StoreStock ss ON st.storeID = ss.storeID "
@@ -249,8 +251,7 @@ public class SQLDBHandler {
 	        
 	        // Listing an invoice
 	        List<Invoice> invoiceDetailsList = new ArrayList<>();
-	        query = "SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn "
-	              + "FROM Invoice i JOIN InvoiceProduct ip ON i.invoiceID = ip.invoiceID";
+	        query = "SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn FROM Invoice i ";
 	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 	            while (rs.next()) {
 	                Invoice details = new Invoice(
@@ -259,34 +260,36 @@ public class SQLDBHandler {
 	                    rs.getDate("createdOn"),
 	                    rs.getBoolean("delivered"),
 	                    rs.getBoolean("paid"),
-	                    ""
+	                    "\0"
 	                );
-	                invoiceDetailsList.add(details);
+	                System.out.println(details.toString());
 	                query = """
-	                    SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn,
+	                    SELECT i.invoiceID,
 	                           ip.productID, p.name AS productName, p.description AS productDescription, 
 	                           ip.quantity, p.price
 	                    FROM Invoice i
 	                    JOIN InvoiceProduct ip ON i.invoiceID = ip.invoiceID
 	                    JOIN Product p ON ip.productID = p.productID
 	                    WHERE i.invoiceID = ?
-	                    ORDER BY i.invoiceID;
 	                """;
-	                int invoiceID = rs.getInt("invoiceID");
+	                int invoiceID = details.getInvoiceID();
 	                try (PreparedStatement stmt2 = conn.prepareStatement(query)) {
 	                    stmt2.setInt(1, invoiceID);
 	                    try (ResultSet rs2 = stmt2.executeQuery()) {
 	                        while (rs2.next()) {
-	                        	System.out.println("Product: "+getProduct(products, rs2.getInt("productID")).getName() + "   " +  rs2.getInt("quantity"));
+	                        	System.out.println("Product: "+getProduct(products, rs2.getInt("productID")).getProductID()+ "   " +  rs2.getInt("quantity"));
 	                            details.addItem(getProduct(products, rs2.getInt("productID")), rs2.getInt("quantity"));
 	                        }
 	                    }
 	                }
+	                invoiceDetailsList.add(details);
 	            }
 	        } catch (SQLException e) {
 	            System.err.println("Error loading Invoice data: " + e.getMessage());
 	        }
-
+	        //for(Invoice invoice : invoiceDetailsList) {
+	        //	invoice.toString();
+	        //}
 	        query = "SELECT "
 	                + "    s.supplierID, "
 	                + "    s.companyName, "
@@ -827,6 +830,32 @@ public class SQLDBHandler {
 		        return false;
 		    }
 	}
+	//SQL Query for updating admin
+	public boolean updateAdmin(Admin a) {
+	    String sql = "UPDATE Admin SET name = ?, CNIC = ?, address = ?, active = ? WHERE adminID = ?";
+	    
+	    try (Connection conn = DriverManager.getConnection(connection, userName, password);
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        
+	        // Set the parameters for the SQL statement
+	        stmt.setString(1, a.getName());
+	        stmt.setString(2, a.getCNIC());
+	        stmt.setString(3, a.getAddress());
+	        stmt.setBoolean(4, a.isActive());
+	        stmt.setInt(5, a.getAdminID());  // Assuming `adminID` is an integer
+	        
+	        // Execute the update statement
+	        int rowsAffected = stmt.executeUpdate();
+	        
+	        // Return true if the update was successful (i.e., at least one row was affected)
+	        return rowsAffected > 0;
+	        
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+
 	//SQL Query for updating supplier
 	public boolean updateSupplier(Supplier supplier) {
 		try (Connection conn = DriverManager.getConnection(connection, userName, password)) {

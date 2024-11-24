@@ -23,8 +23,8 @@ public class Invoice {
 
 	// Constructor
     public Invoice() {
-        products = new ArrayList<>();
-        amount = new ArrayList<>();
+        products = new ArrayList<Product>();
+        amount = new ArrayList<Integer>();
         deliveryStatus = false;
         paymentStatus = false;
         createdOn = new Date();
@@ -32,8 +32,8 @@ public class Invoice {
     }
     //Parameterized Constructor
     public Invoice(int invoiceID, int createdBy, Date createdOn, boolean deliveryStatus, boolean paymentStatus, String creatorType) {
-    	 products = new ArrayList<>();
-         amount = new ArrayList<>();
+    	products = new ArrayList<Product>();
+        amount = new ArrayList<Integer>();
          deliveryStatus = false;
          paymentStatus = false;
          createdOn = new Date();
