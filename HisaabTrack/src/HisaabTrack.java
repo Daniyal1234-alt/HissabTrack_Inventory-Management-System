@@ -48,6 +48,38 @@ public class HisaabTrack {
         }
         
     }
+    
+    public String Login(String username, String password) {
+        String userType = DB.Login(username, password);
+        return userType;
+    }
+    public Admin getLoggedAdmin(String username, String password){
+        for (Admin admin : admins) {
+            // Check if the username and password match
+            if (admin.getName().equals(username) && admin.getPassword().equals(password)) {
+                return admin;  // Return the admin object if a match is found
+            }
+        }
+        return null;  // Return null if no match is found
+    }
+    public Supplier getLoggedSupplier(String username, String password){
+        for (Supplier admin : suppliers) {
+            // Check if the username and password match
+            if (admin.getCompany().equals(username) && admin.getPasswordString().equals(password)) {
+                return admin;  // Return the admin object if a match is found
+            }
+        }
+        return null;  // Return null if no match is found
+    }
+    public InventoryManager getLoggedInventoryManager(String username, String password){
+        for (InventoryManager admin : managers) {
+            // Check if the username and password match
+            if (admin.getName().equals(username) && admin.getPassword().equals(password)) {
+                return admin;  // Return the admin object if a match is found
+            }
+        }
+        return null;  // Return null if no match is found
+    }
 
     // Method signatures
     public boolean login() {

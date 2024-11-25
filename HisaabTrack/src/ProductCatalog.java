@@ -26,7 +26,7 @@ public class ProductCatalog {
         }
 
         // Product does not exist, add it to the list
-        p.setProductID(product.size()+1);
+        //p.setProductID(product.size()+1);
         this.product.add(p);
         this.amount.add(amount);
     }

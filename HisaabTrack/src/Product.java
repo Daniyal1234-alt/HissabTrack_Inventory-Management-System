@@ -22,6 +22,15 @@ public class Product {
         this.MFG = MFG;
         this.EXP = EXP;
     }
+ // Copy constructor
+    public Product(Product other) {
+        this.productID = other.productID;
+        this.name = other.name;
+        this.description = other.description;
+        this.price = other.price;
+        this.MFG = new Date(other.MFG.getTime()); // Defensive copy
+        this.EXP = new Date(other.EXP.getTime()); // Defensive copy
+    }
     // Method Signatures
     public int getProductID() {
         return productID;

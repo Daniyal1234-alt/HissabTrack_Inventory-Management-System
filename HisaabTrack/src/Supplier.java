@@ -11,6 +11,14 @@ public class Supplier {
     private ProductCatalog products;
     private List<Invoice> recievedOrders;
     private List<Invoice> sentOrders;
+    public Invoice getRecievedOrdersByID(int ID) {
+        for(Invoice invoice : recievedOrders){
+            if(invoice.getInvoiceID() == ID){
+                return invoice;
+            }
+        }
+        return null;
+    }
     public double getBalance() {
 		return balance;
 	}
