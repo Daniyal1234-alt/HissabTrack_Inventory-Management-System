@@ -431,6 +431,13 @@ public class HisaabTrack {
     } 
 
     // Utility functions
+    public ProductCatalog getSupplierCatalog(int supplierID) {
+        Supplier s = getSupplierByID(supplierID);
+        if(s!=null) {
+            return s.getProducts();
+        }
+        return null;
+    }
     public void addPendingOrder(int supplierID, Invoice obj) {
     	getSupplierByID(supplierID).addIncomingOrder(obj);
     }
