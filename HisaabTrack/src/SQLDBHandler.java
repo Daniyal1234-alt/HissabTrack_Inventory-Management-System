@@ -249,6 +249,7 @@ public class SQLDBHandler {
 	                Supplier supplier = system.getSupplier(rs.getInt("s.supplierID"));
 	                Product product = getProduct(products, rs.getInt("productID"));
 	                System.out.println("Product :  " + product.getProductID() + "   " + product.getName());
+					if(supplier != null)
 	                supplier.addProduct(product, rs.getInt("quantity"));
 	            }
 	        } catch (SQLException e) {
@@ -445,7 +446,7 @@ public class SQLDBHandler {
 	        pstmt.setString(2, supplier.getLocation());
 	        pstmt.setInt(3, supplier.getRegNo());
 	        pstmt.setDouble(4, supplier.getBalance());
-	        pstmt.setString(5, password);
+	        pstmt.setString(5, supplier.getPasswordString());
 	        return pstmt.executeUpdate() > 0;
 	    } catch (SQLException e) {
 	        e.printStackTrace();

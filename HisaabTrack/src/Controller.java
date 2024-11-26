@@ -281,7 +281,7 @@ public class Controller {
             String address = addressField.getText().trim();
             String password = passwordField.getText().trim();
             String selectedStore = storeComboBox.getValue();
-            if (name.isEmpty() || cnic.isEmpty() || address.isEmpty() || selectedStore == null) {
+            if (name.isEmpty() || cnic.isEmpty() || address.isEmpty() || selectedStore == null || passwordField == null) {
                 // Display error if fields are empty
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -310,7 +310,7 @@ public class Controller {
         });
 
         // Add all fields and button to the form area
-        formArea.getChildren().addAll(nameText, nameField, cnicText, cnicField, addressText, addressField, storeText, storeComboBox, addButton);
+        formArea.getChildren().addAll(nameText, nameField, cnicText, cnicField, addressText, addressField, storeText, storeComboBox, passwordField, addButton);
         contentArea.getChildren().add(formArea);
         //
         contentArea.setPrefSize(900, 500); // Adjust dimensions as needed
@@ -1963,94 +1963,120 @@ public class Controller {
         // Product and Quantity Fields
         ComboBox<String> productComboBox = new ComboBox<>();
         ComboBox<String> quantityComboBox = new ComboBox<>();
-        List<Stock> stockList = system.getStoreStock(loggedManager.getManagerID());
-    
-        if (stockList.isEmpty()) {
-            productComboBox.setPromptText("No Products Found");
-            quantityComboBox.setPromptText("Select a Product");
-            productComboBox.setDisable(true);
-        } else {
-            productComboBox.setPromptText("Select Product");
-            quantityComboBox.setPromptText("Select a Quantity");
-            productComboBox.setPrefWidth(300);
-            for (Stock stock : stockList) {
-                String productEntry = stock.getProduct().getProductID() + " - " + stock.getProduct().getName();
-                productComboBox.getItems().add(productEntry);
-            }
-        }
-    
-        productComboBox.setOnAction(event -> {
-            // Extract product ID from the ComboBox entry
-            String selectedProductEntry = productComboBox.getValue();
-            int spaceIndex = selectedProductEntry.indexOf(" "); // Extract Manager ID
-            int productID = Integer.parseInt(selectedProductEntry.substring(0, spaceIndex)); // Extract Invoice ID
-            Stock selectedProduct = null;
-            for (Stock stock : stockList) {
-                if(stock.getProduct().getProductID() == productID){
-                    selectedProduct = stock;
+        productComboBox.setPromptText("Select a Supplier");
+        quantityComboBox.setPromptText("Select a Supplier");
+        supplierComboBox.setOnAction(e ->{
+            productComboBox.getItems().clear();
+            quantityComboBox.getItems().clear();
+            productComboBox.setPromptText("Select a Supplier");
+            quantityComboBox.setPromptText("Select a Supplier");
+            String selectedSupplierEntry = supplierComboBox.getValue();
+            int spaceIndex = selectedSupplierEntry.indexOf(" "); // Extract Manager ID
+            int supplierID = Integer.parseInt(selectedSupplierEntry.substring(0, spaceIndex)); // Extract Invoice ID
+            ProductCatalog productList = system.getSupplierCatalog(supplierID);
+
+            if (productList == null) {
+                productComboBox.setPromptText("No Products Found");
+                quantityComboBox.setPromptText("Select a Product");
+                productComboBox.setDisable(true);
+            } else {
+                productComboBox.setPromptText("Select Product");
+                quantityComboBox.setPromptText("Select a Quantity");
+                productComboBox.setPrefWidth(300);
+                for (Product stock : productList.getProduct()) {
+                    String productEntry = stock.getProductID() + " - " + stock.getName();
+                    productComboBox.getItems().add(productEntry);
                 }
             }
-            if (selectedProduct != null) {
-                quantityComboBox.getItems().clear();
-                int availableStock = selectedProduct.getQuantity();
-                for (int i = 1; i <= availableStock; i++) {
-                    quantityComboBox.getItems().add(Integer.toString(i));
+            productComboBox.setOnAction(event -> {
+                // Extract product ID from the ComboBox entry
+                if(productComboBox.getValue() != null){
+                    String selectedProductEntry = productComboBox.getValue();
+                    int spaceIndex2 = selectedProductEntry.indexOf(" "); // Extract Manager ID
+                    int productID = Integer.parseInt(selectedProductEntry.substring(0, spaceIndex2)); // Extract Invoice ID
+                    Product selectedProduct = null;
+                    int quantity = 0;
+                    int j = 0;
+                    for (Product stock : productList.getProduct()) {
+                        if(stock.getProductID() == productID){
+                            selectedProduct = stock;
+                            quantity = productList.getAmount().get(j);
+                            j++;
+                        }
+                    }
+                    if (selectedProduct != null) {
+                        quantityComboBox.getItems().clear();
+                        for (int i = 1; i <= quantity; i++) {
+                            quantityComboBox.getItems().add(Integer.toString(i));
+                        }
+                    }
                 }
-            }
+            });
         });
+    
     
         // Add Product Button
         Button addProductButton = createStyledButton("Add Product", "#e41837", "#541801");
         List<Integer> productIDs = new ArrayList<>();
         List<Integer> quantities = new ArrayList<>();
+        //List<Supplier> suppliers = new ArrayList<>();
     
         addProductButton.setOnAction(e -> {
             if(productComboBox.getValue() != null){
+                String selectedSupplierEntry = supplierComboBox.getValue();
+                int spaceIndex = selectedSupplierEntry.indexOf(" "); // Extract Manager ID
+                int supplierID = Integer.parseInt(selectedSupplierEntry.substring(0, spaceIndex)); // Extract Invoice ID
                 String selectedProductEntry = productComboBox.getValue();
                 String selectedQuantityEntry = productComboBox.getValue();
-                int spaceIndex = selectedProductEntry.indexOf(" "); // Extract Manager ID
+                spaceIndex = selectedProductEntry.indexOf(" "); // Extract Manager ID
                 int productID = Integer.parseInt(selectedQuantityEntry.substring(0, spaceIndex)); // Extract Invoice ID
                 spaceIndex = selectedQuantityEntry.indexOf(" "); // Extract Manager ID
                 int quantity = Integer.parseInt(selectedQuantityEntry.substring(0, spaceIndex)); // Extract Invoice ID
-                productIDs.add(productID);
-                quantities.add(quantity);
+                if (system.isValidProductFromSupplier(supplierID, productID)) {
+                    productIDs.add(productID);
+                    quantities.add(quantity);
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid Product ID: " + productID, ButtonType.OK);
+                    alert.showAndWait();
+                    //isValid = false;
+                    //break;
+                }
+                //productIDs.add(productID);
+                //quantities.add(quantity);
+                //suppliers.add(system.getSupplier(supplierID));
+                productComboBox.getItems().clear();
+                quantityComboBox.getItems().clear();
+                productComboBox.setPromptText("Select a Supplier");
+                quantityComboBox.setPromptText("Select a Supplier");
+                supplierComboBox.setPromptText("Select Supplier");
             }
-    
+            
         });
     
         // Submit Button
         Button submitButton = createStyledButton("Place Order", "#e41837", "#541801");
         submitButton.setOnAction(e -> {
-            boolean isValid = true;
             for (int i = 0; i < productIDs.size(); i++) {
-                try {
+                /*try {
                     int productID = productIDs.get(i);
                     int quantity = quantities.get(i);
-
-                    if (system.isValidProduct(loggedManager.getManagerID(), productID)) {
-                        productIDs.add(productID);
-                        quantities.add(quantity);
-                    } else {
-                        Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid Product ID: " + productID, ButtonType.OK);
-                        alert.showAndWait();
-                        isValid = false;
-                        break;
-                    }
                 } catch (NumberFormatException ex) {
                     Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter valid numbers for Product ID and Quantity.", ButtonType.OK);
                     alert.showAndWait();
-                    isValid = false;
                     break;
-                }
-            }
-            if(isValid){
+                }*/
                 String selectedSupplierEntry = supplierComboBox.getValue();
-                int spaceIndex = selectedSupplierEntry.indexOf(" "); // Extract Manager ID
-                int supplierID = Integer.parseInt(selectedSupplierEntry.substring(0, spaceIndex)); // Extract Invoice ID
-                system.placeOrder(loggedManager.getManagerID(),supplierID, productIDs, quantities);
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Sale completed successfully!", ButtonType.OK);
-                alert.showAndWait();
+                if(selectedSupplierEntry != null){
+                    int spaceIndex = selectedSupplierEntry.indexOf(" "); // Extract Manager ID
+                    int supplierID = Integer.parseInt(selectedSupplierEntry.substring(0, spaceIndex)); // Extract Invoice ID
+                    if(system.isValidProductFromSupplier(supplierID, productIDs.get(i))){
+                        system.placeOrder(loggedManager.getManagerID(),supplierID, productIDs, quantities);
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Sale completed successfully! with Supplier ID: " + supplierID, ButtonType.OK);
+                        alert.showAndWait();
+                    }
+                }   
             }
+            placeOrderContent();
         });
         // Add elements to the form area
         formArea.getChildren().addAll(
@@ -2113,6 +2139,12 @@ public class Controller {
 
         TableColumn<Stock, String> arrivalDateColumn = new TableColumn<>("Arrival Date");
         arrivalDateColumn.setCellValueFactory(new PropertyValueFactory<>("arrivalDate"));
+
+        /*TableColumn<Product, String> productNameColumn = new TableColumn<>("Name");
+        arrivalDateColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        TableColumn<Product, String> productDescriptionColumn = new TableColumn<>("Description");
+        arrivalDateColumn.setCellValueFactory(new PropertyValueFactory<>("description"));*/
 
         // Add columns to the TableView
         stockTableView.getColumns().addAll(productIDColumn, quantityColumn, totalCostColumn, arrivalDateColumn);
@@ -2268,7 +2300,117 @@ public class Controller {
         dashBoard.getChildren().remove(2);
         dashBoard.getChildren().add(2, contentArea);
     }
+    private void payInvoicesContent(){
+        contentArea = new HBox();
+        contentArea.setAlignment(Pos.CENTER);
+        contentArea.setStyle(
+            "-fx-background-color: rgba(255, 255, 255, 0.85);" +
+            "-fx-border-color: #0a0100;" +
+            "-fx-border-radius: 30;" +
+            "-fx-background-radius: 30;" +
+            "-fx-padding: 30;" +
+            "-fx-transition: all 0.3s ease;"
+        );
+        //
+        VBox formArea = new VBox(15);
+        formArea.setAlignment(Pos.TOP_CENTER);
     
+        // Title
+        Text formTitle = createText("Pay or Remove Unpaid Invoices");
+    
+        // ComboBox for unpaid invoices
+        ComboBox<String> unpaidInvoiceComboBox = new ComboBox<>();
+        unpaidInvoiceComboBox.setPromptText("Select an unpaid invoice");
+        unpaidInvoiceComboBox.setPrefWidth(400);
+    
+        // Fetch unpaid invoices
+        List<Invoice> unpaidInvoices = loggedAdmin.getUnpaidInvoices();
+        Invoice selectedInvoice = null;
+    
+        if (unpaidInvoices.isEmpty()) {
+            unpaidInvoiceComboBox.setPromptText("No unpaid invoices found");
+            unpaidInvoiceComboBox.setDisable(true);
+        } else {
+            for (Invoice invoice : unpaidInvoices) {
+                // Display invoice ID and details
+                String invoiceEntry = invoice.getInvoiceID() + " - " + invoice.getCreatedOn();
+                unpaidInvoiceComboBox.getItems().add(invoiceEntry);
+
+            }
+        }
+    
+        // Pay button
+        Button payButton = createStyledButton("Pay Invoice", "#e41837", "#541801");
+        payButton.setOnAction(event -> {
+            String selectedInvoiceEntry = unpaidInvoiceComboBox.getValue();
+            if (selectedInvoiceEntry != null) {
+                int spaceIndex = selectedInvoiceEntry.indexOf(" "); // Extract Manager ID
+                int invoiceID = Integer.parseInt(selectedInvoiceEntry.substring(0, spaceIndex)); // Extract Invoice ID
+                int supplierID = -1;
+                for (Invoice invoice : unpaidInvoices) {
+                    // Display invoice ID and details
+                    if(invoice.getInvoiceID() == invoiceID){
+                        supplierID = invoice.getSupplierID();
+                    }
+                }
+                if (supplierID != -1) {
+                    system.payInvoice(loggedAdmin.getAdminID(), invoiceID , supplierID);
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Invoice ID " + invoiceID + " marked as paid!", ButtonType.OK);
+                    alert.showAndWait();
+                    unpaidInvoiceComboBox.getItems().remove(selectedInvoiceEntry); // Remove from the combo box
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to mark invoice as paid.", ButtonType.OK);
+                    alert.showAndWait();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Please select an invoice to pay.", ButtonType.OK);
+                alert.showAndWait();
+            }
+        });
+    
+        // Remove button
+        Button removeButton = createStyledButton("Remove Invoice", "#e41837", "#541801");
+        removeButton.setOnAction(event -> {
+            String selectedInvoiceEntry = unpaidInvoiceComboBox.getValue();
+            if (selectedInvoiceEntry != null) {
+                int spaceIndex = selectedInvoiceEntry.indexOf(" "); // Extract Manager ID
+                int invoiceID = Integer.parseInt(selectedInvoiceEntry.substring(0, spaceIndex)); // Extract Invoice ID
+                boolean success = system.removeAdminUnpaidInvoice(loggedAdmin.getAdminID(), invoiceID);
+                if (success) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Invoice ID " + invoiceID + " removed successfully!", ButtonType.OK);
+                    alert.showAndWait();
+                    unpaidInvoiceComboBox.getItems().remove(selectedInvoiceEntry); // Remove from the combo box
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to remove invoice.", ButtonType.OK);
+                    alert.showAndWait();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Please select an invoice to remove.", ButtonType.OK);
+                alert.showAndWait();
+            }
+        });
+        HBox buttons = new HBox(20);
+        buttons.getChildren().addAll(removeButton,payButton);
+        // Add elements to form area
+        formArea.getChildren().addAll(formTitle, unpaidInvoiceComboBox, buttons);
+        // 
+        contentArea.getChildren().add(formArea);
+        contentArea.setPrefSize(900, 500);
+    
+        contentArea.setOnMouseEntered(event -> {
+            contentArea.setScaleX(1.02);
+            contentArea.setScaleY(1.02);
+        });
+    
+        contentArea.setOnMouseExited(event -> {
+            contentArea.setScaleX(1.0);
+            contentArea.setScaleY(1.0);
+        });
+    
+        // Replace content area in the dashboard
+        dashBoard.getChildren().remove(2);
+        dashBoard.getChildren().add(2, contentArea);
+    }
     private VBox createAdminButtonPanel() {
         VBox buttonPanel = new VBox(10);
         buttonPanel.setPadding(new Insets(20));
@@ -2284,6 +2426,10 @@ public class Controller {
         buttonPanel.setAlignment(Pos.TOP_CENTER);
     
         // Create buttons
+        Button payInvoicesButton = createDashboardButton("Pay Invoices");
+        payInvoicesButton.setOnAction(e -> {
+            payInvoicesContent();
+        });
         Button addInventoryManagerButton = createDashboardButton("Add Inventory Manager");
         addInventoryManagerButton.setOnAction(e -> {
             addInventoryManagerContent();
@@ -2340,7 +2486,7 @@ public class Controller {
         ));
         // Add buttons to the panel
         buttonPanel.getChildren().addAll(
-            addInventoryManagerButton, removeInventoryManagerButton, updateInventoryManagerButton,
+            payInvoicesButton, addInventoryManagerButton, removeInventoryManagerButton, updateInventoryManagerButton,
             addSupplierButton, removeSupplierButton, updateSupplierButton,
             generateReportButton, updateProfileButton, logoutButton
         );
@@ -2368,7 +2514,7 @@ public class Controller {
             sendOrderContent();
         });
     
-        Button pastOrdersButton = createDashboardButton("Request Payment");
+        Button pastOrdersButton = createDashboardButton("Completed Orders");
         pastOrdersButton.setOnAction(e -> {
             // Call method to handle requesting payment
             displayOrderHistoryContent();
@@ -2612,29 +2758,6 @@ public class Controller {
         Text tagline = new Text("Welcome, " + str);
         tagline.setFont(Font.font("Gilroy-Medium", 16));
         tagline.setFill(createGradient());
-        // Create a Button
-		/*
-		 * Button imageButton = new Button();
-		 * 
-		 * // Load an image //Image image = new Image("notification.png"); // Replace
-		 * with your image URL or local file
-		 * 
-		 * // Create a BackgroundImage BackgroundImage backgroundImage = new
-		 * BackgroundImage( image, BackgroundRepeat.NO_REPEAT, // Do not repeat the
-		 * image BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, // Center the
-		 * image in the button new BackgroundSize( 10, 10, // Width and height of the
-		 * background relative to the button true, true, true, true ) );
-		 * 
-		 * // Set the BackgroundImage to the Button imageButton.setBackground(new
-		 * Background(backgroundImage)); imageButton.setPadding(Insets.EMPTY); // Remove
-		 * default padding imageButton.setPrefSize(32, 32); // Set button size to match
-		 * the image
-		 * 
-		 * // Add hover effect (optional) imageButton.setStyle("-fx-cursor: hand;");
-		 * imageButton.setOnMouseEntered(event -> imageButton.setOpacity(0.8)); //
-		 * Slight fade imageButton.setOnMouseExited(event ->
-		 * imageButton.setOpacity(1.0)); // Restore
-		 */
         // Flexible spacer
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -2699,11 +2822,6 @@ public class Controller {
             navigateToBox(signUpBox,loginBox);
         });
         registerButton.setOnAction(e -> {
-            adminNameField.clear();
-            cnicField.clear();
-            emailField.clear();
-            addressField.clear();
-            passwordField.clear();
             if(adminNameField.getText().trim().isEmpty() || cnicField.getText().trim().isEmpty() || emailField.getText().trim().isEmpty() || passwordField.getText().trim().isEmpty() || addressField.getText().trim().isEmpty()){
                 Alert alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Sign Up Failed");
@@ -2720,6 +2838,11 @@ public class Controller {
                 navigateToBox(titleBoxPrev, titleBox);
                 navigateToBox(signUpBox,dashBoard);
             }
+            adminNameField.clear();
+            cnicField.clear();
+            emailField.clear();
+            addressField.clear();
+            passwordField.clear();
         });
     
         HBox buttonBox = new HBox(10, registerButton, backButton);

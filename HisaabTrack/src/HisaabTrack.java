@@ -48,7 +48,9 @@ public class HisaabTrack {
         }
         
     }
-    
+    public boolean removeAdminUnpaidInvoice(int adminID,int invoiceID){
+        return DB.removeAdminUnpaidInvoice(adminID,invoiceID);
+    }
     public String Login(String username, String password) {
         String userType = DB.Login(username, password);
         return userType;
@@ -308,6 +310,15 @@ public class HisaabTrack {
         }
         return true;
     }
+    public boolean isValidProductFromSupplier(int supplierID, int productID) {
+        for(Product product : getSupplierByID(supplierID).getProducts().getProduct()){
+            if(product.getProductID() == productID) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public void makeSale(int managerID, List<Integer> p, List<Integer> q) {
         for(InventoryManager obj:managers) {
             if(obj.getManagerID() == managerID) {
