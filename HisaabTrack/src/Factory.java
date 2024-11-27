@@ -594,6 +594,7 @@ public class Factory {
                         System.out.println(invoice); // Assuming Invoice has a meaningful toString()
                     }
                     break;
+                    
 
                 case 6: // Exit
                     System.out.println("Exiting Manager Menu.");
