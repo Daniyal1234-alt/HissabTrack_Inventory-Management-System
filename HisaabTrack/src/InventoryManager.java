@@ -78,6 +78,10 @@ public class InventoryManager {
         managingStore.makeSale(pList, q);
     }
 
+    public void addInvoice(Invoice obj) {
+        register.getInvoices().add(obj);
+    }
+
     public Invoice placeOrder(List<Product> pList, List<Integer> q) {
         return register.generateInvoice(pList, q);
     }

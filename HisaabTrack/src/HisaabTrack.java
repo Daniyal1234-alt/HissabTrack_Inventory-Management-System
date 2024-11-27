@@ -352,6 +352,9 @@ public class HisaabTrack {
         //update DB
    
     }
+    public void addInvoiceToRegister(Invoice obj) {
+        getManagerByID(obj.getCreatedBy()).addInvoice(obj);
+    }
     public void placeOrder(int managerID, int supplierID, List<Integer> p, List<Integer> q) {
         Invoice e = null;
         
