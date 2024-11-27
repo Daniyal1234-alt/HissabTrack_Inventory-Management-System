@@ -1860,9 +1860,9 @@ public class Controller {
         addProductButton.setOnAction(e -> {
             if(productComboBox.getValue() != null){
                 String selectedProductEntry = productComboBox.getValue();
-                String selectedQuantityEntry = productComboBox.getValue();
+                String selectedQuantityEntry = quantityComboBox.getValue();
                 int spaceIndex = selectedProductEntry.indexOf(" "); // Extract Manager ID
-                int productID = Integer.parseInt(selectedQuantityEntry.substring(0, spaceIndex)); // Extract Invoice ID
+                int productID = Integer.parseInt(selectedProductEntry.substring(0, spaceIndex)); // Extract Invoice ID
                 spaceIndex = selectedQuantityEntry.indexOf(" "); // Extract Manager ID
                 int quantity = Integer.parseInt(selectedQuantityEntry.substring(0, spaceIndex)); // Extract Invoice ID
                 productIDs.add(productID);
@@ -2029,9 +2029,9 @@ public class Controller {
                 int spaceIndex = selectedSupplierEntry.indexOf(" "); // Extract Manager ID
                 int supplierID = Integer.parseInt(selectedSupplierEntry.substring(0, spaceIndex)); // Extract Invoice ID
                 String selectedProductEntry = productComboBox.getValue();
-                String selectedQuantityEntry = productComboBox.getValue();
+                String selectedQuantityEntry = quantityComboBox.getValue();
                 spaceIndex = selectedProductEntry.indexOf(" "); // Extract Manager ID
-                int productID = Integer.parseInt(selectedQuantityEntry.substring(0, spaceIndex)); // Extract Invoice ID
+                int productID = Integer.parseInt(selectedProductEntry.substring(0, spaceIndex)); // Extract Invoice ID
                 spaceIndex = selectedQuantityEntry.indexOf(" "); // Extract Manager ID
                 int quantity = Integer.parseInt(selectedQuantityEntry.substring(0, spaceIndex)); // Extract Invoice ID
                 if (system.isValidProductFromSupplier(supplierID, productID)) {
