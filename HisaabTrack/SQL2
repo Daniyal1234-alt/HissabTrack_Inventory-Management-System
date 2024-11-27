@@ -150,4 +150,37 @@ DELETE FROM SupplierDeliveredOrders;
 
 -- Delete from the Invoice table
 DELETE FROM Invoice;
+SELECT 
+    s.supplierID, 
+    s.companyName, 
+    s.location AS supplierLocation, 
+    i.invoiceID, 
+    ip.productID, 
+    p.name AS productName, 
+    p.description AS productDescription, 
+    ip.quantity AS quantityDelivered, 
+    i.createdOn AS deliveryDate, 
+    paid, 
+    delivered
+FROM 
+    Supplier s
+JOIN 
+    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID
+JOIN 
+    Invoice i ON sdo.invoiceID = i.invoiceID
+JOIN 
+    InvoiceProduct ip ON i.invoiceID = ip.invoiceID
+JOIN 
+    Product p ON ip.productID = p.productID
+WHERE 
+    delivered = FALSE AND paid = TRUE;
+SELECT 
+    s.supplierID, 
+    s.companyName, 
+    s.location AS supplierLocation, 
+    sdo.invoiceID
 
+FROM 
+    Supplier s
+JOIN 
+    SupplierDeliveredOrders sdo ON s.supplierID = sdo.supplierID

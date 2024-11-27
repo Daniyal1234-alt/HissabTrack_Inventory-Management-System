@@ -2032,8 +2032,7 @@ public class Controller {
                 String selectedQuantityEntry = quantityComboBox.getValue();
                 spaceIndex = selectedProductEntry.indexOf(" "); // Extract Manager ID
                 int productID = Integer.parseInt(selectedProductEntry.substring(0, spaceIndex)); // Extract Invoice ID
-                spaceIndex = selectedQuantityEntry.indexOf(" "); // Extract Manager ID
-                int quantity = Integer.parseInt(selectedQuantityEntry.substring(0, spaceIndex)); // Extract Invoice ID
+                int quantity = Integer.parseInt(selectedQuantityEntry); // Extract Invoice ID
                 if (system.isValidProductFromSupplier(supplierID, productID)) {
                     productIDs.add(productID);
                     quantities.add(quantity);

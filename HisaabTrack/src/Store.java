@@ -38,7 +38,6 @@ public class Store {
                     flag = true;
                     break;
                 } 
-                i++;
             }
             if(!flag) {
                 Stock s = new Stock();
@@ -47,6 +46,8 @@ public class Store {
                 s.setTotalCost(p.getPrice() * s.getQuantity());
                 stock.add(s);
             }
+            i++;
+
         }
         return true; // Placeholder for implementation
     }

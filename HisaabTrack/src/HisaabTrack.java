@@ -467,6 +467,10 @@ public class HisaabTrack {
                 //DB Functions
                 int storeID = getManagerByID(iManagerID).getManagingStore().getStoreID();
                 List<Stock> s = getStoreStock(storeID);
+                for(Stock s1 : s) {
+                	DB.addStock(s1.getProduct().getProductID(), s1.getQuantity(), s1.getTotalCost(), s1.getArrivalDate());
+                    DB.addStoreStock(storeID, s1.getStockID());
+                }
                 DB.invoiceDelivered(invoiceID);
                 DB.addSupplierDeliveredOrder(ID, invoiceID);
                 DB.removeSupplierPendingOrder(ID, invoiceID);

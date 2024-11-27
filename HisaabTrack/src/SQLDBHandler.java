@@ -332,30 +332,15 @@ public class SQLDBHandler {
 	        for(Invoice invoice : invoiceDetailsList) {
 	        	invoice.toString();
 	        }
-	         query = "SELECT " +
-	                "    s.supplierID, " +
-	                "    s.companyName, " +
-	                "    s.location AS supplierLocation, " +
-	                "    i.invoiceID, " +
-	                "    ip.productID, " +
-	                "    p.name AS productName, " +
-	                "    p.description AS productDescription, " +
-	                "    ip.quantity AS quantityDelivered, " +
-	                "    i.createdOn AS deliveryDate, " +
-	                "    paid, delivered " +
-	                "FROM " +
-	                "    Supplier s " +
-	                "JOIN " +
-	                "    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID " +
-	                "JOIN " +
-	                "    Invoice i ON sdo.invoiceID = i.invoiceID " +
-	                "JOIN " +
-	                "    InvoiceProduct ip ON i.invoiceID = ip.invoiceID " +
-	                "JOIN " +
-	                "    Product p ON ip.productID = p.productID " +
-	                "WHERE " +
-	                "    delivered = FALSE AND paid = TRUE";
-
+	        query = "SELECT " +
+		               "    s.supplierID, " +
+		               "    s.companyName, " +
+		               "    s.location AS supplierLocation, " +
+		               "    sdo.invoiceID " +
+		               "FROM " +
+		               "    Supplier s " +
+		               "JOIN " +
+		               "    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID";
 
 			try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 			    while (rs.next()) {
@@ -371,29 +356,16 @@ public class SQLDBHandler {
 		               "    s.supplierID, " +
 		               "    s.companyName, " +
 		               "    s.location AS supplierLocation, " +
-		               "    i.invoiceID, " +
-		               "    ip.productID, " +
-		               "    p.name AS productName, " +
-		               "    p.description AS productDescription, " +
-		               "    ip.quantity AS quantityDelivered, " +
-		               "    i.createdOn AS deliveryDate, " +
-		               "    paid, delivered " +
+		               "    sdo.invoiceID " +
 		               "FROM " +
 		               "    Supplier s " +
 		               "JOIN " +
-		               "    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID " +
-		               "JOIN " +
-		               "    Invoice i ON sdo.invoiceID = i.invoiceID " +
-		               "JOIN " +
-		               "    InvoiceProduct ip ON i.invoiceID = ip.invoiceID " +
-		               "JOIN " +
-		               "    Product p ON ip.productID = p.productID " +
-		               "WHERE " +
-		               "    delivered = TRUE AND paid = TRUE";
+		               "    SupplierDeliveredOrders sdo ON s.supplierID = sdo.supplierID";
+
 
 	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 	            while (rs.next()) {
-	                system.addDeliveredOrder(rs.getInt("s.supplierID"), getInvoice(invoiceDetailsList, rs.getInt("i.invoiceID")));
+	                system.addDeliveredOrder(rs.getInt("s.supplierID"), getInvoice(invoiceDetailsList, rs.getInt("sdo.invoiceID")));
 	            }
 	        } catch (SQLException e) {
 	            System.err.println("Error loading Supplier Delivered Orders: " + e.getMessage());
@@ -503,6 +475,30 @@ public class SQLDBHandler {
 	        return false;
 	    }
 	}
+	// Adding a stock 
+	public  void addStock(int productID, int quantity, double totalCost, java.util.Date arrivalDate) {
+        String query = "INSERT INTO Stock (productID, quantity, totalCost, arrivalDate) VALUES (?, ?, ?, ?)";
+        
+        try (Connection connection = DriverManager.getConnection(this.connection, userName, password);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            // Set parameters
+            preparedStatement.setInt(1, productID);
+            preparedStatement.setInt(2, quantity);
+            preparedStatement.setDouble(3, totalCost);
+            preparedStatement.setDate(4, new Date(arrivalDate.getTime())); // Convert java.util.Date to java.sql.Date
+
+            // Execute the insert
+            int rowsInserted = preparedStatement.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Stock record added successfully!");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Error adding stock record.");
+        }
+    }
 	// Removing an Inventory Manager based on it's CNIC
 	public boolean removeInventoryManager(String CNIC) {
 	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {
