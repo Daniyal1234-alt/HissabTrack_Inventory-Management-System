@@ -462,6 +462,10 @@ public class HisaabTrack {
             if(suppliers.get(i).getSupplierID() == ID) {
                 iManagerID = suppliers.get(i).sendOrder(invoiceID);
                 getManagerByID(iManagerID).findInvoiceByID(invoiceID).setDeliveryStatus(true);
+                //DB Functions
+                DB.invoiceDelivered(invoiceID);
+                DB.addSupplierDeliveredOrder(ID, invoiceID);
+                DB.removeSupplierPendingOrder(ID, invoiceID);
             }
         }
     }

@@ -201,3 +201,6 @@ VALUES (2, '2024-11-04', 2, 'Manager', FALSE, FALSE);
 DROP TABLE Invoice
 TRUNCATE TABLE Invoice;
 DELETE FROM Invoice;
+UPDATE Invoice
+SET paid = TRUE
+WHERE invoiceID = 2;

@@ -185,7 +185,7 @@ public class SQLDBHandler {
 	        } catch (SQLException e) {
 	            System.err.println("Error loading Inventory Manager data: " + e.getMessage());
 	        }
-
+	        
 	        // Adding a list of Products
 	        List<Product> products = new ArrayList<>();
 	        String query = "SELECT * FROM Product";
@@ -322,10 +322,12 @@ public class SQLDBHandler {
 	                }
 	                details.toString();
 	                invoiceDetailsList.add(details);
+	                system.addInvoiceToRegister(details);
 	            }
 	        } catch (SQLException e) {
 	            System.err.println("Error loading Invoice data: " + e.getMessage());
 	        }
+	        
 	        System.out.println("Number of invoices: " + invoiceDetailsList);
 	        for(Invoice invoice : invoiceDetailsList) {
 	        	invoice.toString();
@@ -776,6 +778,19 @@ public class SQLDBHandler {
 	        return false;
 	    }
 	}
+	// Add a supplier delivered order
+	public boolean addSupplierDeliveredOrder(int supplierID, int invoiceID) {
+	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
+	        String sql = "INSERT INTO SupplierDeliveredOrders (supplierID, invoiceID) VALUES (?, ?)";
+	        PreparedStatement pstmt = conn.prepareStatement(sql);
+	        pstmt.setInt(1, supplierID);
+	        pstmt.setInt(2, invoiceID);
+	        return pstmt.executeUpdate() > 0;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
 	// Removing a supplier pending order which has been fulfilled
 	public boolean removeSupplierPendingOrder(int supplierID, int invoiceID) {
 	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
@@ -792,7 +807,7 @@ public class SQLDBHandler {
 	// Sql query for when the invoice is paid
 	public boolean invoicePaid(int invoiceID) {
 		 try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
-		        String sql = "UPDATE Invoices SET paid = true  WHERE invoiceID = ?";
+		        String sql = "UPDATE Invoice SET paid = true  WHERE invoiceID = ?";
 		        PreparedStatement pstmt = conn.prepareStatement(sql);
 		        pstmt.setInt(1, invoiceID);
 		        int rows = pstmt.executeUpdate();
@@ -819,7 +834,7 @@ public class SQLDBHandler {
 	// SQL Query for when an invoice is fulfilled 
 	public boolean invoiceDelivered(int invoiceID) {
 		 try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
-		        String sql = "UPDATE Invoices SET delivered = true  WHERE invoiceID = ?";
+		        String sql = "UPDATE Invoice SET delivered = true  WHERE invoiceID = ?";
 		        PreparedStatement pstmt = conn.prepareStatement(sql);
 		        pstmt.setInt(1, invoiceID);
 		        int rows = pstmt.executeUpdate();
