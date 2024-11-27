@@ -2,6 +2,7 @@ import java.util.Date;
 
 public class Product {
     // Attributes
+	private static int productcounter;
     private int productID;
     private String name;
     private String description;
@@ -14,8 +15,14 @@ public class Product {
     public Product() {}
 
     // Parameterized constructor
-    public Product(int productID, String name, String description, double price, Date MFG, Date EXP) {
-        this.productID = productID;
+    public Product(int productID, String name, String description, double price, Date MFG, Date EXP, Boolean DBCall) {
+    	if(DBCall == true)	
+    		productcounter = productID;
+    		
+    	else {
+    		productcounter  = productcounter + 1;
+    	}
+    	this.productID = productcounter;
         this.name = name;
         this.description = description;
         this.price = price;

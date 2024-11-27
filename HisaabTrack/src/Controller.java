@@ -292,7 +292,7 @@ public class Controller {
                 // Assume a method `getStoreByName` to fetch the store object
                 int spaceIndex = selectedStore.indexOf(" "); // Find the index of the first space
                 Store store = system.getStore(Integer.parseInt(selectedStore.substring(0, spaceIndex)));
-                system.addManager(loggedAdmin.getAdminID(), name, cnic, address, password, store, false);
+                system.addManager(loggedAdmin.getAdminID(), 0, name, cnic, address, password, store, false);
 
                 // Display success message
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -729,7 +729,7 @@ public class Controller {
             else {
                 int regNo = Integer.parseInt(regNoInput); // Convert registration number to integer
                 // Add supplier using the system
-                system.addSupplier(loggedAdmin.getAdminID(), company, location, regNo, password, false);
+                system.addSupplier(loggedAdmin.getAdminID(), 0 , company, location, regNo, password, false);
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Success");
@@ -1055,6 +1055,7 @@ public class Controller {
                 // Add item to the system
                 system.addItem(
                     loggedSupplier.getSupplierID(),
+                    -1,
                     name,
                     description,
                     price,
@@ -2833,7 +2834,7 @@ public class Controller {
                 createAdminDashboard();
                 HBox titleBoxPrev = titleBox;
                 userType = "Admin";
-                loggedAdmin = system.addAdmin(adminNameField.getText().trim(), cnicField.getText().trim(), addressField.getText().trim(), passwordField.getText().trim(), false);
+                loggedAdmin = system.addAdmin(0, adminNameField.getText().trim(), cnicField.getText().trim(), addressField.getText().trim(), passwordField.getText().trim(), false);
                 titleBox = createTitleBoxLoggedIn();
                 navigateToBox(titleBoxPrev, titleBox);
                 navigateToBox(signUpBox,dashBoard);

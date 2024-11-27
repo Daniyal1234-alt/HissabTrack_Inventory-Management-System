@@ -122,8 +122,10 @@ public class HisaabTrack {
         }
         suppliers.add(e);
         //add new supplier to db
-        if(!DBCall)
+        if(!DBCall) {
             DB.addSupplier(e);
+            DB.addAdminSupplier(adminID, e.getSupplierID());
+        }
     }
     public boolean removeSupplier(int adminID, int supplierID) {
         boolean flag = false;
@@ -134,6 +136,7 @@ public class HisaabTrack {
                     //UI displays successful removal
                     //update DB
                 	DB.removeSupplier(supplierID);
+                	DB.removeAdminSupplier(adminID, supplierID);
                 } else {
                     //not removed
                 }
@@ -201,10 +204,10 @@ public class HisaabTrack {
         InventoryManager e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
+                int ID = -1;
                 if(DBCall)
             	    e = admins.get(i).addInventoryManager(managerID, Name, cnic, address,  s, password );
                 else{
-                    int ID = 1;
                     if(!managers.isEmpty())
                         ID = managers.getLast().getManagerID() + 1;
                     e = admins.get(i).addInventoryManager(ID, Name, cnic, address,  s, password );
@@ -218,7 +221,7 @@ public class HisaabTrack {
         if(!DBCall) {
             DB.addInventoryManager(e);
             DB.addAdminInventoryManager(adminID, e.getManagerID());
-            DB.addManagerStore(adminID, s.getStoreID());
+            DB.addManagerStore(e.getManagerID(), s.getStoreID());
         }
     }  
     public void addUnpaidInvoice(int adminID, Invoice invoice) {
@@ -395,13 +398,13 @@ public class HisaabTrack {
                 int ID = -1;
                 if(DBCall)
                     ID = itemID;
-                Product p = new Product(ID, name, description, price, MFG, EXP);                
+                Product p = new Product(ID, name, description, price, MFG, EXP, DBCall);                
                 suppliers.get(i).addProduct(p, amount);
                 ProductCatalog catalog = suppliers.get(i).getProducts();
                 //update catalog in DB
                 if(!DBCall) {
-                    DB.addProduct(suppliers.get(i), p);
-                    DB.addProductCatalog(supplierID, p.getProductID(), amount);
+                    DB.addProduct(suppliers.get(i), p, amount);
+                    //DB.addProductCatalog(supplierID, p.getProductID(), amount);
                 }
             }
         }

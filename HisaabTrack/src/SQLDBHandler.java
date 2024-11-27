@@ -135,6 +135,7 @@ public class SQLDBHandler {
 	            ResultSet adminRs = adminStmt.executeQuery();
 	            while (adminRs.next()) {
 	                system.addAdmin(
+	                	adminRs.getInt("adminID"),
 	                    adminRs.getString("name"),
 	                    adminRs.getString("CNIC"),
 	                    adminRs.getString("address"),
@@ -172,6 +173,7 @@ public class SQLDBHandler {
 	            while (managerRs.next()) {
 	                system.addManager(
 	                    managerRs.getInt("adminID"),
+	                    managerRs.getInt("managerID"),
 	                    managerRs.getString("name"),
 	                    managerRs.getString("CNIC"),
 	                    managerRs.getString("address"),
@@ -195,7 +197,8 @@ public class SQLDBHandler {
 	                    rs.getString("description"),
 	                    rs.getFloat("price"),
 	                    rs.getDate("MFG"),
-	                    rs.getDate("EXP")
+	                    rs.getDate("EXP"),
+	                    true
 	                );
 	                products.add(product);
 	            }
@@ -232,14 +235,25 @@ public class SQLDBHandler {
 	        	System.out.println("Product: " + product.getProductID() + "Product Name: " + product.getName());
 	        }
 	        // Adding a supplier
-	        query = "SELECT s.supplierID, s.companyName, s.location, s.registrationNum, s.password, "
-	              + "cp.productID, cp.quantity FROM Supplier s "
-	              + "JOIN ProductCatalogProducts cp ON cp.catalogID = s.supplierID "
-	              + "JOIN Product p ON cp.productID = p.productID";
+	        query = "SELECT "
+	                + "a.adminID, "
+	                + "s.supplierID, "
+	                + "s.companyName, "
+	                + "s.location, "
+	                + "s.registrationNum, "
+	                + "s.password, "
+	                + "cp.productID, "
+	                + "cp.quantity "
+	                + "FROM Supplier s "
+	                + "JOIN adminSupplier a ON a.supplierID = s.supplierID "
+	                + "LEFT JOIN ProductCatalogProducts cp ON cp.catalogID = s.supplierID "
+	                + "LEFT JOIN Product p ON cp.productID = p.productID";
+
 	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 	            while (rs.next()) {
 	                system.addSupplier(
-	                    1, // You may need to adjust this field if needed
+	                	rs.getInt("adminID"),
+	                    rs.getInt("supplierID"),
 	                    rs.getString("companyName"),
 	                    rs.getString("location"),
 	                    rs.getInt("registrationNum"),
@@ -248,8 +262,7 @@ public class SQLDBHandler {
 	                );
 	                Supplier supplier = system.getSupplier(rs.getInt("s.supplierID"));
 	                Product product = getProduct(products, rs.getInt("productID"));
-	                System.out.println("Product :  " + product.getProductID() + "   " + product.getName());
-					if(supplier != null)
+					if(supplier != null && product!=null)
 	                supplier.addProduct(product, rs.getInt("quantity"));
 	            }
 	        } catch (SQLException e) {
@@ -392,7 +405,38 @@ public class SQLDBHandler {
 		}
 		return null;
 	}
-	
+	// Function to add a record to adminSupplier
+    public  void addAdminSupplier(int adminID, int supplierID) {
+        String query = "INSERT INTO adminSupplier (adminID, supplierID) VALUES (?, ?)";
+        try (Connection connection = DriverManager.getConnection(this.connection,userName, password);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             
+            preparedStatement.setInt(1, adminID);
+            preparedStatement.setInt(2, supplierID);
+            preparedStatement.executeUpdate();
+
+            System.out.println("Admin-Supplier relationship added successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error adding Admin-Supplier relationship.");
+        }
+    }
+ // Function to remove a record from adminSupplier
+    public  void removeAdminSupplier(int adminID, int supplierID) {
+        String query = "DELETE FROM adminSupplier WHERE adminID = ? AND supplierID = ?";
+        try (Connection connection = DriverManager.getConnection(this.connection,userName, password);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             
+            preparedStatement.setInt(1, adminID);
+            preparedStatement.setInt(2, supplierID);
+            preparedStatement.executeUpdate();
+
+            System.out.println("Admin-Supplier relationship removed successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error removing Admin-Supplier relationship.");
+        }
+    }
 	// Removing an Admin based on it's CNIC
 	public boolean removeAdmin(String CNIC) {
 	    try (Connection conn = DriverManager.getConnection(connection,userName, password)) {
@@ -932,7 +976,7 @@ public class SQLDBHandler {
 		}
 	}
 	// Adding a product to a catalog and product table
-	public boolean addProduct(Supplier s, Product p) {
+	public boolean addProduct(Supplier s, Product p, int amount) {
 	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
 	        // Insert Product into Product table
 	        String productSql = "INSERT INTO Product (name, description, price, MFG, EXP) "
@@ -947,10 +991,11 @@ public class SQLDBHandler {
 	            productPstmt.setDate(5, expDate);
 	            int rows = productPstmt.executeUpdate();
 	            if(rows > 0 ) {
-	            	String productcatalogproductString = "INSERT INTO productcatalogproducts (CatalogID, ProductID) VALUES (?, ?)";
+	            	String productcatalogproductString = "INSERT INTO productcatalogproducts (CatalogID, ProductID, amount) VALUES (?, ?, ?)";
 	            	PreparedStatement pstmtPreparedStatement = conn.prepareStatement(productcatalogproductString);
 	            	pstmtPreparedStatement.setInt(1, s.getSupplierID());
 	            	pstmtPreparedStatement.setInt(2, p.getProductID());
+	            	pstmtPreparedStatement.setInt(1, amount);
 	            	rows = pstmtPreparedStatement.executeUpdate();
 	            	if(rows>0) {
 	            		return true;

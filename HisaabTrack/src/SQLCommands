@@ -122,6 +122,10 @@ CREATE TABLE IF NOT EXISTS InvoiceProduct(
 	quantity INT
 	
 );
+CREATE TABLE IF NOT EXISTS adminSupplier(
+	adminID INT,
+   	supplierID INT
+);
 
 INSERT INTO Store (location)
 VALUES
