@@ -78,13 +78,7 @@ public class InventoryManager {
         managingStore.makeSale(pList, q);
     }
 
-    public Invoice placeOrder(List<Integer> p, List<Integer> q) {
-        List<Product> pList = new ArrayList<>();
-        for(int ID:p) {
-            Product product = getProduct(ID);
-            if(product!=null)
-                pList.add(product);
-        }
+    public Invoice placeOrder(List<Product> pList, List<Integer> q) {
         return register.generateInvoice(pList, q);
     }
 

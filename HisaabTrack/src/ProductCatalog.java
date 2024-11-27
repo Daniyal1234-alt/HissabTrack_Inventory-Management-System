@@ -40,6 +40,14 @@ public class ProductCatalog {
         return false; // Placeholder for implementation
     }
 
+    Product getProductByID(int pID) {
+        for(Product p : product) {
+            if(p.getProductID() == pID)
+                return p;
+        }
+        return null;
+    }
+
     // Getters and Setters
     public List<Product> getProduct() {
         return product;

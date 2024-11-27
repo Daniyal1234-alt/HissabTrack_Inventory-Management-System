@@ -351,9 +351,18 @@ public class HisaabTrack {
     }
     public void placeOrder(int managerID, int supplierID, List<Integer> p, List<Integer> q) {
         Invoice e = null;
+        
+        // System builds the product list
+        List<Product> pList = new ArrayList<>();
+        for(int pID:p) {
+            Product product = getSupplierCatalog(supplierID).getProductByID(pID);
+            if(product != null)
+                pList.add(product);
+        }
+
         for(InventoryManager manager:managers) {
             if(manager.getManagerID() == managerID) {
-                e = manager.placeOrder(p, q);
+                e = manager.placeOrder(pList, q);
                 e.setSupplierID(supplierID);
                 e.setCreatedBy(managerID);
                 DB.addInvoice(e);
