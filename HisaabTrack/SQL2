@@ -1,0 +1,121 @@
+CREATE TABLE IF NOT EXISTS adminSupplier(
+	adminID INT,
+   	supplierID INT
+);
+TRUNCATE TABLE SupplierDeliveredOrders;
+TRUNCATE TABLE SupplierPendingOrders;
+TRUNCATE TABLE ProductCatalogProducts;
+TRUNCATE TABLE StoreStock;
+TRUNCATE TABLE AdminUnpaidInvoices;
+TRUNCATE TABLE AdminInventoryManager;
+TRUNCATE TABLE ProductCatalog;
+TRUNCATE TABLE Stock;
+TRUNCATE TABLE Product;
+TRUNCATE TABLE Report;
+TRUNCATE TABLE Invoice;
+TRUNCATE TABLE Supplier;
+TRUNCATE TABLE ManagerStore;
+TRUNCATE TABLE Store;
+TRUNCATE TABLE InventoryManager;
+TRUNCATE TABLE Admin;
+TRUNCATE TABLE InvoiceProduct;
+TRUNCATE TABLE adminSupplier;
+-- Printing the tables
+SELECT * FROM SupplierDeliveredOrders;
+SELECT * FROM SupplierPendingOrders;
+SELECT * FROM ProductCatalogProducts;
+SELECT * FROM StoreStock;
+SELECT * FROM AdminUnpaidInvoices;
+SELECT * FROM AdminInventoryManager;
+SELECT * FROM ProductCatalog;
+SELECT * FROM Stock;
+SELECT * FROM Product;
+SELECT * FROM Report;
+SELECT * FROM Invoice;
+SELECT * FROM InvoiceProduct;
+SELECT * FROM Supplier;
+SELECT * FROM ManagerStore;
+SELECT * FROM Store;
+SELECT * FROM InventoryManager;
+SELECT * FROM Admin;
+SELECT * FROM InvoiceProduct;
+SELECT * FROM adminSupplier;
+-- DELETE statements for all tables
+
+DELETE FROM SupplierDeliveredOrders;
+DELETE FROM SupplierPendingOrders;
+DELETE FROM ProductCatalogProducts;
+DELETE FROM StoreStock;
+DELETE FROM AdminUnpaidInvoices;
+DELETE FROM AdminInventoryManager;
+DELETE FROM ProductCatalog ;
+DELETE FROM Stock;
+DELETE FROM Product;
+DELETE FROM Report;
+DELETE FROM Invoice;
+DELETE FROM Supplier;
+DELETE FROM ManagerStore;
+DELETE FROM Store;
+DELETE FROM InventoryManager;
+DELETE FROM Admin;
+DELETE FROM adminSupplier;
+INSERT INTO Store (location)
+VALUES
+    ('Location 1'),
+    ('Location 2'),
+    ('Location 3'),
+    ('Location 4'),
+    ('Location 5'),
+    ('Location 6'),
+    ('Location 7'),
+    ('Location 8'),
+    ('Location 9'),
+    ('Location 10'),
+    ('Location 11'),
+    ('Location 12'),
+    ('Location 13'),
+    ('Location 14'),
+    ('Location 15'),
+    ('Location 16'),
+    ('Location 17'),
+    ('Location 18'),
+    ('Location 19'),
+    ('Location 20');
+    
+SELECT 
+	a.adminID,
+    s.supplierID, 
+    s.companyName, 
+    s.location, 
+    s.registrationNum, 
+    s.password,
+    cp.productID, 
+    cp.quantity
+FROM 
+    Supplier s
+JOIN 
+	adminSupplier a ON a.supplierID = s.supplierID
+LEFT JOIN 
+    ProductCatalogProducts cp ON cp.catalogID = s.supplierID
+LEFT JOIN 
+    Product p ON cp.productID = p.productID
+
+  -- Update NULL values to 0
+UPDATE ProductCatalogProducts
+SET quantity = 0
+WHERE quantity IS NULL;
+
+-- Add productID 3 for catalogID 2 with a specific quantity
+INSERT INTO ProductCatalogProducts (catalogID, productID, quantity)
+VALUES (2, 3, 10); -- Replace 10 with your desired quantity
+
+-- Add productID 4 for catalogID 2 with a specific quantity
+INSERT INTO ProductCatalogProducts (catalogID, productID, quantity)
+VALUES (2, 4, 15); -- Replace 15 with your desired quantity
+DELETE FROM ProductCatalogProducts
+WHERE NOT (
+    (catalogID = 2 AND productID = 4)
+    OR (catalogID = 2 AND productID = 3)
+    OR (catalogID = 2 AND productID = 4 AND quantity = 15)
+);
+Insert into ProductCatalogProducts VALUES (1,1,100), (1,2,30);
