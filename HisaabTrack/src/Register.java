@@ -22,6 +22,11 @@ public class Register {
 
     public Invoice generateInvoice(List<Product> p, List<Integer> q) {
         Invoice obj = new Invoice();
+        int ID = 1;
+        if(!invoices.isEmpty()) {
+            ID = invoices.getLast().getInvoiceID() + 1;
+        }
+        obj.setInvoiceID(ID);
         obj.setProducts(p);
         obj.setQuantity(q);
         obj.setCreatedOn(new Date());
