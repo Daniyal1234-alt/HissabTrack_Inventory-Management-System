@@ -11,7 +11,7 @@ public class Stock {
 
     // Constructor
     public Stock() {
-    	totalCost = totalCost + 1;
+    	totalStock = totalStock + 1;
     	this.stockID = totalStock;
         arrivalDate = new Date();
     }

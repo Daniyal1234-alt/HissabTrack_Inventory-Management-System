@@ -35,10 +35,7 @@ public class Invoice {
     public Invoice(int invoiceID, int createdBy, Date createdOn, boolean deliveryStatus, boolean paymentStatus, String creatorType) {
     	products = new ArrayList<Product>();
         amount = new ArrayList<Integer>();
-         deliveryStatus = false;
-         paymentStatus = false;
          createdOn = new Date();
-         creatorType = "\0";
     	this.invoiceID = invoiceID;
         this.createdBy = createdBy;
         this.createdOn = createdOn;

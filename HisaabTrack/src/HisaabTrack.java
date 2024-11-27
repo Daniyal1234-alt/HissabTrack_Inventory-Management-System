@@ -355,7 +355,7 @@ public class HisaabTrack {
         getManagerByID(obj.getCreatedBy()).addInvoice(obj);
     }
     public void placeOrder(int managerID, int supplierID, List<Integer> p, List<Integer> q) {
-        Invoice e = null;
+        Invoice e = new Invoice();
         
         // System builds the product list
         List<Product> pList = new ArrayList<>();
@@ -373,6 +373,7 @@ public class HisaabTrack {
                 e = manager.placeOrder(pList, q);
                 e.setSupplierID(supplierID);
                 e.setCreatedBy(managerID);
+                System.out.println("Supplier ID in invoice: " + e.getSupplierID());
                 DB.addInvoice(e);
             }
         }
@@ -496,8 +497,9 @@ public class HisaabTrack {
         }
         return null;
     }
-    public void addPendingOrder(int supplierID, Invoice obj) {
+    public void addPendingOrder(int supplierID, Invoice obj, boolean DBCall) {
     	getSupplierByID(supplierID).addIncomingOrder(obj);
+    	if(!DBCall)
     	DB.addSupplierPendingOrder(supplierID, obj.getInvoiceID());
     }
     public String findManagerByID(int ID) {

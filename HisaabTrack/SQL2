@@ -128,79 +128,26 @@ WHERE
     delivered = FALSE AND paid = FALSE;
 -- Remove all existing records
 DELETE FROM adminunpaidInvoices;
+SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn, au.adminID 
+	              FROM AdminUnpaidInvoices au 
+	              JOIN Invoice i ON au.invoiceID = i.invoiceID 
+	              WHERE  i.paid = FALSE;
 
--- Add new records
-INSERT INTO adminunpaidInvoices (adminID, invoiceID) VALUES (1, 1);
-INSERT INTO adminunpaidInvoices (adminID, invoiceID) VALUES (1, 2);
-INSERT INTO adminunpaidInvoices (adminID, invoiceID) VALUES (1, 3);
-INSERT INTO adminunpaidInvoices (adminID, invoiceID) VALUES (1, 4);
-SELECT 
-    i.invoiceID, 
-    i.createdByID, 
-    i.userType, 
-    i.paid, 
-    i.delivered, 
-    i.createdOn, 
-    au.adminID
-FROM 
-    AdminUnpaidInvoices au
-JOIN 
-    Invoice i ON au.invoiceID = i.invoiceID
-WHERE 
-    i.paid = FALSE;
-SELECT i.invoiceID,
-	                           ip.productID, p.name AS productName, p.description AS productDescription, 
-	                           ip.quantity, p.price
-	                    FROM Invoice i
-	                    JOIN InvoiceProduct ip ON i.invoiceID = ip.invoiceID
-	                    JOIN Product p ON ip.productID = p.productID
-	                    WHERE i.invoiceID = 2
-	                    
-SELECT 
-    i.invoiceID,
-    ip.productID,
-    p.name AS productName,
-    p.description AS productDescription,
-    ip.quantity,
-    p.price,
-    spo.supplierID AS pendingSupplierID,
-    sdo.supplierID AS deliveredSupplierID
-FROM 
-    Invoice i
-JOIN 
-    InvoiceProduct ip ON i.invoiceID = ip.invoiceID
-JOIN 
-    Product p ON ip.productID = p.productID
-LEFT JOIN 
-    SupplierPendingOrders spo ON i.invoiceID = spo.invoiceID
-LEFT JOIN 
-    SupplierDeliveredOrders sdo ON i.invoiceID = sdo.invoiceID
-WHERE 
-    i.invoiceID = 1;
-DROP TABLE Invoice
-CREATE TABLE IF NOT EXISTS Invoice (
-    invoiceID INT AUTO_INCREMENT PRIMARY KEY,
-    createdByID INT,
-    createdOn DATE,
-    supplierID INT,
-    userType VARCHAR(255),
-    paid BOOLEAN, 
-    delivered BOOLEAN
-);
-INSERT INTO Invoice (createdByID, createdOn, supplierID, userType, paid, delivered) 
-VALUES (1, '2024-11-01', 1, 'Manager', FALSE, FALSE);
+-- Truncate dependent tables first
+TRUNCATE TABLE InvoiceProduct;
+TRUNCATE TABLE AdminUnpaidInvoices;
+TRUNCATE TABLE SupplierPendingOrders;
+TRUNCATE TABLE SupplierDeliveredOrders;
 
-INSERT INTO Invoice (createdByID, createdOn, supplierID, userType, paid, delivered) 
-VALUES (1, '2024-11-02', 2, 'Manager', FALSE, FALSE);
-
-INSERT INTO Invoice (createdByID, createdOn, supplierID, userType, paid, delivered) 
-VALUES (2, '2024-11-03', 1, 'Manager', FALSE, FALSE);
-
-INSERT INTO Invoice (createdByID, createdOn, supplierID, userType, paid, delivered) 
-VALUES (2, '2024-11-04', 2, 'Manager', FALSE, FALSE);
-DROP TABLE Invoice
+-- Truncate the Invoice table
 TRUNCATE TABLE Invoice;
+
+-- Delete from dependent tables
+DELETE FROM InvoiceProduct;
+DELETE FROM AdminUnpaidInvoices;
+DELETE FROM SupplierPendingOrders;
+DELETE FROM SupplierDeliveredOrders;
+
+-- Delete from the Invoice table
 DELETE FROM Invoice;
-UPDATE Invoice
-SET paid = TRUE
-WHERE invoiceID = 2;
+

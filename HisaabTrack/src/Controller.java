@@ -1874,7 +1874,7 @@ public class Controller {
         // Submit Button
         Button submitButton = createStyledButton("Complete Sale", "#e41837", "#541801");
         submitButton.setOnAction(e -> {
-    
+
             boolean isValid = true;
             for (int i = 0; i < productIDs.size(); i++) {
                 try {
@@ -1882,8 +1882,9 @@ public class Controller {
                     int quantity = quantities.get(i);
     
                     if (system.isValidProduct(loggedManager.getManagerID(), productID)) {
-                        productIDs.add(productID);
-                        quantities.add(quantity);
+                        
+                    	//productIDs.add(productID);
+                        //quantities.add(quantity);
                     } else {
                         Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid Product ID: " + productID, ButtonType.OK);
                         alert.showAndWait();
@@ -2204,6 +2205,10 @@ public class Controller {
         Text formTitle = createText("Order Status (Invoices)");
         // Fetch invoice data from the system
         List<Invoice> invoices = system.viewOrderStatus(loggedManager.getManagerID());
+        for(Invoice invoice : invoices) {
+        	System.out.println(invoice.toString());
+        }
+        
         // Create a TableView to display invoice details
         TableView<Invoice> invoiceTableView = new TableView<>();
         invoiceTableView.setPrefWidth(600);
@@ -2219,7 +2224,7 @@ public class Controller {
         TableColumn<Invoice, String> createdOnColumn = new TableColumn<>("Created On");
         createdOnColumn.setCellValueFactory(new PropertyValueFactory<>("createdOn"));
     
-        TableColumn<Invoice, String> paidStatusColumn = new TableColumn<>("Paid");
+        TableColumn<Invoice, String> paidStatusColumn = new TableColumn<>("Delivered");
         paidStatusColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Invoice, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<Invoice, String> param) {
@@ -2233,7 +2238,7 @@ public class Controller {
         });
         //paidStatusColumn.setCellValueFactory(new PropertyValueFactory<>("paymentStatus"));
     
-        TableColumn<Invoice, String> deliveredStatusColumn = new TableColumn<>("Delivered");
+        TableColumn<Invoice, String> deliveredStatusColumn = new TableColumn<>("Paid");
         deliveredStatusColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Invoice, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<Invoice, String> param) {

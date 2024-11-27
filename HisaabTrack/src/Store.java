@@ -38,6 +38,7 @@ public class Store {
                     flag = true;
                     break;
                 } 
+                i++;
             }
             if(!flag) {
                 Stock s = new Stock();

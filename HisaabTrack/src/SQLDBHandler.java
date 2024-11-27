@@ -359,7 +359,7 @@ public class SQLDBHandler {
 
 			try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 			    while (rs.next()) {
-			        system.addPendingOrder(rs.getInt("supplierID"), getInvoice(invoiceDetailsList, rs.getInt("invoiceID")));
+			        system.addPendingOrder(rs.getInt("supplierID"), getInvoice(invoiceDetailsList, rs.getInt("invoiceID")), true);
 			    }
 			} catch (SQLException e) {
 			    System.err.println("Error loading Supplier Pending Orders: " + e.getMessage());
@@ -547,14 +547,15 @@ public class SQLDBHandler {
 	public boolean addInvoice(Invoice invoice) {
 	    try (Connection conn = DriverManager.getConnection(connection, userName, password)) {
 	        // Step 1: Insert the Invoice into the Invoice table
-	        String sql = "INSERT INTO Invoice (createdByID, createdOn, userType, paid, delivered) VALUES (?, ?, ?, ?, ?)";
+	        String sql = "INSERT INTO Invoice (createdByID, createdOn, supplierID, userType, paid, delivered) VALUES (?, ?, ?, ?, ?, ?)";
 	        PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);  // Get generated keys
 	        pstmt.setInt(1, invoice.getCreatedBy());
 	        java.sql.Date sqlDate = new java.sql.Date(invoice.getCreatedOn().getTime());
 	        pstmt.setDate(2, sqlDate);
-	        pstmt.setString(3, invoice.getCreatorType());
-	        pstmt.setBoolean(4, invoice.isPaidFor());
-	        pstmt.setBoolean(5, invoice.isDelivered());
+	        pstmt.setInt(3, invoice.getSupplierID());
+	        pstmt.setString(4, invoice.getCreatorType());
+	        pstmt.setBoolean(5, invoice.isPaidFor());
+	        pstmt.setBoolean(6, invoice.isDelivered());
 
 	        int affectedRows = pstmt.executeUpdate();
 	        

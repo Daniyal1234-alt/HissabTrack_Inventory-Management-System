@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class InventoryManager {
@@ -56,13 +57,17 @@ public class InventoryManager {
     }
 
     public void updateStock() {
-        for(Invoice e:register.getInvoices()) {
-            if(e.isDelivered() && e.isPaidFor()) {
+        Iterator<Invoice> iterator = register.getInvoices().iterator();
+
+        while (iterator.hasNext()) {
+            Invoice e = iterator.next();
+            if (e.isDelivered() && e.isPaidFor()) {
                 managingStore.updateStock(e);
-                register.removeInvoice(e);
+                //iterator.remove(); // Remove safely using the iterator
             }
         }
     }
+
     
     public List<Invoice> getOrders() {
         return register.getInvoices();
