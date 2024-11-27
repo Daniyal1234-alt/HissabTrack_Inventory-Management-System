@@ -105,11 +105,18 @@ public class HisaabTrack {
             return generateManagerReport(managerID);
         return null;
     }
-    public void addSupplier(int adminID,String company, String location, int regNo,String password,  boolean DBCall) {
+    public void addSupplier(int adminID, int supplierID, String company, String location, int regNo,String password,  boolean DBCall) {
         Supplier e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
-                e = admins.get(i).addSupplier(suppliers.size() + 1,company,location,regNo, password);
+                if(DBCall)
+                    e = admins.get(i).addSupplier(supplierID,company,location,regNo, password);
+                else {
+                    int ID = 1;
+                    if(!suppliers.isEmpty())
+                        ID = suppliers.getLast().getSupplierID() + 1;
+                    e = admins.get(i).addSupplier(ID,company,location,regNo, password);
+                }
                 break;
             }
         }
@@ -149,10 +156,15 @@ public class HisaabTrack {
         }
         return flag;
     }
-    public Admin addAdmin(String Name, String cnic, String Address,String password, boolean DBCall) {
-        int adminID = admins.size() + 1;
-        Admin newAdmin = new Admin(adminID, Name, cnic, Address, password);
-        // Add the new admin to the list
+    public Admin addAdmin(int adminID, String Name, String cnic, String Address,String password, boolean DBCall) {
+        int ID = 1;
+        if(DBCall)
+            ID = adminID;
+        else {
+            if(!admins.isEmpty())
+                ID = admins.getLast().getAdminID() + 1;
+        }
+        Admin newAdmin = new Admin(ID, Name, cnic, Address, password);
         admins.add(newAdmin);
         if(!DBCall)
             DB.addAdmin(newAdmin);
@@ -185,12 +197,19 @@ public class HisaabTrack {
         }
    	 return null;
     }
-    public void addManager(int adminID, String Name, String cnic, String address, String password, Store s, boolean DBCall) {
+    public void addManager(int adminID, int managerID, String Name, String cnic, String address, String password, Store s, boolean DBCall) {
         InventoryManager e = null;
         for(int i = 0; i < admins.size(); ++i) {
             if(adminID == admins.get(i).getAdminID()) {
-            	s.setManagerID(managers.size()+1);
-            	e = admins.get(i).addInventoryManager(managers.size() + 1, Name, cnic, address,  s, password );
+                if(DBCall)
+            	    e = admins.get(i).addInventoryManager(managerID, Name, cnic, address,  s, password );
+                else{
+                    int ID = 1;
+                    if(!managers.isEmpty())
+                        ID = managers.getLast().getManagerID() + 1;
+                    e = admins.get(i).addInventoryManager(ID, Name, cnic, address,  s, password );
+                }
+                s.setManagerID(e.getManagerID());
                 break;
             }
         }
@@ -370,10 +389,13 @@ public class HisaabTrack {
         }
         return null;
     }
-    public void addItem(int supplierID, String name, String description, double price, Date MFG, Date EXP, int amount, boolean DBCall) {
+    public void addItem(int supplierID, int itemID, String name, String description, double price, Date MFG, Date EXP, int amount, boolean DBCall) {
         for(int i=0;i<suppliers.size();++i){
             if(suppliers.get(i).getSupplierID() == supplierID) {
-                Product p = new Product(-1, name, description, price, MFG, EXP);
+                int ID = -1;
+                if(DBCall)
+                    ID = itemID;
+                Product p = new Product(ID, name, description, price, MFG, EXP);                
                 suppliers.get(i).addProduct(p, amount);
                 ProductCatalog catalog = suppliers.get(i).getProducts();
                 //update catalog in DB
