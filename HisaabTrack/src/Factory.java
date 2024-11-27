@@ -579,6 +579,7 @@ public class Factory {
                         System.out.println(stock); // Assuming Stock has a meaningful toString()
                     }
                     break;
+                    
 
                 case 4: // Generate Report
                     Store s = system.generateManagerReport(managerID);
