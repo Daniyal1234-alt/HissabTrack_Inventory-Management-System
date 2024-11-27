@@ -154,6 +154,21 @@ public class Supplier {
         return false;
     }   
 
+    public void updateStock(Invoice obj) {
+        int i = 0, j = 0;
+        for(Product p : obj.getProducts()) {
+            j = 0;
+            for(Product stock: products.getProduct()){
+                if(p.getName().equals(stock.getName())) {
+                    int amount = products.getAmount().get(j) + obj.getAmount().get(i);
+                    products.getAmount().set(j, amount);
+                    break;
+                }
+                j++;
+            }
+            i++;
+        }
+    }
     public int sendOrder (int invoiceID) {
         int managerID = 0; //manager of store that issued invoice
         for(int i=0;i<recievedOrders.size();++i){
@@ -162,6 +177,7 @@ public class Supplier {
                 if(recievedOrders.get(i).isPaidFor()) { //if paid for then deliver
                     //delivery status true then manager gets notification or product delivery
                     recievedOrders.get(i).setDeliveryStatus(true);
+                    updateStock(recievedOrders.get(i));
                     sentOrders.add(recievedOrders.get(i));
                     recievedOrders.remove(i);
                 }

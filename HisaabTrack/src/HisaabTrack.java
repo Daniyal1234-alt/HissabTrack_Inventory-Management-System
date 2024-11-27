@@ -342,7 +342,6 @@ public class HisaabTrack {
         }
         return false;
     }
-    
     public void makeSale(int managerID, List<Integer> p, List<Integer> q) {
         for(InventoryManager obj:managers) {
             if(obj.getManagerID() == managerID) {
@@ -462,6 +461,7 @@ public class HisaabTrack {
             if(suppliers.get(i).getSupplierID() == ID) {
                 iManagerID = suppliers.get(i).sendOrder(invoiceID);
                 getManagerByID(iManagerID).findInvoiceByID(invoiceID).setDeliveryStatus(true);
+                getManagerByID(iManagerID).updateStock();
                 //DB Functions
                 DB.invoiceDelivered(invoiceID);
                 DB.addSupplierDeliveredOrder(ID, invoiceID);
