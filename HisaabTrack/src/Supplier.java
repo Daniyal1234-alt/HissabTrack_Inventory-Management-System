@@ -160,7 +160,7 @@ public class Supplier {
             j = 0;
             for(Product stock: products.getProduct()){
                 if(p.getName().equals(stock.getName())) {
-                    int amount = products.getAmount().get(j) + obj.getAmount().get(i);
+                    int amount = products.getAmount().get(j) - obj.getAmount().get(i);
                     products.getAmount().set(j, amount);
                     break;
                 }
