@@ -1,7 +1,8 @@
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 public class Invoice {
     // Attributes
     private int invoiceID;
@@ -10,8 +11,8 @@ public class Invoice {
     private Date createdOn;
     private List<Product> products;
     private List<Integer> amount;
-    private boolean deliveryStatus;
-    private boolean paymentStatus;
+    private Boolean deliveryStatus;
+    private Boolean paymentStatus;
     private String creatorType;
     public String getCreatorType() {
 		return creatorType;
@@ -43,8 +44,10 @@ public class Invoice {
         this.createdOn = createdOn;
         this.deliveryStatus = deliveryStatus;
         this.paymentStatus = paymentStatus;
-        this.creatorType = creatorType;
+        this.creatorType = "Manager";
     }
+    
+
     // Method Signatures
     @Override
     public String toString() {

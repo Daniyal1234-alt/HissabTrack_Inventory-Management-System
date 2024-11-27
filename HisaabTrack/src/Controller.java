@@ -1967,7 +1967,7 @@ public class Controller {
         productComboBox.setPromptText("Select a Supplier");
         quantityComboBox.setPromptText("Select a Supplier");
         supplierComboBox.setOnAction(e ->{
-            productComboBox.getItems().clear();
+            //productComboBox.getItems().clear();
             quantityComboBox.getItems().clear();
             productComboBox.setPromptText("Select a Supplier");
             quantityComboBox.setPromptText("Select a Supplier");
@@ -2202,7 +2202,8 @@ public class Controller {
     
         // Title
         Text formTitle = createText("Order Status (Invoices)");
-    
+        // Fetch invoice data from the system
+        List<Invoice> invoices = system.viewOrderStatus(loggedManager.getManagerID());
         // Create a TableView to display invoice details
         TableView<Invoice> invoiceTableView = new TableView<>();
         invoiceTableView.setPrefWidth(600);
@@ -2218,17 +2219,36 @@ public class Controller {
         TableColumn<Invoice, String> createdOnColumn = new TableColumn<>("Created On");
         createdOnColumn.setCellValueFactory(new PropertyValueFactory<>("createdOn"));
     
-        TableColumn<Invoice, Boolean> paidStatusColumn = new TableColumn<>("Paid");
-        paidStatusColumn.setCellValueFactory(new PropertyValueFactory<>("paymentStatus"));
+        TableColumn<Invoice, String> paidStatusColumn = new TableColumn<>("Paid");
+        paidStatusColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Invoice, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Invoice, String> param) {
+                // Get the index of the current row
+                int index = invoiceTableView.getItems().indexOf(param.getValue());
+                // Convert the boolean value to a string ("Yes" or "No") and return it
+                boolean isAvailable = invoices.get(index).isDelivered();
+                String availabilityText = isAvailable ? "Delivered" : "Not Delivered";
+                return new SimpleStringProperty(availabilityText);
+            }
+        });
+        //paidStatusColumn.setCellValueFactory(new PropertyValueFactory<>("paymentStatus"));
     
-        TableColumn<Invoice, Boolean> deliveredStatusColumn = new TableColumn<>("Delivered");
-        deliveredStatusColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryStatus"));
+        TableColumn<Invoice, String> deliveredStatusColumn = new TableColumn<>("Delivered");
+        deliveredStatusColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Invoice, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Invoice, String> param) {
+                // Get the index of the current row
+                int index = invoiceTableView.getItems().indexOf(param.getValue());
+                // Convert the boolean value to a string ("Yes" or "No") and return it
+                boolean isAvailable = invoices.get(index).isPaidFor();
+                String availabilityText = isAvailable ? "Paid" : "Not Paid";
+                return new SimpleStringProperty(availabilityText);
+            }
+        });
     
         // Add columns to the TableView
         invoiceTableView.getColumns().addAll(invoiceIDColumn, createdByColumn, createdOnColumn, paidStatusColumn, deliveredStatusColumn);
     
-        // Fetch invoice data from the system
-        List<Invoice> invoices = system.viewOrderStatus(loggedManager.getManagerID());
     
         if (invoices.isEmpty()) {
             // Show a message if no invoices are available
@@ -2326,6 +2346,8 @@ public class Controller {
     
         // Fetch unpaid invoices
         List<Invoice> unpaidInvoices = loggedAdmin.getUnpaidInvoices();
+        VBox orderDetailsBox = new VBox(5);
+        orderDetailsBox.setAlignment(Pos.TOP_LEFT);
         Invoice selectedInvoice = null;
     
         if (unpaidInvoices.isEmpty()) {
@@ -2339,6 +2361,25 @@ public class Controller {
 
             }
         }
+        
+        unpaidInvoiceComboBox.setOnAction(e -> {
+            String selectedInvoiceEntry = unpaidInvoiceComboBox.getValue();
+            if(selectedInvoiceEntry != null) {
+            	int spaceIndex = selectedInvoiceEntry.indexOf(" "); // Extract Manager ID
+                int invoiceID = Integer.parseInt(selectedInvoiceEntry.substring(0, spaceIndex)); // Extract Invoice ID
+                for(Invoice invoice : unpaidInvoices) {
+                	if(invoice.getInvoiceID() == invoiceID) {
+                		orderDetailsBox.getChildren().clear();
+                        orderDetailsBox.getChildren().add(createText("Order Details:"));
+                        orderDetailsBox.getChildren().add(createText("Invoice ID: " + invoice.getInvoiceID()));
+                        orderDetailsBox.getChildren().add(createText("Customer (Manager) ID: " + invoice.getCreatedBy()));
+                        orderDetailsBox.getChildren().add(createText("Order Date: " + invoice.getCreatedOn()));
+                        orderDetailsBox.getChildren().add(createText("Total Amount: " + invoice.getTotalAmount()));
+                        break;
+                	}
+                }
+            }
+        });
     
         // Pay button
         Button payButton = createStyledButton("Pay Invoice", "#e41837", "#541801");
@@ -2355,7 +2396,7 @@ public class Controller {
                     }
                 }
                 if (supplierID != -1) {
-                    system.payInvoice(loggedAdmin.getAdminID(), invoiceID , supplierID);
+                    system.approveOrder(loggedAdmin.getAdminID(), invoiceID);
                     Alert alert = new Alert(Alert.AlertType.INFORMATION, "Invoice ID " + invoiceID + " marked as paid!", ButtonType.OK);
                     alert.showAndWait();
                     unpaidInvoiceComboBox.getItems().remove(selectedInvoiceEntry); // Remove from the combo box
@@ -2393,8 +2434,8 @@ public class Controller {
         HBox buttons = new HBox(20);
         buttons.getChildren().addAll(removeButton,payButton);
         // Add elements to form area
-        formArea.getChildren().addAll(formTitle, unpaidInvoiceComboBox, buttons);
-        // 
+        formArea.getChildren().addAll(formTitle, unpaidInvoiceComboBox,orderDetailsBox, buttons);
+        
         contentArea.getChildren().add(formArea);
         contentArea.setPrefSize(900, 500);
     

@@ -250,20 +250,27 @@ public class SQLDBHandler {
 	                + "LEFT JOIN Product p ON cp.productID = p.productID";
 
 	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+	        	int prevSupplier = 0;
 	            while (rs.next()) {
-	                system.addSupplier(
-	                	rs.getInt("adminID"),
-	                    rs.getInt("supplierID"),
-	                    rs.getString("companyName"),
-	                    rs.getString("location"),
-	                    rs.getInt("registrationNum"),
-	                    rs.getString("password"),
-	                    true
-	                );
-	                Supplier supplier = system.getSupplier(rs.getInt("s.supplierID"));
-	                Product product = getProduct(products, rs.getInt("productID"));
-					if(supplier != null && product!=null)
-	                supplier.addProduct(product, rs.getInt("quantity"));
+	            	if(prevSupplier!= rs.getInt("supplierID")) {
+	            		system.addSupplier(
+	    	                	rs.getInt("adminID"),
+	    	                    rs.getInt("supplierID"),
+	    	                    rs.getString("companyName"),
+	    	                    rs.getString("location"),
+	    	                    rs.getInt("registrationNum"),
+	    	                    rs.getString("password"),
+	    	                    true
+	    	                );
+	            		prevSupplier = rs.getInt("supplierID");
+	            	}	
+	    	                Supplier supplier = system.getSupplier(rs.getInt("s.supplierID"));
+	    	                Product product = getProduct(products, rs.getInt("productID"));
+	    					if(supplier != null && product!=null)
+	    	                supplier.addProduct(product, rs.getInt("quantity"));
+	    					
+	            	
+	                
 	            }
 	        } catch (SQLException e) {
 	            System.err.println("Error loading Supplier data: " + e.getMessage());
@@ -274,7 +281,7 @@ public class SQLDBHandler {
 	        }
 	        // Listing an invoice
 	        List<Invoice> invoiceDetailsList = new ArrayList<>();
-	        query = "SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn FROM Invoice i ";
+	        query = "SELECT i.invoiceID, i.createdByID, i.userType, i.paid, i.delivered, i.createdOn,i.supplierID FROM Invoice i ";
 	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 	            while (rs.next()) {
 	                Invoice details = new Invoice(
@@ -283,8 +290,9 @@ public class SQLDBHandler {
 	                    rs.getDate("createdOn"),
 	                    rs.getBoolean("delivered"),
 	                    rs.getBoolean("paid"),
-	                    "\0"
+	                    "Manager"
 	                );
+	                details.setSupplierID(rs.getInt("supplierID"));
 	                //System.out.println(details.toString());
 	                query = """
 	                    SELECT i.invoiceID,
@@ -297,6 +305,7 @@ public class SQLDBHandler {
 	                """;
 	                
 	                int invoiceID = details.getInvoiceID();
+	                System.out.println("Invoice ID: " + invoiceID);
 	                try (PreparedStatement stmt2 = conn.prepareStatement(query)) {
 	                    stmt2.setInt(1, invoiceID);
 	                    try (ResultSet rs2 = stmt2.executeQuery()) {
@@ -317,31 +326,34 @@ public class SQLDBHandler {
 	        } catch (SQLException e) {
 	            System.err.println("Error loading Invoice data: " + e.getMessage());
 	        }
-	        //for(Invoice invoice : invoiceDetailsList) {
-	        //	invoice.toString();
-	        //}
-	        query = "SELECT "
-	                + "    s.supplierID, "
-	                + "    s.companyName, "
-	                + "    s.location AS supplierLocation, "
-	                + "    i.invoiceID, "
-	                + "    ip.productID, "
-	                + "    p.name AS productName, "
-	                + "    p.description AS productDescription, "
-	                + "    ip.quantity AS quantityDelivered, "
-	                + "    i.createdOn AS deliveryDate "
-	                + "FROM "
-	                + "    Supplier s "
-	                + "JOIN "
-	                + "    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID "
-	                + "JOIN "
-	                + "    Invoice i ON sdo.invoiceID = i.invoiceID "
-	                + "JOIN "
-	                + "    InvoiceProduct ip ON i.invoiceID = ip.invoiceID "
-	                + "JOIN "
-	                + "    Product p ON ip.productID = p.productID "
-	                + "WHERE "
-	                + "    i.delivered = TRUE;";
+	        System.out.println("Number of invoices: " + invoiceDetailsList);
+	        for(Invoice invoice : invoiceDetailsList) {
+	        	invoice.toString();
+	        }
+	         query = "SELECT " +
+	                "    s.supplierID, " +
+	                "    s.companyName, " +
+	                "    s.location AS supplierLocation, " +
+	                "    i.invoiceID, " +
+	                "    ip.productID, " +
+	                "    p.name AS productName, " +
+	                "    p.description AS productDescription, " +
+	                "    ip.quantity AS quantityDelivered, " +
+	                "    i.createdOn AS deliveryDate, " +
+	                "    paid, delivered " +
+	                "FROM " +
+	                "    Supplier s " +
+	                "JOIN " +
+	                "    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID " +
+	                "JOIN " +
+	                "    Invoice i ON sdo.invoiceID = i.invoiceID " +
+	                "JOIN " +
+	                "    InvoiceProduct ip ON i.invoiceID = ip.invoiceID " +
+	                "JOIN " +
+	                "    Product p ON ip.productID = p.productID " +
+	                "WHERE " +
+	                "    delivered = FALSE AND paid = TRUE";
+
 
 			try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 			    while (rs.next()) {
@@ -353,14 +365,30 @@ public class SQLDBHandler {
 
 
 	        // Adding to supplier's sentOrders
-	        query = "SELECT s.supplierID, s.companyName, s.location AS supplierLocation, i.invoiceID, "
-	              + "ip.productID, "
-	              + "ip.quantity AS quantityDelivered, i.createdOn AS deliveryDate "
-	              + "FROM Supplier s "
-	              + "JOIN SupplierDeliveredOrders sdo ON s.supplierID = sdo.supplierID "
-	              + "JOIN Invoice i ON sdo.invoiceID = i.invoiceID "
-	              + "JOIN InvoiceProduct ip ON i.invoiceID = ip.invoiceID "
-	              + "WHERE i.delivered = TRUE;";
+			 query = "SELECT " +
+		               "    s.supplierID, " +
+		               "    s.companyName, " +
+		               "    s.location AS supplierLocation, " +
+		               "    i.invoiceID, " +
+		               "    ip.productID, " +
+		               "    p.name AS productName, " +
+		               "    p.description AS productDescription, " +
+		               "    ip.quantity AS quantityDelivered, " +
+		               "    i.createdOn AS deliveryDate, " +
+		               "    paid, delivered " +
+		               "FROM " +
+		               "    Supplier s " +
+		               "JOIN " +
+		               "    SupplierPendingOrders sdo ON s.supplierID = sdo.supplierID " +
+		               "JOIN " +
+		               "    Invoice i ON sdo.invoiceID = i.invoiceID " +
+		               "JOIN " +
+		               "    InvoiceProduct ip ON i.invoiceID = ip.invoiceID " +
+		               "JOIN " +
+		               "    Product p ON ip.productID = p.productID " +
+		               "WHERE " +
+		               "    delivered = TRUE AND paid = TRUE";
+
 	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 	            while (rs.next()) {
 	                system.addDeliveredOrder(rs.getInt("s.supplierID"), getInvoice(invoiceDetailsList, rs.getInt("i.invoiceID")));
@@ -375,8 +403,12 @@ public class SQLDBHandler {
 	              + "JOIN Invoice i ON au.invoiceID = i.invoiceID "
 	              + "WHERE  i.paid = FALSE;";
 	        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
-	            while (rs.next()) {
-	                system.addUnpaidInvoice(rs.getInt("adminID"), getInvoice(invoiceDetailsList, rs.getInt("i.invoiceID")));
+	            int prevInvoiceID = 0;
+	        	while (rs.next()) {
+	        		if(prevInvoiceID!=rs.getInt("i.invoiceID")) {
+		                system.addUnpaidInvoice(rs.getInt("adminID"), getInvoice(invoiceDetailsList, rs.getInt("i.invoiceID")));
+		                prevInvoiceID = rs.getInt("i.invoiceID");
+	        		}
 	            }
 	        } catch (SQLException e) {
 	            System.err.println("Error loading Unpaid Invoices: " + e.getMessage());

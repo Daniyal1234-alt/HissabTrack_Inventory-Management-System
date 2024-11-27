@@ -49,7 +49,9 @@ public class HisaabTrack {
         
     }
     public boolean removeAdminUnpaidInvoice(int adminID,int invoiceID){
-        return DB.removeAdminUnpaidInvoice(adminID,invoiceID);
+         
+    	return		DB.removeAdminUnpaidInvoice(adminID,invoiceID);
+        
     }
     public String Login(String username, String password) {
         String userType = DB.Login(username, password);
@@ -308,7 +310,7 @@ public class HisaabTrack {
                         flag = s.addIncomingOrder(e);
                         if(flag) {
                         	payInvoice(adminID, invoiceID,e.getSupplierID());
-                        	getManagerByID(e.getCreatedBy()).findInvoiceByID(invoiceID).setPaymentStatus(true);;
+                        	getManagerByID(e.getCreatedBy()).findInvoiceByID(invoiceID).setPaymentStatus(true);
                         	// Updating
                         	DB.invoicePaid(invoiceID);
                         	DB.removeAdminUnpaidInvoice(adminID, invoiceID);
@@ -348,6 +350,7 @@ public class HisaabTrack {
             }
         }
         //update DB
+   
     }
     public void placeOrder(int managerID, int supplierID, List<Integer> p, List<Integer> q) {
         Invoice e = null;
@@ -356,8 +359,11 @@ public class HisaabTrack {
         List<Product> pList = new ArrayList<>();
         for(int pID:p) {
             Product product = getSupplierCatalog(supplierID).getProductByID(pID);
-            if(product != null)
-                pList.add(product);
+            if(product != null) {
+            	pList.add(product);
+            	System.out.println("ProductID: " + product.getProductID());
+            }
+                
         }
 
         for(InventoryManager manager:managers) {
@@ -485,6 +491,7 @@ public class HisaabTrack {
     }
     public void addPendingOrder(int supplierID, Invoice obj) {
     	getSupplierByID(supplierID).addIncomingOrder(obj);
+    	DB.addSupplierPendingOrder(supplierID, obj.getInvoiceID());
     }
     public String findManagerByID(int ID) {
         for (InventoryManager manager : managers) {
