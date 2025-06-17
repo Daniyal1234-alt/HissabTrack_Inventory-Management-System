@@ -1,18 +1,48 @@
-## Getting Started
+# HissabTrack 📊
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
 
-## Folder Structure
+A comprehensive inventory management system designed for business efficiency, built with Java technologies following SDA industry standards.
 
-The workspace contains two folders by default, where:
+## 🌟 Key Features
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+### Role-Based Access Control
+- **Admin**: Full system control and user management
+- **Manager**: Inventory oversight and reporting
+- **Store Owner**: Daily operations and stock management
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+### Core Functionalities
+- Real-time inventory tracking
+- Barcode/QR code support
+- Automated stock alerts
+- Sales and purchase recording
+- Comprehensive reporting dashboard
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+## 🛠️ Technology Stack
 
-## Dependency Management
+**Frontend:**
+- JavaFX (Modern UI Components)
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+**Backend:**
+- Java 11+ (Core business logic)
+- JDBC (Database connectivity)
+
+**Database:**
+- MySQL (Relational database management)
+- Normalized schema design
+
+**Development Standards:**
+- UML diagrams (Class, Sequence, Use Case)
+- Software Design Patterns
+- Proper documentation (Javadocs)
+
+## 📦 Installation Guide
+
+### Prerequisites
+- Java JDK 11+
+- MySQL Server 8.0+
+- JavaFX SDK
+
+### Setup Instructions
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo/hissabtrack.git
