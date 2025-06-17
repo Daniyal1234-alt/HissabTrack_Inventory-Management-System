@@ -3,6 +3,10 @@
 
 A comprehensive inventory management system designed for business efficiency, built with Java technologies following SDA industry standards.
 
+## Members:
+- Hussain Ali Zaidi - Front End Engineer
+- Muhammad Daniyal Aziz - Documentation/ Database Engineer
+- Hamza Ahmad - Backend Engineer/ Team Lead
 ## 🌟 Key Features
 
 ### Role-Based Access Control
